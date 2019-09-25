@@ -1,0 +1,41 @@
+{
+  "name": "person-api",
+  "version": "1.0.0",
+  "description": "Person API",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "nyc --reporter=lcov ava",
+    "watch:test": "ava --watch",
+    "lint": "npx eslint .eslintrc.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": "8"
+  },
+  "private": true,
+  "devDependencies": {
+    "ava": "^1.4.1",
+    "eslint": "^5.16.0",
+    "mock-req-res": "^1.1.0",
+    "nodemon": "^1.19.1",
+    "nyc": "^14.1.1",
+    "proxyquire": "^2.1.0",
+    "sinon": "^7.3.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "debug": "^4.1.1",
+    "express": "^4.16.4",
+    "express-multipart-file-parser": "^0.1.2",
+    "json2csv": "^4.5.1",
+    "morgan": "^1.9.1",
+    "sequelize": "^4.44.3",
+    "uuid": "^3.3.2",
+    "xhr2": "^0.1.4"
+  }
+}

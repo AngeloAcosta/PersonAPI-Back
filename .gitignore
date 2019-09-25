@@ -1,0 +1,8 @@
+# IDEs
+.vscode/
+
+node_modules/
+
+# Unit tests
+/coverage/
+/.nyc_output/
