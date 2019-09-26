@@ -1,0 +1,27 @@
+version: '3.6'
+
+services:
+
+################################################
+#####       Setup MySQL containers        ######
+################################################
+  person_db:
+    container_name: person_api_db
+    image: "mysql:${MYSQL_VERSION}"
+    ports:
+      - "${MYSQL_PROJECT_DB_PORT}:${DB_PORT}"
+    expose:
+      - "${DB_PORT}"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+################################################
+#####       Volumes Configuration         ######
+################################################
+
+volumes:
+  person_db:
+    driver: local
