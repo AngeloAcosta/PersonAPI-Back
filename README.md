@@ -17,3 +17,9 @@ Install dependencies
 ```
 npm install
 ```
+
+Running MySQL using Docker
+
+```
+docker-compose up -d
+```
