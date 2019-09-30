@@ -21,14 +21,14 @@ module.exports = async function (config) {
 
     const dbInstance = setupDatabase(config);
 
+    const userModel = setupUserModel(config);
+    const personModel = setupPersonModel(config);
+
     await dbInstance.authenticate();
 
     if (config.setup) {
         await dbInstance.sync({ force: true });
     }
-
-    const userModel = setupUserModel(config);
-    const personModel = setupPersonModel(config);
 
     return {
         userModel,
