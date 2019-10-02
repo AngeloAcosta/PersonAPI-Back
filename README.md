@@ -6,6 +6,14 @@ Build a API for Persons
 Requirements
 ===
 
+Install [Node Version Manager](https://github.com/nvm-sh/nvm)
+
+Install Node v8.15.0
+
+```
+nvm install v8.15.0
+```
+
 Use node version
 
 ```
@@ -18,8 +26,14 @@ Install dependencies
 npm install
 ```
 
-Running MySQL using Docker
+Using Docker
+====
+
+Install [Docker Engine Community](https://hub.docker.com/search/?type=edition&offering=community)
+
+Run the following commands
 
 ```
+cp .env-example .env
 docker-compose up -d
 ```
