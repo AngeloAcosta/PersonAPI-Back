@@ -2,7 +2,7 @@
 
 const defaults = require('defaults');
 
-const setupDatabase = require('./../services/database');
+const setupDatabase = require('./database');
 const setupUserModel = require('./user');
 const setupPersonModel = require('./person');
 

@@ -1,14 +1,15 @@
 'use strict';
 
-const setupDatabase = require('./database');
+const setupDatabase = require('../models');
 const setupUserService = require('./user.service');
 const setupAuthenticationService = require('./authentication.service');
+const environment = require('./../environment/development.json');
 
-module.exports = function (config) {
-  const dbInstance = setupDatabase(config);
+module.exports = function () {
+  const dbInstance = setupDatabase(environment);
 
   const authenticationService = setupAuthenticationService();
-  const userService = setupUserService();
+  const userService = setupUserService(dbInstance.userModel);
 
   return {
     authenticationService,
