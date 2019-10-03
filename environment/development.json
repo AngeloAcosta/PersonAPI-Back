@@ -1,7 +1,8 @@
 {
-    "database": "person_db",
-    "username": "person_db_user",
-    "password": "",
-    "host": "127.0.0.1",
-    "port": "3306"
+  "database": "person_db",
+  "username": "person_db_user",
+  "password": "",
+  "host": "127.0.0.1",
+  "port": "3306",
+  "operatorsAliases": false
 }
