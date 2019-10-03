@@ -21,8 +21,13 @@ module.exports = async function (config) {
 
     const dbInstance = setupDatabase(config);
 
-    const userModel = setupUserModel(config);
+    const contactTypeModel = setupContactTypeModel(config);
+    const documentTypeModel = setupDocumentTypeModel(config);
+    const genderModel = setupGenderModel(config);
+    const kinshipModel = setupKinshipModel(config);
+    const nationalityModel = setupNationalityModel(config);
     const personModel = setupPersonModel(config);
+    const userModel = setupUserModel(config);
 
     await dbInstance.authenticate();
 
@@ -31,7 +36,12 @@ module.exports = async function (config) {
     }
 
     return {
-        userModel,
-        personModel
+        contactTypeModel,
+        documentTypeModel,
+        genderModel,
+        kinshipModel,
+        nationalityModel,
+        personModel,
+        userModel
     };
 };

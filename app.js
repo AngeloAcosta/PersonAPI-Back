@@ -5,7 +5,7 @@ const app = require('express')();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileParser = require('express-multipart-file-parser');
-const setupDBService = require('./database/');
+const setupDBService = require('./database');
 
 const dbService = setupDBService();
 
