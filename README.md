@@ -37,3 +37,12 @@ Run the following commands
 cp .env-example .env
 docker-compose up -d
 ```
+
+Sync database
+
+```
+node models/setup.js
+```
+
+
+

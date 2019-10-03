@@ -7,26 +7,14 @@ let baseController = new setupBaseController();
 const dbService = setupDBService();
 
 const get = async (request, response) => {
-  let responseCode;
-  let responseData;
 
-  try {
-    let usersData = await dbService.userService.doList();
+  const services = await setupDBService();
 
-    responseCode = usersData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      usersData.data, usersData.message
-    );
-
-  } catch (err) {
-    responseCode = 500;
-    console.error('Error getting all users: ', err);
-    responseData = baseController.getErrorResponse('Error getting all users.');
-  }
+  const userResponseData = await services.userService.doList();
 
   return response
-    .status(responseCode)
-    .json(responseData);
+    .status(200)
+    .json(userResponseData);
 };
 
 module.exports = {

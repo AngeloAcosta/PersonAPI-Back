@@ -22,12 +22,11 @@ app.use(function (request, response, next) {
 });
 
 app.use(async(request, response, next) => {
-
+  /*
   if (request.path.includes('/api/authenticate') || request.path.includes('/api/events')) {
     next();
     return;
   }
-
   const token = request.headers['authorization'];
 
   if (!token) {
@@ -36,7 +35,7 @@ app.use(async(request, response, next) => {
       .json({status: '401', message: 'Unauthorized', data: {}});
     return;
   }
-
+  */
   try {
     next();
   } catch (error) {

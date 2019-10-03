@@ -18,9 +18,19 @@ module.exports = function setupUserService(userModel) {
   }
 
   async function doList() {
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = [];
+    try {
+
+      const users = await userModel.findAll();
+
+      baseService.returnData.responseCode = 200;
+      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.data = users;
+    } catch (err) {
+      console.log('Error: ', err);
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+      baseService.returnData.data = [];
+    }
 
     return baseService.returnData;
   }

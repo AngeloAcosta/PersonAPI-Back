@@ -5,8 +5,8 @@ const setupUserService = require('./user.service');
 const setupAuthenticationService = require('./authentication.service');
 const environment = require('./../environment/development.json');
 
-module.exports = function () {
-  const dbInstance = setupDatabase(environment);
+module.exports = async function () {
+  const dbInstance = await setupDatabase(environment);
 
   const authenticationService = setupAuthenticationService();
   const userService = setupUserService(dbInstance.userModel);
