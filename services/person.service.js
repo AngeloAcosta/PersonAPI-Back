@@ -4,20 +4,27 @@ const setupBaseService = require('./base.service');
 
 module.exports = function setupPersonService(model) {
 
-    let baseService = new setupBaseService();
+  let baseService = new setupBaseService();
 
-    async function doList() {
-        let people = await model.findAll();
+  async function doList() {
+    try {
+      const people = await model.findAll();
 
-        baseService.returnData.responseCode = 200;
-        baseService.returnData.message = 'Getting data successfully';
-        baseService.returnData.data = people;
-
-        return baseService.returnData;
+      baseService.returnData.responseCode = 200;
+      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.data = people;
+    } catch (err) {
+      console.log('Error: ', err);
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+      baseService.returnData.data = [];
     }
 
-    return {
-        doList
-    };
+    return baseService.returnData;
+  }
+
+  return {
+    doList
+  };
 
 };
