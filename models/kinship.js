@@ -24,7 +24,7 @@ module.exports = function setupKinshipModel(config) {
         },
         kinshipType: {
             allowNull: false,
-            type: Sequelize.CHAR
+            type: Sequelize.CHAR(1)
         }
     });
     kinship.associate = function (models) {
