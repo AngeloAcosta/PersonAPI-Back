@@ -4,6 +4,7 @@ const debug = require('debug');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const dbInstance = require('./');
+const devEnvironment = require('./../environment/development.json');
 
 const prompt = inquirer.createPromptModule();
 
@@ -17,15 +18,15 @@ async function setup () {
     ]);
 
     if (!answer.setup) {
-        return console.log('Nothing to be worry about :D');
+        return console.log('Nothing to be worry about :D(just jose)');
     }
 
     const config = {
-        database: process.env.DB_NAME || 'person_db',
-        username: process.env.DB_USER || 'person_db_user',
-        password: process.env.DB_PASS || '',
-        host: process.env.DB_HOST || '127.0.0.1',
-        port: process.env.PORT || '3306',
+        database: process.env.DB_NAME || devEnvironment.database,
+        username: process.env.DB_USER || devEnvironment.username,
+        password: process.env.DB_PASS || devEnvironment.password,
+        host: process.env.DB_HOST || devEnvironment.host,
+        port: process.env.PORT || devEnvironment.port,
         dialect: 'mysql',
         logging: s => debug(s),
         setup: true

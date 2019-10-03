@@ -1,64 +1,18 @@
 'use strict';
 
 const setupBaseController = require('../base.controller');
-const setupDBService = require('../../../database');
+const setupDBService = require('../../../services');
 
 let baseController = new setupBaseController();
 const dbService = setupDBService();
 
 const get = async (request, response) => {
-  if (!request.params.id) {
-    return response
-      .status(400)
-      .json(baseController.getErrorResponse('Parameter is missing'));
-  }
-
-  let responseCode;
-  let responseData;
-  let requestedUserId = request.params.id;
-
-  try {
-    let userData = await dbService.userService.findById(requestedUserId);
-
-    responseCode = userData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      userData.data,
-      userData.message
-    );
-  } catch (err) {
-    responseCode = 500;
-    console.error('Error getting user information: ', err);
-    responseData = baseController.getErrorResponse('Error getting user information');
-  }
-
-  return response
-    .status(responseCode)
-    .json(responseData);
-};
-
-const getByUid = async (request, response) => {
-  if (!request.body.uid) {
-    return response
-      .status(200)
-      .json({
-        status: 'OK',
-        data: {},
-        message: 'Parameters are missing'
-      });
-  }
-
-  let userData = await dbService
-    .userService
-    .findByUserId(request.body.uid);
-
+  
   return response
     .status(200)
-    .json({
-      status: 'OK',
-      data: userData.data,
-      message: userData.message
-    });
+    .json({data: '', message: 'Great!'});
 };
+
 
 const post = async (request, response) => {
   if (!request.body.name ||
@@ -265,7 +219,6 @@ const changePassword = async (request, response) => {
 
 module.exports = {
   get,
-  getByUid,
   post,
   update,
   remove,
