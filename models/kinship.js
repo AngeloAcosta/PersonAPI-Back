@@ -1,7 +1,7 @@
 'use strict';
 
 const Sequelize = require('sequelize');
-const setupDatabase = require('./../services/database');
+const setupDatabase = require('./database');
 
 module.exports = function setupKinshipModel(config) {
     const sequelize = setupDatabase(config);

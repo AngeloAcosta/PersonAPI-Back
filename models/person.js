@@ -38,7 +38,7 @@ module.exports = function setupPersonModel(config) {
             unique: true
         },
         documentTypeId: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'documentTypes',
@@ -46,7 +46,7 @@ module.exports = function setupPersonModel(config) {
             }
         },
         genderId: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'genders',
@@ -54,7 +54,7 @@ module.exports = function setupPersonModel(config) {
             }
         },
         nationalityId: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'nationalities',
@@ -63,7 +63,7 @@ module.exports = function setupPersonModel(config) {
         },
         contact: Sequelize.STRING(50),
         contactTypeId: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
             references: {
                 model: 'contactTypes',
                 key: 'id'

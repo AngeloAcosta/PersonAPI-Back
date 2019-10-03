@@ -3,8 +3,14 @@
 const defaults = require('defaults');
 
 const setupDatabase = require('./database');
-const setupUserModel = require('./user');
+
+const setupContactTypeModel = require('./contactType');
+const setupDocumentTypeModel = require('./documentType');
+const setupGenderModel = require('./gender');
+const setupKinshipModel = require('./kinship');
+const setupNationalityModel = require('./nationality');
 const setupPersonModel = require('./person');
+const setupUserModel = require('./user');
 
 module.exports = async function (config) {
     config = defaults(config, {
@@ -24,9 +30,9 @@ module.exports = async function (config) {
     const contactTypeModel = setupContactTypeModel(config);
     const documentTypeModel = setupDocumentTypeModel(config);
     const genderModel = setupGenderModel(config);
-    const kinshipModel = setupKinshipModel(config);
     const nationalityModel = setupNationalityModel(config);
     const personModel = setupPersonModel(config);
+    const kinshipModel = setupKinshipModel(config);
     const userModel = setupUserModel(config);
 
     await dbInstance.authenticate();
