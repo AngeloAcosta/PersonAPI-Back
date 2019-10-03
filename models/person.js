@@ -6,13 +6,18 @@ const setupDatabase = require('./database');
 module.exports = function setupPersonModel(config) {
     const sequelize = setupDatabase(config);
     const person = sequelize.define('person', {
+        id: {
+            type: Sequelize.INTEGER(11),
+            primaryKey: true,
+            autoIncrement: true
+        },
         name: {
             type: Sequelize.STRING(25),
             allowNull: false,
             unique: true,
             validate: {
-                is: ["^[a-z]+$", "'", 'i'],
-                msg: 'Ingrese su nombre'
+                is: ["^[A-Za-z.\s_-]+$"], //Allows only leters
+                min: 1
             }
         },
         lastName: {
@@ -20,56 +25,60 @@ module.exports = function setupPersonModel(config) {
             allowNull: false,
             unique: true,
             validate: {
-                is: ["[a-z]", "'", 'i'], // Permite ingresar solo letras y '
+                is: ["^[A-Za-z.\s_-]+$"], // Allows only leters and ' FALTA LA VALIDACION DE '
                 isAlpha: true,
-                msg: 'Ingrese su apellido'
+                min: 2
             }
         },
         birthdate: {
             type: Sequelize.DATE,
             allowNull: false,
             validate: {
-                isAlphanumeric: true
+                isDate: true //RESPECTO AL DATO QUE RECIBA DEL FRONT
             }
         },
-        document: {
-            type: Sequelize.STRING(25),
-            allowNull: false,
-            unique: true
-        },
         documentTypeId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.INTEGER(11),
             allowNull: false,
             references: {
                 model: 'documentTypes',
-                key: 'id'
+                key:'id'
             }
         },
+        documentId: {
+            type: Sequelize.STRING(25),
+            allowNull: false,
+            unique: true    
+        },
         genderId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.INTEGER(11),
             allowNull: false,
             references: {
                 model: 'genders',
-                key: 'id'
+                key:'id'
             }
         },
         nationalityId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.INTEGER(11),
             allowNull: false,
-            references: {
+            references:{
                 model: 'nationalities',
                 key: 'id'
             }
         },
-        contact: Sequelize.STRING(50),
+        contact: {
+            type: Sequelize.STRING(50),
+            allowNull: true
+        },
         contactTypeId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.INTEGER(11),
             references: {
                 model: 'contactTypes',
                 key: 'id'
             }
         }
     });
+
     person.associate = function (models) {
         person.belongsTo(models.contactType, { as: 'contactType' });
         person.belongsTo(models.documentType, { as: 'documentType' });
