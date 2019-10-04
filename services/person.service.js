@@ -60,11 +60,11 @@ module.exports = function setupPersonService(dbInstance) {
     if (documentType) {
       // document type exists
       if (documentType.name === 'DNI' && document.length != 8) { //Es un DNI
-        throw new Error('DNI must have 8 characters');
+        throw new Error('DNI invalid');
       } else if (documentType.name === 'Passport' && document.length != 12) { // Es un pasaporte
-        throw new Error('Passport must have 12 characters');
+        throw new Error('Passport invalid');
       } else if (documentType.name === 'Foreign Card' && document.length != 12){
-        throw new Error('Foreign Card must have 12 characters');
+        throw new Error('Foreign Card invalid');
       }
     } else {
       // document type NO exists
@@ -83,13 +83,9 @@ module.exports = function setupPersonService(dbInstance) {
       }
       else if(contactType.name == 'email' && emailRegExp == false){
         throw new Error('Email invalid');
-
       }
     }
-
 
   }
 
   module.exports = {createPersonValidation};
-
-
