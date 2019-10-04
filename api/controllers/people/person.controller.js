@@ -16,11 +16,12 @@ const post = async (request, response) => {
 
     try {
         let dbService = await setupBDService();
-        let personData = await dbService.personService.create() //FALTA PASAR UN ATRIBUTO CON LOS DATOS
+        let personCreateData = await dbService.personService.create() //FALTA PASAR UN ATRIBUTO CON LOS DATOS
         
-        responseCode = personData.responseCode;
+        responseCode = personCreateData.responseCode;
         responseData = baseController.getSuccessResponse(
-            personData.data, personData.message
+            personCreateData.data, 
+            personCreateData.message
         );
 
     } catch (err) {

@@ -26,7 +26,7 @@ module.exports = function setupPersonService(dbInstance) {
     return baseService.returnData;
   }
   
-  async function create(userData) {
+  async function create(request) {
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
       baseService.returnData.data = {};  
@@ -84,6 +84,10 @@ module.exports = function setupPersonService(dbInstance) {
       else if(contactType.name == 'email' && emailRegExp == false){
         throw new Error('Email invalid');
       }
+    }
+    else {
+      //Contact type no exists
+      throw new Error('Type of contact invalid');
     }
 
   }
