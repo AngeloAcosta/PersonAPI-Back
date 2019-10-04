@@ -2,11 +2,11 @@
 
 const express = require('express');
 const peopleController = require('./people.controller');
-const personController = require('./person.controller'); //Se guarda la ruta en una const
+const personController = require('./person.controller'); 
 
 const router = express.Router();
 
 router.get('/', peopleController.get);
-router.post('/', personController.post); //POST
+router.post('/', personController.post); 
 
 module.exports = router;

@@ -14,16 +14,14 @@ module.exports = function setupPersonModel(config) {
         name: {
             type: Sequelize.STRING(25),
             allowNull: false,
-            unique: true,
             validate: {
-                is: ["^[A-ZÑa-zñ'.\s_-]+$"], //Allows only leters
+                is: ["^[A-ZÑa-zñ.\s_-]+$"], //Allows only leters
                 min: 1
             }
         },
         lastName: {
             type: Sequelize.STRING(25),
             allowNull: false,
-            unique: true,
             validate: {
                 is: ["^[A-ZÑa-zñ'.\s_-]+$"], // Allows only leters and '
                 isAlpha: true,
@@ -31,7 +29,7 @@ module.exports = function setupPersonModel(config) {
             }
         },
         birthdate: {
-            type: Sequelize.DATE,
+            type: Sequelize.STRING(10),
             allowNull: false,
             validate: {
                 isAlpha: true //Receive string from CreatePerson form
@@ -41,28 +39,29 @@ module.exports = function setupPersonModel(config) {
             type: Sequelize.INTEGER(11),
             allowNull: false,
             references: {
-                model: 'documentTypes',
+                model: 'documentType',
                 key:'id'
             }
         },
         document: {
             type: Sequelize.STRING(25),
             allowNull: false,
-            unique: true    
+            unique: true
+            //Validation is in person.service   
         },
         genderId: {
             type: Sequelize.INTEGER(11),
             allowNull: false,
             references: {
-                model: 'genders',
-                key:'id'
+                model: 'gender',
+                key:'id' //id is created by default
             }
         },
         nationalityId: {
             type: Sequelize.INTEGER(11),
             allowNull: false,
             references:{
-                model: 'nationalities',
+                model: 'nationality',
                 key: 'id'
             }
         },
@@ -73,17 +72,18 @@ module.exports = function setupPersonModel(config) {
         contactTypeId: {
             type: Sequelize.INTEGER(11),
             references: {
-                model: 'contactTypes',
+                model: 'contactType',
                 key: 'id'
             }
         }
     });
 
     person.associate = function (models) {
-        person.belongsTo(models.contactType, { as: 'contactType' });
         person.belongsTo(models.documentType, { as: 'documentType' });
         person.belongsTo(models.gender, { as: 'gender' });
         person.belongsTo(models.nationality, { as: 'nationality' });
+        person.belongsTo(models.contactType, { as: 'contactType' });
     }
+
     return person;
 };
