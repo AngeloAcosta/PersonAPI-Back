@@ -14,7 +14,6 @@ module.exports = function setupPersonModel(config) {
         name: {
             type: Sequelize.STRING(25),
             allowNull: false,
-            unique: true,
             validate: {
                 is: ["^[A-Za-z.\s_-]+$"], //Allows only leters
                 min: 1
@@ -22,8 +21,7 @@ module.exports = function setupPersonModel(config) {
         },
         lastName: {
             type: Sequelize.STRING(25),
-            allowNull: false,
-            unique: true,
+            allowNull: false, 
             validate: {
                 is: ["^[A-Za-z.\s_-]+$"], // Allows only leters and ' FALTA LA VALIDACION DE '
                 isAlpha: true,
@@ -31,7 +29,7 @@ module.exports = function setupPersonModel(config) {
             }
         },
         birthdate: {
-            type: Sequelize.DATE,
+            type: Sequelize.DATEONLY,
             allowNull: false,
             validate: {
                 isDate: true //RESPECTO AL DATO QUE RECIBA DEL FRONT
