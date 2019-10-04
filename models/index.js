@@ -8,7 +8,7 @@ const setupContactTypeModel = require('./contactType');
 const setupDocumentTypeModel = require('./documentType');
 const setupGenderModel = require('./gender');
 const setupKinshipModel = require('./kinship');
-const setupNationalityModel = require('./nationality');
+const setupCountryModel = require('./country');
 const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
 
@@ -30,7 +30,7 @@ module.exports = async function (config) {
     const contactTypeModel = setupContactTypeModel(config);
     const documentTypeModel = setupDocumentTypeModel(config);
     const genderModel = setupGenderModel(config);
-    const nationalityModel = setupNationalityModel(config);
+    const countryModel = setupCountryModel(config);
     const personModel = setupPersonModel(config);
     const kinshipModel = setupKinshipModel(config);
     const userModel = setupUserModel(config);
@@ -46,7 +46,7 @@ module.exports = async function (config) {
         documentTypeModel,
         genderModel,
         kinshipModel,
-        nationalityModel,
+        countryModel,
         personModel,
         userModel
     };

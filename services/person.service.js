@@ -47,17 +47,19 @@ module.exports = function setupPersonService(dbInstance) {
       lastname: yup.string().min(2).matches(/^[A-ZÑa-zñ'.\s_-]+$/).required(),
       birthdate: yup.date().required(),
       documentTypeId: yup.number().required(),
-      genderId: yup.number(),require(),
-      
-      
+      genderId: yup.number().require(),
+      countryId: yup.number().required()
     })
 
     const documentType = documentTypeModel.findOne({ where: {id : person.documentTypeId} });
+    const contactType = contactTypeModel.findOne({ where: {id : person.contactTypeId} });
     const document = documentModel;
+    const contact = contactModel;
 
+    //Validations of DocumentType
     if (documentType) {
-      // document type existe
-      if (documentType.name === 'DNI' && document.length != 8) { // Es un DNI
+      // document type exists
+      if (documentType.name === 'DNI' && document.length != 8) { //Es un DNI
         throw new Error('DNI must have 8 characters');
       } else if (documentType.name === 'Passport' && document.length != 12) { // Es un pasaporte
         throw new Error('Passport must have 12 characters');
@@ -65,11 +67,27 @@ module.exports = function setupPersonService(dbInstance) {
         throw new Error('Foreign Card must have 12 characters');
       }
     } else {
-      // document type NO existe
+      // document type NO exists
       throw new Error('Type of document invalid');
     }
 
-    
+
+    //Validations of ContactTypeId
+    let phoneRegExp = new RegExp('^[0-9]+$'); //Allows only numbers
+    let emailRegExp = new RegExp('^[a-zñA-ZÑ@.]+$'); //Allows characters for email
+
+    if(contactType){
+      //contact type exists
+      if (contactType.name == 'phone' &&  phoneRegExp == false){
+        throw new Error('Only numbers');
+      }
+      else if(contactType.name == 'email' && emailRegExp == false){
+        throw new Error('Email invalid');
+
+      }
+    }
+
+
   }
 
   module.exports = {createPersonValidation};
