@@ -3,7 +3,6 @@
 const setupBaseService = require('./base.service');
 
 module.exports = function setupPersonService(model) {
-
   let baseService = new setupBaseService();
 
   async function doList() {
@@ -23,8 +22,113 @@ module.exports = function setupPersonService(model) {
     return baseService.returnData;
   }
 
-  return {
-    doList
-  };
+  async function modifyPerson(request) {
+    let errors = [];
+    try {
+      //Proper data validation for each field to modify
+      for (let prop in request.body) {
+        if (request.body[prop] === '') {
+          errors.push(`The field ${request.body[prop]} is required.`);
+        }
+      }
 
+      if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(request.body.Name)) {
+        errors.push('Some characters in the Name field are not allowed.');
+      }
+
+      if (!/[a-zA-ZñÑ'\s]{1,25}/.test(request.body.LastName)) {
+        errors.push('Some characters in the LastName field are not allowed.');
+      }
+
+      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(request.body.DateOfBirth)) {
+        errors.push('Birth Date format is not allowed.');
+      }
+
+      if (
+        request.body.documentType === '' ||
+        request.body.documentType !== 'DNI' ||
+        request.body.documentType !== 'CE' ||
+        request.body.documentType !== 'PASSPORT'
+      ) {
+        errors.push('Invalid Submitted Document Type value.');
+      } else {
+        switch (request.body.documentType) {
+          case 'DNI':
+            if (!/^[0-9]{8}$/.test(request.body.DocumentID)) {
+              errors.push('Invalid submitted DNI format.');
+            }
+            break;
+
+          case 'CE':
+            if (!/^([a-zA-Z0-9]){12}$/.test(request.body.DocumentID)) {
+              errors.push('Invalid submitted CE format.');
+            }
+            break;
+
+          case 'PASSPORT':
+            if (!/^([a-zA-Z0-9]){12}$/.test(request.body.DocumentID)) {
+              errors.push('Invalid submitted PASSPORT format.');
+            }
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      if (request.body.Gender !== 'male' || request.body.Gender !== 'female') {
+        errors.push('Invalid submitted Gender value.');
+      }
+
+      if (!/^[a-zA-ZñÑ'\s]$/.test(request.body.Country)) {
+        errors.push('Some characters in the Country field are not allowed.');
+      }
+
+      for (let key in request.body.Contact) {
+        //If there is more than 1 type of contact for each person
+        if (
+          request.body.Contact[key].Contact === '' ||
+          request.body.Contact[key].Contact === ''
+        ) {
+          errors.push(
+            `Type of Contact ${key} or Contact ${key} value are invalid.`
+          );
+        }
+      }
+
+      if (errors.length) {
+        baseService.returnData.responseCode = 400;
+        baseService.returnData.message = 'Errors from data validation';
+        baseService.returnData.data = errors;
+      }
+      const where = { id: request.params.id };
+      const person = await model.findOne({ where });
+
+      if (person) {
+        const modified = await person.save(request.body, {
+          //Check if its correct
+          fields: [
+            /* Check if its neccesary the validation of coincidence */
+          ],
+          where
+        });
+      } else {
+        baseService.returnData.responseCode = 400;
+        baseService.returnData.message = 'Errors from data validation';
+        baseService.returnData.data = errors;
+      }
+    } catch (err) {
+      console.log('Error: ', err);
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+      baseService.returnData.data = [];
+    }
+
+    return baseService.returnData;
+  }
+
+  return {
+    doList,
+    modifyPerson
+  };
 };
