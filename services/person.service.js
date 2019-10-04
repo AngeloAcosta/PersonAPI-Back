@@ -22,9 +22,18 @@ module.exports = function setupPersonService(model) {
 
     return baseService.returnData;
   }
+  
+  async function create(userData) {
+      baseService.returnData.responseCode = 200;
+      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.data = {};   
+
+    return baseService.returnData;
+  }
 
   return {
-    doList
+    doList,
+    create
   };
 
 

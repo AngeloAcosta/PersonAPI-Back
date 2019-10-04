@@ -29,7 +29,7 @@ module.exports = function setupPersonModel(config) {
             }
         },
         birthdate: {
-            type: Sequelize.STRING(10),
+            type: Sequelize.DATEONLY,
             allowNull: false,
             validate: {
                 isAlpha: true //Receive string from CreatePerson form
