@@ -57,11 +57,11 @@ module.exports = function setupPersonModel(config) {
                 key:'id' //id is created by default
             }
         },
-        nationalityId: {
+        countryId: {
             type: Sequelize.INTEGER(11),
             allowNull: false,
             references:{
-                model: 'nationality',
+                model: 'country',
                 key: 'id'
             }
         },
@@ -81,7 +81,7 @@ module.exports = function setupPersonModel(config) {
     person.associate = function (models) {
         person.belongsTo(models.documentType, { as: 'documentType' });
         person.belongsTo(models.gender, { as: 'gender' });
-        person.belongsTo(models.nationality, { as: 'nationality' });
+        person.belongsTo(models.country, { as: 'country' });
         person.belongsTo(models.contactType, { as: 'contactType' });
     }
 

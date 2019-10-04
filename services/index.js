@@ -11,7 +11,7 @@ module.exports = async function () {
 
   const authenticationService = setupAuthenticationService();
   const personService = setupPersonService(dbInstance.personModel);
-  const userService = setupUserService(dbInstance.userModel);
+  const userService = setupUserService(dbInstance);
 
   return {
     authenticationService,
