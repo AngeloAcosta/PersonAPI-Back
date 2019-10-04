@@ -23,8 +23,30 @@ module.exports = function setupPersonService(model) {
     return baseService.returnData;
   }
 
+  async function findById(id) {
+    try {
+      const person = await model.findOne({
+        where:{
+          id
+        }
+      });
+
+      baseService.returnData.responseCode = 200;
+      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.data = person;
+    } catch (err) {
+      console.log('Error: ', err);
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+      baseService.returnData.data = [];
+    }
+
+    return baseService.returnData;
+  }
+
   return {
-    doList
+    doList,
+    findById
   };
 
 };
