@@ -16,7 +16,7 @@ module.exports = function setupPersonModel(config) {
             allowNull: false,
             unique: true,
             validate: {
-                is: ["^[A-Za-z.\s_-]+$"], //Allows only leters
+                is: ["^[A-ZÑa-zñ'.\s_-]+$"], //Allows only leters
                 min: 1
             }
         },
@@ -25,7 +25,7 @@ module.exports = function setupPersonModel(config) {
             allowNull: false,
             unique: true,
             validate: {
-                is: ["^[A-Za-z.\s_-]+$"], // Allows only leters and ' FALTA LA VALIDACION DE '
+                is: ["^[A-ZÑa-zñ'.\s_-]+$"], // Allows only leters and '
                 isAlpha: true,
                 min: 2
             }
@@ -34,7 +34,7 @@ module.exports = function setupPersonModel(config) {
             type: Sequelize.DATE,
             allowNull: false,
             validate: {
-                isDate: true //RESPECTO AL DATO QUE RECIBA DEL FRONT
+                isAlpha: true //Receive string from CreatePerson form
             }
         },
         documentTypeId: {
@@ -45,7 +45,7 @@ module.exports = function setupPersonModel(config) {
                 key:'id'
             }
         },
-        documentId: {
+        document: {
             type: Sequelize.STRING(25),
             allowNull: false,
             unique: true    

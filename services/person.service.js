@@ -27,4 +27,5 @@ module.exports = function setupPersonService(model) {
     doList
   };
 
+
 };
