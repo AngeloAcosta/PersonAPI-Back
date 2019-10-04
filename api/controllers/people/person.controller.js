@@ -16,16 +16,12 @@ const get = async (request, response) => {
     let peopleData = await dbService.personService.findById(request.params.id);
 
     responseCode = peopleData.responseCode;
-    /*
+    
     responseData = baseController.getSuccessResponse(
         peopleData.data, peopleData.message
     );
-    */
-   responseData = {
-     messsage: 'Ya funciona el Inspect Person :´v',
-     data: [],
-     status: 200
-   }
+    
+ 
 
   } catch (err) {
     responseCode = 500;
