@@ -6,11 +6,6 @@ const setupDatabase = require('./database');
 module.exports = function setupPersonModel(config) {
     const sequelize = setupDatabase(config);
     const person = sequelize.define('person', {
-        id: {
-            type: Sequelize.INTEGER(11),
-            primaryKey: true,
-            autoIncrement: true
-        },
         name: {
             type: Sequelize.STRING(25),
             allowNull: false,
@@ -36,10 +31,10 @@ module.exports = function setupPersonModel(config) {
             }
         },
         documentTypeId: {
-            type: Sequelize.INTEGER(11),
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
-                model: 'documentType',
+                model: 'documentTypes',
                 key:'id'
             }
         },
@@ -50,31 +45,50 @@ module.exports = function setupPersonModel(config) {
             //Validation is in person.service   
         },
         genderId: {
-            type: Sequelize.INTEGER(11),
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
-                model: 'gender',
+                model: 'genders',
                 key:'id' //id is created by default
             }
         },
         countryId: {
-            type: Sequelize.INTEGER(11),
+            type: Sequelize.INTEGER,
             allowNull: false,
             references:{
-                model: 'country',
+                model: 'countries',
                 key: 'id'
             }
         },
-        contact: {
-            type: Sequelize.STRING(50),
-            allowNull: true
+        contact1: { //Phone
+          type: Sequelize.STRING(50),
+          allowNull: true,
+          validate: {
+              is: ["^[0-9]+$"] //Allows only numbers
+          }
         },
-        contactTypeId: {
-            type: Sequelize.INTEGER(11),
-            references: {
-                model: 'contactType',
-                key: 'id'
-            }
+        contactTypeId1: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'contactTypes',
+            key: 'id'
+          }
+        },
+        contact2: { //Email
+          type: Sequelize.STRING(50),
+          allowNull: true,
+          validate: {
+              is: ["^[a-zñA-ZÑ@.]+$"] //Allows characters for email
+          }
+        },
+        contactTypeId2: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'contactTypes',
+            key: 'id'
+          }
         }
     });
 
@@ -82,7 +96,8 @@ module.exports = function setupPersonModel(config) {
         person.belongsTo(models.documentType, { as: 'documentType' });
         person.belongsTo(models.gender, { as: 'gender' });
         person.belongsTo(models.country, { as: 'country' });
-        person.belongsTo(models.contactType, { as: 'contactType' });
+        person.belongsTo(models.contactType, { as: 'contactType1' });
+        person.belongsTo(models.contactType, { as: 'contactType2' });
     }
 
     return person;

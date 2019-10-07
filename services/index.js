@@ -1,6 +1,6 @@
 'use strict';
 
-const setupDatabase = require('../models');
+const setupDatabase = require('./../models');
 const setupAuthenticationService = require('./authentication.service');
 const setupPersonService = require('./person.service');
 const setupUserService = require('./user.service');
