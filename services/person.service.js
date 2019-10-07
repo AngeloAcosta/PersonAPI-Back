@@ -37,46 +37,43 @@ module.exports = function setupPersonService(model) {
             prop !== "Contact" &&
             prop !== "ContactType"
           ) {
-            errors.push(`The field ${request.body[prop]} is required.`);
+            errors.push(`The field ${prop} is required.`);
           }
         }
 
-        if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(request.body.Name)) {
+        if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(request.body.name)) {
           errors.push("Some characters in the Name field are not allowed.");
         }
 
-        if (!/[a-zA-ZñÑ'\s]{1,25}/.test(request.body.LastName)) {
-          errors.push("Some characters in the LastName field are not allowed.");
+        if (!/[a-zA-ZñÑ'\s]{1,25}/.test(request.body.lastName)) {
+          errors.push(
+            "Some characters in the Last Name field are not allowed."
+          );
         }
 
-        if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(request.body.DateOfBirth)) {
-          errors.push("Birth Date format is not allowed.");
+        if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(request.body.birthdate)) {
+          errors.push("Invalid Birth Date field format.");
         }
 
-        if (
-          request.body.documentType === "" ||
-          request.body.documentType !== "DNI" ||
-          request.body.documentType !== "CE" ||
-          request.body.documentType !== "PASSPORT"
-        ) {
-          errors.push("Invalid Submitted Document Type value.");
+        if (!/^([0-9]){0,1}$/.test(request.body.documentTypeId)) {
+          errors.push("Invalid submitted Document Type value.");
         } else {
-          switch (request.body.documentType) {
-            case "DNI":
-              if (!/^[0-9]{8}$/.test(request.body.DocumentID)) {
+          switch (request.body.documentTypeId) {
+            case "1":
+              if (!/^[0-9]{8}$/.test(request.body.document)) {
                 errors.push("Invalid submitted DNI format.");
               }
               break;
 
-            case "CE":
-              if (!/^([a-zA-Z0-9]){12}$/.test(request.body.DocumentID)) {
-                errors.push("Invalid submitted CE format.");
+            case "2":
+              if (!/^([a-zA-Z0-9]){12}$/.test(request.body.document)) {
+                errors.push("Invalid submitted PASSPORT format.");
               }
               break;
 
-            case "PASSPORT":
-              if (!/^([a-zA-Z0-9]){12}$/.test(request.body.DocumentID)) {
-                errors.push("Invalid submitted PASSPORT format.");
+            case "3":
+              if (!/^([a-zA-Z0-9]){12}$/.test(request.body.document)) {
+                errors.push("Invalid submitted CE format.");
               }
               break;
 
@@ -85,47 +82,61 @@ module.exports = function setupPersonService(model) {
           }
         }
 
+        if (!/^[0-9]{0,1}$/.test(request.body.genderId)) {
+          errors.push("Invalid submitted GenderId value.");
+        }
+
+        if (!/^[0-9]{0,2}$/.test(request.body.countryId)) {
+          errors.push("Invalid submitted CountryId value.");
+        }
+
         if (
-          request.body.Gender !== "Male" ||
-          request.body.Gender !== "Female"
+          !/^[0-9]{0,1}$/.test(request.body.contactTypeId1) ||
+          !/^[0-9]{0,1}$/.test(request.body.contactTypeId2)
         ) {
-          errors.push("Invalid submitted Gender value.");
-        }
+          errors.push("Contact Type field 1 or 2 are invalid");
+        } else {
+          //Hardcoded at the moment, need to be changed according to Front End team design
 
-        if (!/^[a-zA-ZñÑ'\s]$/.test(request.body.Country)) {
-          errors.push("Some characters in the Country field are not allowed.");
-        }
-
-        for (let key in request.body.Contact) {
-          //If there is more than 1 type of contact for each person
-          if (
-            request.body.Contact[key].ContactType !== "Telephone" &&
-            request.body.Contact[key].ContactType !== "Email"
-          ) {
-            errors.push("Invalid Contact Type value.");
-          } else {
-            if (request.body.Contact[key].ContactType === "Telephone") {
-              if (
-                !/^([2-9])(\d{2})(-?|\040?)(\d{4})( ?|\040?)(\d{1,4}?|\040?)$/.test(
-                  request.body.Contact[key].Contact
-                )
-              ) {
-                errors.push("Invalid Telephone format.");
-              }
-            } else {
-              if (
-                !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(
-                  request.body.Contact[key].Contact
-                )
-              ) {
-                errors.push("Invalid Email format.");
-              }
+          //Validation to Contact1
+          if (request.body.contactTypeId1 == 1) {
+            //Telephone
+            if (!/^([0-9]){6,9}$/.test(request.body.contact1)) {
+              errors.push("Invalid Telephone format.");
             }
+          } else if (request.body.contactTypeId1 == 2) {
+            //Email
+            if (
+              !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(
+                request.body.contact1
+              )
+            ) {
+              errors.push("Invalid Email format.");
+            }
+          } else {
+            errors.push("ContactTypeId field 1 is invalid."); //When is submitted other values like 3, 4 and so
+          }
+
+          //Validation to Contac2
+          if (request.body.contactTypeId2 == 1) {
+            //Telephone
+            if (!/^([0-9]){6,9}$/.test(request.body.contact2)) {
+              errors.push("Invalid Telephone format.");
+            }
+          } else if (request.body.contactTypeId2 == 2) {
+            //Email
+            if (
+              !/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(
+                request.body.contact2
+              )
+            ) {
+              errors.push("Invalid Email format.");
+            }
+          } else {
+            errors.push("ContactTypeId field 2 is invalid."); //When is submitted other values like 3, 4 and so
           }
         }
 
-        // Using only the person data for update until Contact details are decided.
-        const { userData, Contact } = request.body;
         //Send Validation Errors or Update the data
 
         if (errors.length) {
@@ -133,7 +144,7 @@ module.exports = function setupPersonService(model) {
           baseService.returnData.message = "Errors from data validation";
           baseService.returnData.data = errors;
         } else {
-          const personModified = await model.update(userData, {
+          const personModified = await model.update(request.body, {
             where
           });
 
