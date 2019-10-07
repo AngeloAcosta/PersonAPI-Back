@@ -83,7 +83,8 @@ module.exports = function setupPersonModel(config) {
     }
   });
   person.associate = function (models) {
-    person.belongsTo(models.contactType, { as: 'contactType' });
+    person.belongsTo(models.contactType, { as: 'contactType1' });
+    person.belongsTo(models.contactType, { as: 'contactType2' });
     person.belongsTo(models.documentType, { as: 'documentType' });
     person.belongsTo(models.gender, { as: 'gender' });
     person.belongsTo(models.country, { as: 'country' });
