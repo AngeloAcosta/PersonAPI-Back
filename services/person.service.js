@@ -41,13 +41,13 @@ module.exports = function setupPersonService(dbInstance) {
       //ContactID
     });
 
-    newUser.save(err) => {
+    newUser.save(err => {
       if(err){
         next(err);
         console.log('The person wasn´t registered');
       }
       console.log('The person was registered');
-    };
+    });
 
     baseService.returnData.responseCode = 200;
     baseService.returnData.message = 'Data was registered satisfactory';
