@@ -6,7 +6,7 @@ const setupBDService = require('./../../../services');
 const express = require('express');
 
 let baseController = new setupBaseController();
-const app = express();
+//const app = express();
 //app.user(express.json());
 
 const get = async (request, response) => {
@@ -38,14 +38,14 @@ const get = async (request, response) => {
   };
 
 const post = async (request, response) => {
-    validations.createPersonValidation(person); //Se le pasa la información a validation
+    //validations.createPersonValidation(person); //Se le pasa la información a validation
 
     let responseCode;
     let responseData;
 
     try {
         let dbService = await setupBDService();
-        let personCreateData = await dbService.personService.create() //FALTA PASAR UN ATRIBUTO CON LOS DATOS
+        let personCreateData = await dbService.personService.create(request) //FALTA PASAR UN ATRIBUTO CON LOS DATOS
         
         responseCode = personCreateData.responseCode;
         responseData = baseController.getSuccessResponse(
@@ -55,7 +55,7 @@ const post = async (request, response) => {
 
     } catch (err) {
         responseCode = 500;
-        console.error('The person wasn´t registered'); //VERIFICAR EL MENSAJE DE ERROR
+        console.error('The person wasn´t registered' + err); //VERIFICAR EL MENSAJE DE ERROR
         responseData = baseController.getErrorResponse('The person wasn´t registered'); //VERIFICAR EL MENSAJE DE ERROR
     }
 

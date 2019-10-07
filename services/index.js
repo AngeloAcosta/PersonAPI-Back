@@ -10,7 +10,7 @@ module.exports = async function () {
   const dbInstance = await setupDatabase(environment);
 
   const authenticationService = setupAuthenticationService();
-  const personService = setupPersonService(dbInstance.personModel);
+  const personService = setupPersonService(dbInstance);
   const userService = setupUserService(dbInstance);
 
   return {

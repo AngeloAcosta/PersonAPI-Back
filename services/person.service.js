@@ -3,11 +3,31 @@
 const setupBaseService = require('./base.service');
 const yup = require('yup');
 
+async function createPersonValidation(person) { 
+
+  
+
+  //Validations for DocumentType
+  if (documentType) {
+    // document type exists
+    if (documentType.name === 'DNI' && document.length != 8) { //DNI
+      throw new Error('DNI invalid');
+    } else if (documentType.name === 'Passport' && document.length != 12) { // Passport
+      throw new Error('Passport invalid');
+    } else if (documentType.name === 'Foreign Card' && document.length != 12){ //Foreign Card
+      throw new Error('Foreign Card invalid');
+    }
+  } else {
+    // document type NO exists
+    throw new Error('Type of document invalid');
+  }
+
+}
+
 module.exports = function setupPersonService(dbInstance) {
 
   let baseService = new setupBaseService();
   const personModel = dbInstance.personModel;
-  const person = require('./../models/person'); //Get model person
   const documentTypeModel = dbInstance.documentTypeModel;
 
   async function doList() {
@@ -28,10 +48,27 @@ module.exports = function setupPersonService(dbInstance) {
   }
   
   async function create(request) {
-    //
-    const newUser = new person({
+    const documentType = documentTypeModel.findOne({ where: {id : request.body.DocumentType} });
+    const document = request.body.DocumentID;
+
+    //Validations for DocumentType
+    if (documentType) {
+      // document type exists
+      if (documentType.name === 'DNI' && document.length != 8) { //DNI
+        throw new Error('DNI invalid');
+      } else if (documentType.name === 'Passport' && document.length != 12) { // Passport
+        throw new Error('Passport invalid');
+      } else if (documentType.name === 'Foreign Card' && document.length != 12){ //Foreign Card
+        throw new Error('Foreign Card invalid');
+      }
+    } else {
+      // document type NO exists
+      throw new Error('Type of document invalid');
+    }
+    
+    const newUser = {
       name: request.body.Name,
-      lastname: request.body.LastName,
+      lastName: request.body.LastName,
       birthdate: request.body.DateOfBirth,
       documentTypeId: request.body.DocumentType,
       document: request.body.DocumentID,
@@ -41,15 +78,16 @@ module.exports = function setupPersonService(dbInstance) {
       contactTypeId1: request.body.contactTypeId1, //VERIFY
       contact2: request.body.contact2,
       contactTypeId2: request.body.contactTypeId2 //VERIFY
-    });
+    };
 
-    newUser.save(err => {
+    /*newUser.save(err => {
       if(err){
         next(err);
-        console.log('The person wasn´t registered');
+        console.log('The person wasn´t registered' + err);
       }
       console.log('The person was registered');
-    });
+    });*/
+    personModel.create(newUser);
 
     baseService.returnData.responseCode = 200;
     baseService.returnData.message = 'Data was registered satisfactory';
@@ -85,38 +123,3 @@ module.exports = function setupPersonService(dbInstance) {
     findById
   };
 };
-
-//Validations 
-  async function createPersonValidation(person) { 
-    const schema = yup.object().shape({
-      name: yup.string().min(1).matches(/^[A-ZÑa-zñ.\s_-]+$/).required(),
-      lastname: yup.string().min(2).matches(/^[A-ZÑa-zñ'.\s_-]+$/).required(),
-      birthdate: yup.date().required(),
-      documentTypeId: yup.number().required(), //VERIFY
-      genderId: yup.number().require(),
-      countryId: yup.number().required(),
-      contact1: yup.number(), //phone
-      contact2: yup.string() //email
-    })
-
-    const documentType = documentTypeModel.findOne({ where: {id : person.documentTypeId} });
-    const document = documentModel;
-
-    //Validations for DocumentType
-    if (documentType) {
-      // document type exists
-      if (documentType.name === 'DNI' && document.length != 8) { //Es un DNI
-        throw new Error('DNI invalid');
-      } else if (documentType.name === 'Passport' && document.length != 12) { // Es un pasaporte
-        throw new Error('Passport invalid');
-      } else if (documentType.name === 'Foreign Card' && document.length != 12){
-        throw new Error('Foreign Card invalid');
-      }
-    } else {
-      // document type NO exists
-      throw new Error('Type of document invalid');
-    }
-
-  }
-
-  module.exports = {createPersonValidation};
