@@ -63,7 +63,7 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.STRING(50),
       allowNull: true
     },
-    contactTypeId1: {
+    contactType1Id: {
       type: Sequelize.INTEGER,
       references: {
         model: 'contactTypes',
@@ -74,7 +74,7 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.STRING(50),
       allowNull: true
     },
-    contactTypeId2: {
+    contactType2Id: {
       type: Sequelize.INTEGER,
       references: {
         model: 'contactTypes',
@@ -82,12 +82,10 @@ module.exports = function setupPersonModel(config) {
       }
     }
   });
-  person.associate = function (models) {
-    person.belongsTo(models.contactType, { as: 'contactType1' });
-    person.belongsTo(models.contactType, { as: 'contactType2' });
-    person.belongsTo(models.documentType, { as: 'documentType' });
-    person.belongsTo(models.gender, { as: 'gender' });
-    person.belongsTo(models.country, { as: 'country' });
-  }
+  person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });
+  person.belongsTo(sequelize.models.contactType, { as: 'contactType2' });
+  person.belongsTo(sequelize.models.documentType, { as: 'documentType' });
+  person.belongsTo(sequelize.models.gender, { as: 'gender' });
+  person.belongsTo(sequelize.models.country, { as: 'country' });
   return person;
 };

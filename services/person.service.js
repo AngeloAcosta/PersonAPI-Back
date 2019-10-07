@@ -5,8 +5,13 @@ const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
 
-module.exports = function setupPersonService(model) {
+module.exports = function setupPersonService(dbInstance) {
 
+  const contactTypeModel = dbInstance.contactTypeModel;
+  const countryModel = dbInstance.countryModel;
+  const documentTypeModel = dbInstance.documentTypeModel;
+  const genderModel = dbInstance.genderModel;
+  const personModel = dbInstance.personModel;
   let baseService = new setupBaseService();
 
   async function doList(limit, offset, query, orderBy, orderType) {
@@ -52,7 +57,29 @@ module.exports = function setupPersonService(model) {
       // Get the query
       let qQuery = `%${query}%`;
       // Execute the query
-      let people = await model.findAll({
+      let people = await personModel.findAll({
+        include: [
+          {
+            as: 'documentType',
+            model: documentTypeModel
+          },
+          {
+            as: 'gender',
+            model: genderModel
+          },
+          {
+            as: 'country',
+            model: countryModel
+          },
+          {
+            as: 'contactType1',
+            model: contactTypeModel
+          },
+          {
+            as: 'contactType2',
+            model: contactTypeModel
+          }
+        ],
         limit,
         offset,
         order: [
@@ -67,6 +94,30 @@ module.exports = function setupPersonService(model) {
             { contact2: { [Op.like]: qQuery } }
           ]
         }
+      });
+      // Mold the response
+      people = people.map(person => {
+        let contactType1 = null;
+        if (person.contactType1) {
+          contactType1 = person.contactType1.name;
+        }
+        let contactType2 = null;
+        if (person.contactType2) {
+          contactType2 = person.contactType2.name;
+        }
+        return {
+          id: person.id,
+          name: person.name,
+          lastName: person.lastName,
+          birthdate: person.birthdate,
+          documentType: person.documentType.name,
+          document: person.document,
+          gender: person.gender.name,
+          contactType1,
+          contact1: person.contact1,
+          contactType2,
+          contact2: person.contact2
+        };
       });
 
       baseService.returnData.responseCode = 200;
@@ -84,7 +135,7 @@ module.exports = function setupPersonService(model) {
 
   async function findById(id) {
     try {
-      const person = await model.findOne({
+      const person = await personModel.findOne({
         where: {
           id
         }
