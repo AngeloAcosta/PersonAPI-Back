@@ -1,14 +1,73 @@
 'use strict';
 
+const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
+
+const Op = Sequelize.Op;
 
 module.exports = function setupPersonService(model) {
 
   let baseService = new setupBaseService();
 
-  async function doList() {
+  async function doList(limit, offset, query, orderBy, orderType) {
     try {
-      const people = await model.findAll();
+      // Get the order field
+      let qOrderBy;
+      switch (orderBy) {
+        case 1:
+          qOrderBy = 'name';
+          break;
+        case 2:
+          qOrderBy = 'lastName';
+          break;
+        case 3:
+          qOrderBy = 'birthdate';
+          break;
+        case 4:
+          qOrderBy = 'document';
+          break;
+        case 5:
+          qOrderBy = 'genderId';
+          break;
+        case 6:
+          qOrderBy = 'countryId';
+          break;
+        default:
+          qOrderBy = 'name';
+          break;
+      }
+      // Get the order type
+      let qOrderType;
+      switch (orderType) {
+        case 1:
+          qOrderType = 'ASC'
+          break;
+        case 2:
+          qOrderType = 'DESC'
+          break;
+        default:
+          qOrderType = 'ASC'
+          break;
+      }
+      // Get the query
+      let qQuery = `%${query}%`;
+      // Execute the query
+      let people = await model.findAll({
+        limit,
+        offset,
+        order: [
+          [qOrderBy, qOrderType]
+        ],
+        where: {
+          [Op.or]: [
+            { name: { [Op.like]: qQuery } },
+            { lastName: { [Op.like]: qQuery } },
+            { document: { [Op.like]: qQuery } },
+            { contact1: { [Op.like]: qQuery } },
+            { contact2: { [Op.like]: qQuery } }
+          ]
+        }
+      });
 
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
@@ -26,7 +85,7 @@ module.exports = function setupPersonService(model) {
   async function findById(id) {
     try {
       const person = await model.findOne({
-        where:{
+        where: {
           id
         }
       });
