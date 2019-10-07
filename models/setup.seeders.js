@@ -124,12 +124,19 @@ async function seedPeople(model) {
     } else {
       gender = 'female';
     }
-    let contactTypeId = faker.random.arrayElement(contactTypeIds);
-    let contact = '';
-    if (contactTypeId == 1) {
-      contact = faker.phone.phoneNumber();
+    let contactTypeId1 = faker.random.arrayElement(contactTypeIds);
+    let contactTypeId2 = faker.random.arrayElement(contactTypeIds);
+    let contact1 = '';
+    let contact2 = '';
+    if (contactTypeId1 == 1) {
+      contact1 = faker.phone.phoneNumber();
     } else {
-      contact = faker.internet.email();
+      contact1 = faker.internet.email();
+    }
+    if (contactTypeId2 == 1) {
+      contact2 = faker.phone.phoneNumber();
+    } else {
+      contact2 = faker.internet.email();
     }
     people.push({
       name: faker.name.firstName(gender),
@@ -139,8 +146,10 @@ async function seedPeople(model) {
       documentTypeId: faker.random.arrayElement(documentTypeIds),
       genderId,
       countryId: faker.random.arrayElement(countryIds),
-      contact,
-      contactTypeId,
+      contact1,
+      contactTypeId1,
+      contact2,
+      contactTypeId2,
       createdAt: faker.date.past(),
       updatedAt: new Date()
     });

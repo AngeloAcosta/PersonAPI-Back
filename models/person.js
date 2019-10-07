@@ -59,11 +59,22 @@ module.exports = function setupPersonModel(config) {
         key: 'id'
       }
     },
-    contact: {
+    contact1: {
       type: Sequelize.STRING(50),
       allowNull: true
     },
-    contactTypeId: {
+    contactTypeId1: {
+      type: Sequelize.INTEGER,
+      references: {
+        model: 'contactTypes',
+        key: 'id'
+      }
+    },
+    contact2: {
+      type: Sequelize.STRING(50),
+      allowNull: true
+    },
+    contactTypeId2: {
       type: Sequelize.INTEGER,
       references: {
         model: 'contactTypes',
