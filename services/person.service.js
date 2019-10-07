@@ -1,28 +1,6 @@
 'use strict';
  
 const setupBaseService = require('./base.service');
-const yup = require('yup');
-
-async function createPersonValidation(person) { 
-
-  
-
-  //Validations for DocumentType
-  if (documentType) {
-    // document type exists
-    if (documentType.name === 'DNI' && document.length != 8) { //DNI
-      throw new Error('DNI invalid');
-    } else if (documentType.name === 'Passport' && document.length != 12) { // Passport
-      throw new Error('Passport invalid');
-    } else if (documentType.name === 'Foreign Card' && document.length != 12){ //Foreign Card
-      throw new Error('Foreign Card invalid');
-    }
-  } else {
-    // document type NO exists
-    throw new Error('Type of document invalid');
-  }
-
-}
 
 module.exports = function setupPersonService(dbInstance) {
 
@@ -48,11 +26,11 @@ module.exports = function setupPersonService(dbInstance) {
   }
   
   async function create(request) {
-    try {
-      const documentType = documentTypeModel.findOne({ where: {id : request.body.DocumentType} });
-      const document = request.body.DocumentID;
 
-      //Validations for DocumentType
+    const documentType = documentTypeModel.findOne({ where: {id : request.body.DocumentType} });
+    const document = request.body.DocumentID;
+
+    //Validations for DocumentType
       if (documentType) {
         // document type exists
         if (documentType.name === 'DNI' && document.length != 8) { //DNI
@@ -66,7 +44,7 @@ module.exports = function setupPersonService(dbInstance) {
         // document type NO exists
         throw new Error('Type of document invalid');
       }
-      
+
       const newUser = {
         name: request.body.Name,
         lastName: request.body.LastName,
@@ -81,21 +59,15 @@ module.exports = function setupPersonService(dbInstance) {
         contactTypeId2: request.body.contactTypeId2 //VERIFY
       };
 
-      console.log('The person was registered');
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Data was registered satisfactory';
-
-      personModel.create(newUser); //Create user
-      
-    } catch (err) {
-      console.log('The person wasn´t registered');
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-    }
+        personModel.create(newUser); //Create user
+        
+        console.log('The person was registered');
+        baseService.returnData.responseCode = 200;
+        baseService.returnData.message = 'Data was registered satisfactory';      
 
     return baseService.returnData; 
   }
-
+  
   async function findById(id) {
     try {
       const person = await model.findOne({
