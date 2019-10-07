@@ -14,74 +14,68 @@ module.exports = function setupPersonService(dbInstance) {
   const personModel = dbInstance.personModel;
   let baseService = new setupBaseService();
 
-  async function doList(limit, offset, query, orderBy, orderType) {
+  //#region Helpers
+  function getOrderField(orderBy) {
+    let qOrderBy;
+    switch (orderBy) {
+      case 1:
+        qOrderBy = 'name';
+        break;
+      case 2:
+        qOrderBy = 'lastName';
+        break;
+      case 3:
+        qOrderBy = 'birthdate';
+        break;
+      case 4:
+        qOrderBy = 'document';
+        break;
+      case 5:
+        qOrderBy = 'genderId';
+        break;
+      case 6:
+        qOrderBy = 'countryId';
+        break;
+      default:
+        qOrderBy = 'name';
+        break;
+    }
+    return qOrderBy;
+  }
+
+  function getOrderType(orderType) {
+    let qOrderType;
+    switch (orderType) {
+      case 1:
+        qOrderType = 'ASC'
+        break;
+      case 2:
+        qOrderType = 'DESC'
+        break;
+      default:
+        qOrderType = 'ASC'
+        break;
+    }
+    return qOrderType;
+  }
+  //#endregion
+
+  async function doList(requestQuery) {
     try {
-      // Get the order field
-      let qOrderBy;
-      switch (orderBy) {
-        case 1:
-          qOrderBy = 'name';
-          break;
-        case 2:
-          qOrderBy = 'lastName';
-          break;
-        case 3:
-          qOrderBy = 'birthdate';
-          break;
-        case 4:
-          qOrderBy = 'document';
-          break;
-        case 5:
-          qOrderBy = 'genderId';
-          break;
-        case 6:
-          qOrderBy = 'countryId';
-          break;
-        default:
-          qOrderBy = 'name';
-          break;
-      }
-      // Get the order type
-      let qOrderType;
-      switch (orderType) {
-        case 1:
-          qOrderType = 'ASC'
-          break;
-        case 2:
-          qOrderType = 'DESC'
-          break;
-        default:
-          qOrderType = 'ASC'
-          break;
-      }
-      // Get the query
-      let qQuery = `%${query}%`;
+      let qOrderBy = getOrderField(requestQuery.orderBy);
+      let qOrderType = getOrderType(requestQuery.orderType);
+      let qQuery = `%${requestQuery.query}%`;
       // Execute the query
       let people = await personModel.findAll({
         include: [
-          {
-            as: 'documentType',
-            model: documentTypeModel
-          },
-          {
-            as: 'gender',
-            model: genderModel
-          },
-          {
-            as: 'country',
-            model: countryModel
-          },
-          {
-            as: 'contactType1',
-            model: contactTypeModel
-          },
-          {
-            as: 'contactType2',
-            model: contactTypeModel
-          }
+          { as: 'documentType', model: documentTypeModel },
+          { as: 'gender', model: genderModel },
+          { as: 'country', model: countryModel },
+          { as: 'contactType1', model: contactTypeModel },
+          { as: 'contactType2', model: contactTypeModel }
         ],
-        limit,
-        offset,
+        limit: requestQuery.limit,
+        offset: requestQuery.offset,
         order: [
           [qOrderBy, qOrderType]
         ],
@@ -119,7 +113,7 @@ module.exports = function setupPersonService(dbInstance) {
           contact2: person.contact2
         };
       });
-
+      // Return the data
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
       baseService.returnData.data = people;

@@ -16,7 +16,7 @@ const get = async (request, response) => {
     let orderBy = parseInt(request.query.orderBy) || 1;
     let orderType = parseInt(request.query.orderType) || 1;
     let dbService = await setupDBService();
-    let peopleData = await dbService.personService.doList(limit, offset, query, orderBy, orderType);
+    let peopleData = await dbService.personService.doList({ limit, offset, query, orderBy, orderType });
 
     responseCode = peopleData.responseCode;
     responseData = baseController.getSuccessResponse(
