@@ -22,6 +22,14 @@ module.exports = function setupPersonService(model) {
     return baseService.returnData;
   }
 
+  function checkBlankSpaces(data) {
+    for (let prop in data) {
+      if (data[prop] === '' && prop !== 'Contact' && prop !== 'ContactType') {
+        errors.push(`The field ${prop} is required.`);
+      }
+    }
+  }
+
   async function modifyPerson(request) {
     let errors = [];
     try {
@@ -31,15 +39,8 @@ module.exports = function setupPersonService(model) {
 
       if (person) {
         //Proper data validation for each field to modify
-        for (let prop in request.body) {
-          if (
-            request.body[prop] === '' &&
-            prop !== 'Contact' &&
-            prop !== 'ContactType'
-          ) {
-            errors.push(`The field ${prop} is required.`);
-          }
-        }
+
+        checkBlankSpaces(request.body);
 
         if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(request.body.name)) {
           errors.push('Some characters in the Name field are not allowed.');
