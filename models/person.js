@@ -27,9 +27,9 @@ module.exports = function setupPersonModel(config) {
             type: Sequelize.DATEONLY,
             allowNull: false
         },
-        documentTypeId: {
+        documentTypeId: {            
             type: Sequelize.INTEGER,
-            allowNull: false,
+            allowNull: false,//Validation is in person.service   
             references: {
                 model: 'documentTypes',
                 key:'id'
@@ -39,7 +39,6 @@ module.exports = function setupPersonModel(config) {
             type: Sequelize.STRING(25),
             allowNull: false,
             unique: true
-            //Validation is in person.service   
         },
         genderId: {
             type: Sequelize.INTEGER,

@@ -48,51 +48,51 @@ module.exports = function setupPersonService(dbInstance) {
   }
   
   async function create(request) {
-    const documentType = documentTypeModel.findOne({ where: {id : request.body.DocumentType} });
-    const document = request.body.DocumentID;
+    try {
+      const documentType = documentTypeModel.findOne({ where: {id : request.body.DocumentType} });
+      const document = request.body.DocumentID;
 
-    //Validations for DocumentType
-    if (documentType) {
-      // document type exists
-      if (documentType.name === 'DNI' && document.length != 8) { //DNI
-        throw new Error('DNI invalid');
-      } else if (documentType.name === 'Passport' && document.length != 12) { // Passport
-        throw new Error('Passport invalid');
-      } else if (documentType.name === 'Foreign Card' && document.length != 12){ //Foreign Card
-        throw new Error('Foreign Card invalid');
+      //Validations for DocumentType
+      if (documentType) {
+        // document type exists
+        if (documentType.name === 'DNI' && document.length != 8) { //DNI
+          throw new Error('DNI invalid');
+        } else if (documentType.name === 'Passport' && document.length != 12) { // Passport
+          throw new Error('Passport invalid');
+        } else if (documentType.name === 'Foreign Card' && document.length != 12){ //Foreign Card
+          throw new Error('Foreign Card invalid');
+        }
+      } else {
+        // document type NO exists
+        throw new Error('Type of document invalid');
       }
-    } else {
-      // document type NO exists
-      throw new Error('Type of document invalid');
-    }
-    
-    const newUser = {
-      name: request.body.Name,
-      lastName: request.body.LastName,
-      birthdate: request.body.DateOfBirth,
-      documentTypeId: request.body.DocumentType,
-      document: request.body.DocumentID,
-      genderId: request.body.Gender,
-      countryId: request.body.Nationality, //VERIFIY
-      contact1: request.body.contact1,
-      contactTypeId1: request.body.contactTypeId1, //VERIFY
-      contact2: request.body.contact2,
-      contactTypeId2: request.body.contactTypeId2 //VERIFY
-    };
-
-    /*newUser.save(err => {
-      if(err){
-        next(err);
-        console.log('The person wasn´t registered' + err);
-      }
-      console.log('The person was registered');
-    });*/
-    personModel.create(newUser);
-
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Data was registered satisfactory';
-    baseService.returnData.data = {};  
       
+      const newUser = {
+        name: request.body.Name,
+        lastName: request.body.LastName,
+        birthdate: request.body.DateOfBirth, //Format: YYYY-MM-DD
+        documentTypeId: request.body.DocumentType,
+        document: request.body.DocumentID,
+        genderId: request.body.Gender,
+        countryId: request.body.Nationality, //VERIFIY
+        contact1: request.body.contact1,
+        contactTypeId1: request.body.contactTypeId1, //VERIFY
+        contact2: request.body.contact2,
+        contactTypeId2: request.body.contactTypeId2 //VERIFY
+      };
+
+      console.log('The person was registered');
+      baseService.returnData.responseCode = 200;
+      baseService.returnData.message = 'Data was registered satisfactory';
+
+      personModel.create(newUser); //Create user
+      
+    } catch (err) {
+      console.log('The person wasn´t registered');
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+    }
+
     return baseService.returnData; 
   }
 

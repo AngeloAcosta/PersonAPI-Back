@@ -38,7 +38,6 @@ const get = async (request, response) => {
   };
 
 const post = async (request, response) => {
-    //validations.createPersonValidation(person); //Se le pasa la información a validation
 
     let responseCode;
     let responseData;
@@ -55,8 +54,8 @@ const post = async (request, response) => {
 
     } catch (err) {
         responseCode = 500;
-        console.error('The person wasn´t registered' + err); //VERIFICAR EL MENSAJE DE ERROR
-        responseData = baseController.getErrorResponse('The person wasn´t registered'); //VERIFICAR EL MENSAJE DE ERROR
+        console.error('The person wasn´t registered' + err); 
+        responseData = baseController.getErrorResponse('The person wasn´t registered'); 
     }
 
     return response
