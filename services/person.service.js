@@ -7,6 +7,7 @@ module.exports = function setupPersonService(dbInstance) {
 
   let baseService = new setupBaseService();
   const personModel = dbInstance.personModel;
+  const person = require('./../models/person'); //Get model person
   const documentTypeModel = dbInstance.documentTypeModel;
 
   async function doList() {
@@ -26,10 +27,31 @@ module.exports = function setupPersonService(dbInstance) {
     return baseService.returnData;
   }
   
-  async function create(request) {
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = {};  
+  async function create(request, reponse) {
+    //
+    const newUser = new person({
+      name: req.body.Name,
+      lastname: require.body.LastName,
+      birthdate: require.body.DateOfBirth,
+      documentTypeId: require.body.DocumentType,
+      document: require.body.DocumentID,
+      genderId: require.body.Gender,
+      countryId: require.body.Nationality, //VERIFIY
+      contact: require.body.Contact
+      //ContactID
+    });
+
+    newUser.save(err) => {
+      if(err){
+        next(err);
+        console.log('The person wasn´t registered');
+      }
+      console.log('The person was registered');
+    };
+
+    baseService.returnData.responseCode = 200;
+    baseService.returnData.message = 'Data was registered satisfactory';
+    baseService.returnData.data = {};  
       
     return baseService.returnData; 
   }

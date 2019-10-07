@@ -26,8 +26,8 @@ const post = async (request, response) => {
 
     } catch (err) {
         responseCode = 500;
-        console.error('User was not registered'); //VERIFICAR EL MENSAJE DE ERROR
-        responseData = baseController.getErrorResponse('User wa not registered'); //VERIFICAR EL MENSAJE DE ERROR
+        console.error('The person wasn´t registered'); //VERIFICAR EL MENSAJE DE ERROR
+        responseData = baseController.getErrorResponse('The person wasn´t registered'); //VERIFICAR EL MENSAJE DE ERROR
     }
 
     return response
