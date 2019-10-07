@@ -44,7 +44,7 @@ module.exports = function setupPersonService(dbInstance) {
         // document type NO exists
         throw new Error('Type of document invalid');
       }
-
+      
       const newUser = {
         name: request.body.Name,
         lastName: request.body.LastName,
