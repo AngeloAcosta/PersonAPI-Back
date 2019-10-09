@@ -299,14 +299,14 @@ module.exports = function setupPersonService(models) {
       const contact1 = request.body.contact1;
       const contact2 = request.body.contact2;
       const document = request.body.document;
-      const regExphone = RegExp('^[0-9]+$'); //Validation for phonenumber
+      const regExphone = RegExp("^[0-9]+$"); //Validation for phonenumber
 
       //Validations for DocumentType
       if (documentTypes) {
         // document type exists
         if (documentTypes.name === "DNI" && document.length != 8) {
           //DNI
-          throw new Error('DNI invalid');
+          throw new Error("DNI invalid");
         } else if (documentTypes.name === "Passport" && document.length != 12) {
           // Passport
           throw new Error("Passport invalid");
@@ -324,16 +324,17 @@ module.exports = function setupPersonService(models) {
 
       //Validations for Contact1
       if (contactType1Id) {
-        if(contactType1Id == 1){ //phone
-          if(regExphone.test(contact1) == false){
-            throw new Error('Only numbers');
+        if (contactType1Id == 1) {
+          //phone
+          if (regExphone.test(contact1) == false) {
+            throw new Error("Only numbers");
           }
         }
-      }
-      else if (contactType2Id){
-        if(contactType2Id == 1){ //phone
-          if(regExphone.test(contact2) == false){
-            throw new Error('Only numbers');
+      } else if (contactType2Id) {
+        if (contactType2Id == 1) {
+          //phone
+          if (regExphone.test(contact2) == false) {
+            throw new Error("Only numbers");
           }
         }
       }
@@ -357,10 +358,10 @@ module.exports = function setupPersonService(models) {
         console.log("The person was registered");
         baseService.returnData.responseCode = 200;
         baseService.returnData.message = "Data was registered satisfactory";
-      } 
+      }
       return baseService.returnData;
     } catch (err) {
-      console.log("The person wasn´t registered" +err);
+      console.log("The person wasn´t registered" + err);
       baseService.returnData.responseCode = 500; //Validation error
       baseService.returnData.message = "Data wasn´t registered satisfactory";
     }
