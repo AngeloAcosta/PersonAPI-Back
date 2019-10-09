@@ -35,7 +35,7 @@ module.exports = function setupPersonService(dbInstance) {
         // document type exists
         if (documentTypes.name === 'DNI' && document.length != 8) { //DNI
           throw new Error('DNI invalid');
-        } else if (documentTypes.name === 'Pasaport' && document.length != 12) { // Passport
+        } else if (documentTypes.name === 'Passport' && document.length != 12) { // Passport
           throw new Error('Passport invalid');
         } else if (documentTypes.name === 'Foreign Card' && document.length != 12){ //Foreign Card
           throw new Error('Foreign Card invalid');
