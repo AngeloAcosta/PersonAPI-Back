@@ -1,14 +1,12 @@
-'use strict';
+"use strict";
 
-const setupBaseService = require('./base.service');
+const setupBaseService = require("./base.service");
 
 module.exports = function setupAuthenticationService() {
-
   const baseService = new setupBaseService();
 
   async function login(data) {
-
-    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.message = "Getting data successfully";
     baseService.returnData.responseCode = 200;
     baseService.returnData.data = {};
 
@@ -16,7 +14,7 @@ module.exports = function setupAuthenticationService() {
   }
 
   async function checkLogin(email, password) {
-    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.message = "Getting data successfully";
     baseService.returnData.responseCode = 200;
     baseService.returnData.data = {};
 
@@ -24,7 +22,7 @@ module.exports = function setupAuthenticationService() {
   }
 
   async function changePassword(password) {
-    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.message = "Getting data successfully";
     baseService.returnData.responseCode = 200;
     baseService.returnData.data = {};
 
@@ -32,7 +30,7 @@ module.exports = function setupAuthenticationService() {
   }
 
   async function resetPassword(email) {
-    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.message = "Getting data successfully";
     baseService.returnData.responseCode = 200;
     baseService.returnData.data = {};
 
@@ -40,7 +38,7 @@ module.exports = function setupAuthenticationService() {
   }
 
   async function logout() {
-    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.message = "Getting data successfully";
     baseService.returnData.responseCode = 200;
     baseService.returnData.data = {};
 

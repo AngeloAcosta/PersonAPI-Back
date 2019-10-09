@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-const Sequelize = require('sequelize');
-const setupDatabase = require('./database');
+const Sequelize = require("sequelize");
+const setupDatabase = require("./database");
 
 module.exports = function setupUserModel(config) {
   const sequelize = setupDatabase(config);
 
-  return sequelize.define('user', {
+  return sequelize.define("user", {
     uuid: {
       type: Sequelize.STRING,
       allowNull: false

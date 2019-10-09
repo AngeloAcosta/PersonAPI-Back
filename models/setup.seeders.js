@@ -1,14 +1,14 @@
-const faker = require('faker');
+const faker = require("faker");
 
 async function seedContactTypes(model) {
   await model.bulkCreate([
     {
-      name: 'Teléfono',
+      name: "Teléfono",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Correo electrónico',
+      name: "Correo electrónico",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -18,57 +18,57 @@ async function seedContactTypes(model) {
 async function seedCountries(model) {
   await model.bulkCreate([
     {
-      name: 'Perú',
+      name: "Perú",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Ecuador',
+      name: "Ecuador",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Colombia',
+      name: "Colombia",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Venezuela',
+      name: "Venezuela",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Guyana',
+      name: "Guyana",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Surinam',
+      name: "Surinam",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Brazil',
+      name: "Brazil",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Paraguay',
+      name: "Paraguay",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Uruguay',
+      name: "Uruguay",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Argentina',
+      name: "Argentina",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Chile',
+      name: "Chile",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -78,17 +78,17 @@ async function seedCountries(model) {
 async function seedDocumentTypes(model) {
   await model.bulkCreate([
     {
-      name: 'DNI',
+      name: "DNI",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Pasaporte',
+      name: "Pasaporte",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Carnet de extranjeria',
+      name: "Carnet de extranjeria",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -98,12 +98,12 @@ async function seedDocumentTypes(model) {
 async function seedGenders(model) {
   await model.bulkCreate([
     {
-      name: 'Masculino',
+      name: "Masculino",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Femenino',
+      name: "Femenino",
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -118,16 +118,16 @@ async function seedPeople(model) {
   let people = [];
   for (let index = 0; index < 25; index++) {
     let genderId = faker.random.arrayElement(genderIds);
-    let gender = '';
+    let gender = "";
     if (genderId == 1) {
-      gender = 'male';
+      gender = "male";
     } else {
-      gender = 'female';
+      gender = "female";
     }
     let contactType1Id = faker.random.arrayElement(contactTypeIds);
     let contactType2Id = faker.random.arrayElement(contactTypeIds);
-    let contact1 = '';
-    let contact2 = '';
+    let contact1 = "";
+    let contact2 = "";
     if (contactType1Id == 1) {
       contact1 = faker.phone.phoneNumber();
     } else {
@@ -163,4 +163,4 @@ module.exports = {
   seedDocumentTypes,
   seedGenders,
   seedPeople
-}
+};
