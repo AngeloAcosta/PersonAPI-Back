@@ -12,7 +12,7 @@ const setupCountryModel = require('./country');
 const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
 
-module.exports = async function(config) {
+module.exports = async function (config) {
   config = defaults(config, {
     dialect: 'mysql',
     pool: {

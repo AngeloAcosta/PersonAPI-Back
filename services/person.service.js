@@ -289,6 +289,14 @@ module.exports = function setupPersonService(models) {
     return baseService.returnData;
   }
 
+  function isValidPassport(documentTypeName, document) {
+    return documentTypeName === 'Passport' && document.length <= 12;
+  }
+
+  function isForeignValidCard(documentTypeName, document) {
+    return documentTypeName === 'Foreign Card' && document.length <= 12;
+  }
+
   async function create(request) {
     try {
       const documentTypes = documentTypeModel.findOne({
@@ -301,19 +309,17 @@ module.exports = function setupPersonService(models) {
       const document = request.body.document;
       const regExphone = RegExp('^[0-9]+$'); //Validation for phonenumber
 
+      // TODO: Technical Debt: Move this validations into one specific service
       //Validations for DocumentType
       if (documentTypes) {
         // document type exists
         if (documentTypes.name === 'DNI' && document.length != 8) {
           //DNI
           throw new Error('DNI invalid');
-        } else if (documentTypes.name === 'Passport' && document.length <= 12) {
+        } else if (!isValidPassport(documentTypes.name, document)) {
           // Passport
           throw new Error('Passport invalid');
-        } else if (
-          documentTypes.name === 'Foreign Card' &&
-          document.length <= 12
-        ) {
+        } else if (!isForeignValidCard(documentTypes.name, document)) {
           //Foreign Card
           throw new Error('Foreign Card invalid');
         }
