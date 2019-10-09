@@ -11,7 +11,13 @@ module.exports = async function () {
   const dbInstance = await setupDatabase(environment);
 
   const authenticationService = setupAuthenticationService();
-  const personService = setupPersonService(dbInstance.personModel);
+  const personService = setupPersonService({ 
+    contactTypeModel: dbInstance.contactTypeModel,
+    countryModel: dbInstance.countryModel,
+    documentTypeModel: dbInstance.documentTypeModel,
+    genderModel: dbInstance.genderModel,
+    personModel: dbInstance.personModel
+   });
   const userService = setupUserService(dbInstance.userModel);
   const kinshipService = setupKinshipService(dbInstance.kinshipModel);
 

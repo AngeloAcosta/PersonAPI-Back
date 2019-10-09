@@ -27,9 +27,7 @@ module.exports = function setupKinshipModel(config) {
       type: Sequelize.CHAR(1)
     }
   });
-  kinship.associate = function (models) {
-    kinship.belongsTo(models.person, { as: 'person' });
-    kinship.belongsTo(models.person, { as: 'relative' });
-  }
+  kinship.belongsTo(sequelize.models.person, { as: 'person' });
+  kinship.belongsTo(sequelize.models.person, { as: 'relative' });
   return kinship;
 };
