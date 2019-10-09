@@ -9,8 +9,6 @@ node_modules/
 /.nyc_output/
 
 #environmet
-environment/
-development.json
+environment/development.json
 
-.env
 .env-example
