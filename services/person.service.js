@@ -53,11 +53,11 @@ module.exports = function setupPersonService(dbInstance) {
                   documentTypeId: request.body.DocumentType,
                   document: request.body.DocumentID,
                   genderId: request.body.Gender,
-                  countryId: request.body.Country, //VERIFIY
+                  countryId: request.body.Country, 
                   contact1: request.body.contact1,
-                  contactTypeId1: request.body.contactTypeId1, //VERIFY
+                  contactTypeId1: request.body.contactTypeId1, 
                   contact2: request.body.contact2,
-                  contactTypeId2: request.body.contactTypeId2 //VERIFY
+                  contactTypeId2: request.body.contactTypeId2 
                 };
 
         let created = await personModel.create(newUser); //Create user
@@ -71,7 +71,6 @@ module.exports = function setupPersonService(dbInstance) {
       console.log('The person wasn´t registered');
       baseService.returnData.responseCode = 500;
     }
-
      
   }
   
