@@ -361,9 +361,9 @@ module.exports = function setupPersonService(models) {
       }
       return baseService.returnData;
     } catch (err) {
-      console.log("The person wasn´t registered " + err);
+      console.log('The person wasn\'t registered ' + err);
       baseService.returnData.responseCode = 500; //Validation error
-      baseService.returnData.message = "Data wasn´t registered satisfactory";
+      baseService.returnData.message = 'The person wasn\'t registered';
     }
   }
 
