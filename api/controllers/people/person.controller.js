@@ -44,7 +44,7 @@ const post = async (request, response) => {
 
     try {
         let dbService = await setupBDService();
-        let personCreateData = await dbService.personService.create(request) //FALTA PASAR UN ATRIBUTO CON LOS DATOS
+        let personCreateData = await dbService.personService.create(request) 
         
         responseCode = personCreateData.responseCode;
         responseData = baseController.getSuccessResponse(
