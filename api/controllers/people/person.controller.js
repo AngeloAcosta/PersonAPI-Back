@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-const setupBaseController = require("./../base.controller");
-const setupDBService = require("./../../../services");
+const setupBaseController = require('./../base.controller');
+const setupDBService = require('./../../../services');
 
 let baseController = new setupBaseController();
 
@@ -21,8 +21,8 @@ const get = async (request, response) => {
     );
   } catch (err) {
     responseCode = 500;
-    console.error("Error getting all people: ", err);
-    responseData = baseController.getErrorResponse("Error getting all people.");
+    console.error('Error getting all people: ', err);
+    responseData = baseController.getErrorResponse('Error getting all people.');
   }
 
   return response.status(responseCode).json(responseData);
@@ -43,9 +43,9 @@ const post = async (request, response) => {
     );
   } catch (err) {
     responseCode = 500;
-    console.error("The person wasn´t registered" + err);
+    console.error('The person wasn\´t registered ' + err);
     responseData = baseController.getErrorResponse(
-      "The person wasn´t registered "
+      'The person wasn\´t registered'
     );
   }
 
@@ -67,9 +67,9 @@ const put = async (request, response) => {
     );
   } catch (err) {
     responseCode = 500;
-    console.log("Error processing the update:", err);
+    console.log('Error processing the update:', err);
     responseData = baseController.getErrorResponse(
-      "Error processing the update."
+      'Error processing the update.'
     );
   }
 
