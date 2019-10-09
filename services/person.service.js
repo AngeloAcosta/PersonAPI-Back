@@ -322,7 +322,7 @@ module.exports = function setupPersonService(models) {
         throw new Error('Type of document invalid');
       }
 
-      //Validations for Contact1
+      //Validations for Contact
       if (contactType1Id) {
         if (contactType1Id == 1) {
           //phone
@@ -361,15 +361,15 @@ module.exports = function setupPersonService(models) {
       }
       return baseService.returnData;
     } catch (err) {
-      console.log('The person wasn\'t registered ' + err);
+      console.log("The person wasn't registered " + err);
       baseService.returnData.responseCode = 500; //Validation error
-      baseService.returnData.message = 'The person wasn\'t registered';
+      baseService.returnData.message = "The person wasn't registered";
     }
   }
 
   async function findById(id) {
     try {
-      const person = await model.findOne({
+      const person = await personModel.findOne({
         where: {
           id
         }
