@@ -1,5 +1,6 @@
 "use strict";
 
+const Sequelize = require("sequelize");
 const setupBaseService = require("./base.service");
 
 const Op = Sequelize.Op;
@@ -11,8 +12,6 @@ module.exports = function setupPersonService(models) {
   const genderModel = models.genderModel;
   const personModel = models.personModel;
   let baseService = new setupBaseService();
-  const personModel = dbInstance.personModel;
-  const documentTypeModel = dbInstance.documentTypeModel;
 
   //#region Helpers
   function getDoListModel(people) {
@@ -320,16 +319,16 @@ module.exports = function setupPersonService(models) {
 
       const newUser = {
         name: request.body.Name,
-        lastName: request.body.LastName,
-        birthdate: request.body.DateOfBirth, //Format: YYYY-MM-DD
-        documentTypeId: request.body.DocumentType,
-        document: request.body.DocumentID,
-        genderId: request.body.Gender,
-        countryId: request.body.Country,
+        lastName: request.body.lastName,
+        birthdate: request.body.birthdate, //Format: YYYY-MM-DD
+        documentTypeId: request.body.documentTypeId,
+        document: request.body.document,
+        genderId: request.body.genderId,
+        countryId: request.body.countryId,
         contact1: request.body.contact1,
-        contactTypeId1: request.body.contactTypeId1,
+        contactType1Id: request.body.contactType1Id,
         contact2: request.body.contact2,
-        contactTypeId2: request.body.contactTypeId2
+        contactType2Id: request.body.contactType2Id
       };
 
       let created = await personModel.create(newUser); //Create user
