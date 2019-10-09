@@ -1,12 +1,10 @@
 'use strict';
 
-const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
 
 module.exports = function setupPersonService(models) {
-
   const contactTypeModel = models.contactTypeModel;
   const countryModel = models.countryModel;
   const documentTypeModel = models.documentTypeModel;
@@ -73,13 +71,13 @@ module.exports = function setupPersonService(models) {
     let qOrderType;
     switch (orderType) {
       case 1:
-        qOrderType = 'ASC'
+        qOrderType = 'ASC';
         break;
       case 2:
-        qOrderType = 'DESC'
+        qOrderType = 'DESC';
         break;
       default:
-        qOrderType = 'ASC'
+        qOrderType = 'ASC';
         break;
     }
     return qOrderType;
@@ -92,7 +90,7 @@ module.exports = function setupPersonService(models) {
       let qOrderType = getOrderType(requestQuery.orderType);
       let qQuery = `%${requestQuery.query}%`;
       // Execute the query
-      let people = await personModel.findAll({
+      const people = await personModel.findAll({
         include: [
           { as: 'documentType', model: documentTypeModel },
           { as: 'gender', model: genderModel },
@@ -102,9 +100,7 @@ module.exports = function setupPersonService(models) {
         ],
         limit: requestQuery.limit,
         offset: requestQuery.offset,
-        order: [
-          [qOrderBy, qOrderType]
-        ],
+        order: [[qOrderBy, qOrderType]],
         where: {
           [Op.or]: [
             { name: { [Op.like]: qQuery } },
@@ -116,11 +112,172 @@ module.exports = function setupPersonService(models) {
         }
       });
       // Mold the response
-      people = getDoListModel(people);
+      const peopleData = getDoListModel(people);
       // Return the data
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = people;
+      baseService.returnData.data = peopleData;
+    } catch (err) {
+      console.log('Error: ', err);
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+      baseService.returnData.data = [];
+    }
+
+    return baseService.returnData;
+  }
+
+  function checkBlankSpacesforUpdate(data) {
+    let errors = [];
+    for (let prop in data) {
+      if (data[prop] === '' && prop !== 'Contact' && prop !== 'ContactType') {
+        errors.push(`The field ${prop} is required.`);
+      }
+    }
+    return errors;
+  }
+
+  function checkNameFormatUpdate(data) {
+    let errors = [];
+    if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(data.name)) {
+      errors.push('Some characters in the Name field are not allowed.');
+    }
+
+    if (!/[a-zA-ZñÑ'\s]{1,25}/.test(data.lastName)) {
+      errors.push('Some characters in the Last Name field are not allowed.');
+    }
+    return errors;
+  }
+
+  function checkDocumentUpdate(data) {
+    let errors = [];
+    if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
+      errors.push('Invalid submitted Document Type value.');
+    } else {
+      switch (data.documentTypeId) {
+        case '1':
+          if (!/^[0-9]{8}$/.test(data.document)) {
+            errors.push('Invalid submitted DNI format.');
+          }
+          break;
+
+        case '2':
+          if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
+            errors.push('Invalid submitted PASSPORT format.');
+          }
+          break;
+
+        case '3':
+          if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
+            errors.push('Invalid submitted CE format.');
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+    return errors;
+  }
+
+  function checkBirthDataUpdate(data) {
+    let errors = [];
+
+    if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
+      errors.push('Invalid Birth Date field format.');
+    }
+
+    if (!/^[0-9]{0,1}$/.test(data.genderId)) {
+      errors.push('Invalid submitted GenderId value.');
+    }
+
+    if (!/^[0-9]{0,2}$/.test(data.countryId)) {
+      errors.push('Invalid submitted CountryId value.');
+    }
+    return errors;
+  }
+
+  function checkContactDataUpdate(dataTypeField, contactValue) {
+    let errors = [];
+    // TODO: Technical Debt | Move validations into a service and create constants
+    if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
+      errors.push('Contact Type field is invalid.');
+    } else {
+      //Validation to Contact1
+      if (dataTypeField == 1) {
+        //Telephone
+        if (!/^([0-9]){6,9}$/.test(contactValue)) {
+          errors.push('Invalid Telephone format.');
+        }
+      } else if (dataTypeField == 2) {
+        //Email
+        if (
+          !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(
+            contactValue
+          )
+        ) {
+          errors.push('Invalid Email format.');
+        }
+      } else {
+        errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
+      }
+    }
+
+    return errors;
+  }
+
+  async function modifyPerson(request) {
+    let errors = [];
+    try {
+      //Check if person exists
+      const where = { id: request.params.id };
+      const person = await personModel.findOne({ where });
+
+      if (person) {
+        //Proper data validation for each field to modify
+
+        errors.concat(checkBlankSpacesforUpdate(request.body));
+
+        errors.concat(checkNameFormatUpdate(request.body));
+
+        errors.concat(checkDocumentUpdate(request.body));
+
+        errors.concat(checkBirthDataUpdate(request.body));
+
+        errors.concat(
+          checkContactDataUpdate(
+            request.body.contactTypeId1,
+            request.body.contact1
+          )
+        );
+
+        errors.concat(
+          checkContactDataUpdate(
+            request.body.contactTypeId2,
+            request.body.contact2
+          )
+        );
+
+        //Send Validation Errors or Update the data
+
+        if (errors.length) {
+          baseService.returnData.responseCode = 400;
+          baseService.returnData.message = 'Errors from data validation';
+          baseService.returnData.data = errors;
+        } else {
+          const personModified = await personModel.update(request.body, {
+            where
+          });
+
+          baseService.returnData.responseCode = 200;
+          baseService.returnData.message = 'Update completed successfully.';
+          baseService.returnData.data = personModified;
+        }
+      } else {
+        baseService.returnData.responseCode = 400;
+        baseService.returnData.message = 'Person doesnt exist on the database.';
+        baseService.returnData.data = errors;
+      }
     } catch (err) {
       console.log('Error: ', err);
       baseService.returnData.responseCode = 500;
@@ -154,7 +311,7 @@ module.exports = function setupPersonService(models) {
 
   return {
     doList,
+    modifyPerson,
     findById
   };
-
 };
