@@ -33,7 +33,7 @@ const post = async (request, response) => {
   let responseData;
 
   try {
-    let dbService = await setupBDService();
+    let dbService = await setupDBService();
     let personCreateData = await dbService.personService.create(request);
 
     responseCode = personCreateData.responseCode;
