@@ -69,7 +69,7 @@ module.exports = function setupPersonService(dbInstance) {
 
     } catch (err) {
       console.log('The person wasn´t registered');
-      baseService.returnData.responseCode = 500;
+      baseService.returnData.responseCode = 400; //Validation error
     }
      
   }
