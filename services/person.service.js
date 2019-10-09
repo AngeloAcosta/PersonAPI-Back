@@ -45,7 +45,6 @@ module.exports = function setupPersonService(dbInstance) {
         throw new Error('Type of document invalid');
       }
 
-    
       const newUser = {
                   name: request.body.Name,
                   lastName: request.body.LastName,
@@ -67,6 +66,7 @@ module.exports = function setupPersonService(dbInstance) {
           baseService.returnData.message = 'Data was registered satisfactory';
         }
         return baseService.returnData;
+
     } catch (err) {
       console.log('The person wasn´t registered');
       baseService.returnData.responseCode = 500;
