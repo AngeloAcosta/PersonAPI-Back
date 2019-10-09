@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
 class baseService {
   constructor() {
     this.returnData = {
       status: false,
       data: {},
-      message: "",
+      message: '',
       responseCode: 200
     };
   }

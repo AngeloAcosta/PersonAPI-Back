@@ -1,25 +1,25 @@
-"use strict";
+'use strict';
 
-const Sequelize = require("sequelize");
-const setupDatabase = require("./database");
+const Sequelize = require('sequelize');
+const setupDatabase = require('./database');
 
 module.exports = function setupKinshipModel(config) {
   const sequelize = setupDatabase(config);
-  const kinship = sequelize.define("kinship", {
+  const kinship = sequelize.define('kinship', {
     personId: {
       allowNull: false,
       type: Sequelize.INTEGER,
       references: {
-        model: "people",
-        key: "id"
+        model: 'people',
+        key: 'id'
       }
     },
     relativeId: {
       allowNull: false,
       type: Sequelize.INTEGER,
       references: {
-        model: "people",
-        key: "id"
+        model: 'people',
+        key: 'id'
       }
     },
     kinshipType: {
@@ -27,7 +27,7 @@ module.exports = function setupKinshipModel(config) {
       type: Sequelize.CHAR(1)
     }
   });
-  kinship.belongsTo(sequelize.models.person, { as: "person" });
-  kinship.belongsTo(sequelize.models.person, { as: "relative" });
+  kinship.belongsTo(sequelize.models.person, { as: 'person' });
+  kinship.belongsTo(sequelize.models.person, { as: 'relative' });
   return kinship;
 };

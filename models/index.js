@@ -1,20 +1,20 @@
-"use strict";
+'use strict';
 
-const defaults = require("defaults");
+const defaults = require('defaults');
 
-const setupDatabase = require("./database");
+const setupDatabase = require('./database');
 
-const setupContactTypeModel = require("./contactType");
-const setupDocumentTypeModel = require("./documentType");
-const setupGenderModel = require("./gender");
-const setupKinshipModel = require("./kinship");
-const setupCountryModel = require("./country");
-const setupPersonModel = require("./person");
-const setupUserModel = require("./user");
+const setupContactTypeModel = require('./contactType');
+const setupDocumentTypeModel = require('./documentType');
+const setupGenderModel = require('./gender');
+const setupKinshipModel = require('./kinship');
+const setupCountryModel = require('./country');
+const setupPersonModel = require('./person');
+const setupUserModel = require('./user');
 
 module.exports = async function(config) {
   config = defaults(config, {
-    dialect: "mysql",
+    dialect: 'mysql',
     pool: {
       max: 10,
       min: 0,
