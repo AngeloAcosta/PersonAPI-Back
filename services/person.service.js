@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-const setupBaseService = require('./base.service');
+const setupBaseService = require("./base.service");
 
 const Op = Sequelize.Op;
 
@@ -45,25 +45,25 @@ module.exports = function setupPersonService(models) {
     let qOrderBy;
     switch (orderBy) {
       case 1:
-        qOrderBy = 'name';
+        qOrderBy = "name";
         break;
       case 2:
-        qOrderBy = 'lastName';
+        qOrderBy = "lastName";
         break;
       case 3:
-        qOrderBy = 'birthdate';
+        qOrderBy = "birthdate";
         break;
       case 4:
-        qOrderBy = 'document';
+        qOrderBy = "document";
         break;
       case 5:
-        qOrderBy = 'genderId';
+        qOrderBy = "genderId";
         break;
       case 6:
-        qOrderBy = 'countryId';
+        qOrderBy = "countryId";
         break;
       default:
-        qOrderBy = 'name';
+        qOrderBy = "name";
         break;
     }
     return qOrderBy;
@@ -73,13 +73,13 @@ module.exports = function setupPersonService(models) {
     let qOrderType;
     switch (orderType) {
       case 1:
-        qOrderType = 'ASC';
+        qOrderType = "ASC";
         break;
       case 2:
-        qOrderType = 'DESC';
+        qOrderType = "DESC";
         break;
       default:
-        qOrderType = 'ASC';
+        qOrderType = "ASC";
         break;
     }
     return qOrderType;
@@ -94,11 +94,11 @@ module.exports = function setupPersonService(models) {
       // Execute the query
       const people = await personModel.findAll({
         include: [
-          { as: 'documentType', model: documentTypeModel },
-          { as: 'gender', model: genderModel },
-          { as: 'country', model: countryModel },
-          { as: 'contactType1', model: contactTypeModel },
-          { as: 'contactType2', model: contactTypeModel }
+          { as: "documentType", model: documentTypeModel },
+          { as: "gender", model: genderModel },
+          { as: "country", model: countryModel },
+          { as: "contactType1", model: contactTypeModel },
+          { as: "contactType2", model: contactTypeModel }
         ],
         limit: requestQuery.limit,
         offset: requestQuery.offset,
@@ -117,12 +117,12 @@ module.exports = function setupPersonService(models) {
       const peopleData = getDoListModel(people);
       // Return the data
       baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.message = "Getting data successfully";
       baseService.returnData.data = peopleData;
     } catch (err) {
-      console.log('Error: ', err);
+      console.log("Error: ", err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
+      baseService.returnData.message = "" + err;
       baseService.returnData.data = [];
     }
 
@@ -132,7 +132,7 @@ module.exports = function setupPersonService(models) {
   function checkBlankSpacesforUpdate(data) {
     let errors = [];
     for (let prop in data) {
-      if (data[prop] === '' && prop !== 'Contact' && prop !== 'ContactType') {
+      if (data[prop] === "" && prop !== "Contact" && prop !== "ContactType") {
         errors.push(`The field ${prop} is required.`);
       }
     }
@@ -142,11 +142,11 @@ module.exports = function setupPersonService(models) {
   function checkNameFormatUpdate(data) {
     let errors = [];
     if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(data.name)) {
-      errors.push('Some characters in the Name field are not allowed.');
+      errors.push("Some characters in the Name field are not allowed.");
     }
 
     if (!/[a-zA-ZñÑ'\s]{1,25}/.test(data.lastName)) {
-      errors.push('Some characters in the Last Name field are not allowed.');
+      errors.push("Some characters in the Last Name field are not allowed.");
     }
     return errors;
   }
@@ -154,24 +154,24 @@ module.exports = function setupPersonService(models) {
   function checkDocumentUpdate(data) {
     let errors = [];
     if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
-      errors.push('Invalid submitted Document Type value.');
+      errors.push("Invalid submitted Document Type value.");
     } else {
       switch (data.documentTypeId) {
-        case '1':
+        case "1":
           if (!/^[0-9]{8}$/.test(data.document)) {
-            errors.push('Invalid submitted DNI format.');
+            errors.push("Invalid submitted DNI format.");
           }
           break;
 
-        case '2':
+        case "2":
           if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
-            errors.push('Invalid submitted PASSPORT format.');
+            errors.push("Invalid submitted PASSPORT format.");
           }
           break;
 
-        case '3':
+        case "3":
           if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
-            errors.push('Invalid submitted CE format.');
+            errors.push("Invalid submitted CE format.");
           }
           break;
 
@@ -186,15 +186,15 @@ module.exports = function setupPersonService(models) {
     let errors = [];
 
     if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
-      errors.push('Invalid Birth Date field format.');
+      errors.push("Invalid Birth Date field format.");
     }
 
     if (!/^[0-9]{0,1}$/.test(data.genderId)) {
-      errors.push('Invalid submitted GenderId value.');
+      errors.push("Invalid submitted GenderId value.");
     }
 
     if (!/^[0-9]{0,2}$/.test(data.countryId)) {
-      errors.push('Invalid submitted CountryId value.');
+      errors.push("Invalid submitted CountryId value.");
     }
     return errors;
   }
@@ -203,13 +203,13 @@ module.exports = function setupPersonService(models) {
     let errors = [];
     // TODO: Technical Debt | Move validations into a service and create constants
     if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
-      errors.push('Contact Type field is invalid.');
+      errors.push("Contact Type field is invalid.");
     } else {
       //Validation to Contact1
       if (dataTypeField == 1) {
         //Telephone
         if (!/^([0-9]){6,9}$/.test(contactValue)) {
-          errors.push('Invalid Telephone format.');
+          errors.push("Invalid Telephone format.");
         }
       } else if (dataTypeField == 2) {
         //Email
@@ -218,10 +218,10 @@ module.exports = function setupPersonService(models) {
             contactValue
           )
         ) {
-          errors.push('Invalid Email format.');
+          errors.push("Invalid Email format.");
         }
       } else {
-        errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
+        errors.push("Contact Type field is invalid."); //When is submitted other values like 3, 4 and so
       }
     }
 
@@ -264,7 +264,7 @@ module.exports = function setupPersonService(models) {
 
         if (errors.length) {
           baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
+          baseService.returnData.message = "Errors from data validation";
           baseService.returnData.data = errors;
         } else {
           const personModified = await personModel.update(request.body, {
@@ -272,89 +272,95 @@ module.exports = function setupPersonService(models) {
           });
 
           baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Update completed successfully.';
+          baseService.returnData.message = "Update completed successfully.";
           baseService.returnData.data = personModified;
         }
       } else {
         baseService.returnData.responseCode = 400;
-        baseService.returnData.message = 'Person doesnt exist on the database.';
+        baseService.returnData.message = "Person doesnt exist on the database.";
         baseService.returnData.data = errors;
       }
     } catch (err) {
-      console.log('Error: ', err);
+      console.log("Error: ", err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
+      baseService.returnData.message = "" + err;
       baseService.returnData.data = [];
     }
 
     return baseService.returnData;
   }
-  
+
   async function create(request) {
     try {
-    const documentTypes = documentTypeModel.findOne({ where: {id : request.body.DocumentTypes} });
-    const document = request.body.DocumentID;
+      const documentTypes = documentTypeModel.findOne({
+        where: { id: request.body.DocumentTypes }
+      });
+      const document = request.body.DocumentID;
 
-    //Validations for DocumentType
+      //Validations for DocumentType
       if (documentTypes) {
         // document type exists
-        if (documentTypes.name === 'DNI' && document.length != 8) { //DNI
-          throw new Error('DNI invalid');
-        } else if (documentTypes.name === 'Passport' && document.length != 12) { // Passport
-          throw new Error('Passport invalid');
-        } else if (documentTypes.name === 'Foreign Card' && document.length != 12){ //Foreign Card
-          throw new Error('Foreign Card invalid');
+        if (documentTypes.name === "DNI" && document.length != 8) {
+          //DNI
+          throw new Error("DNI invalid");
+        } else if (documentTypes.name === "Passport" && document.length != 12) {
+          // Passport
+          throw new Error("Passport invalid");
+        } else if (
+          documentTypes.name === "Foreign Card" &&
+          document.length != 12
+        ) {
+          //Foreign Card
+          throw new Error("Foreign Card invalid");
         }
       } else {
         // document type NO exists
-        throw new Error('Type of document invalid');
+        throw new Error("Type of document invalid");
       }
 
       const newUser = {
-                  name: request.body.Name,
-                  lastName: request.body.LastName,
-                  birthdate: request.body.DateOfBirth, //Format: YYYY-MM-DD
-                  documentTypeId: request.body.DocumentType,
-                  document: request.body.DocumentID,
-                  genderId: request.body.Gender,
-                  countryId: request.body.Country, 
-                  contact1: request.body.contact1,
-                  contactTypeId1: request.body.contactTypeId1, 
-                  contact2: request.body.contact2,
-                  contactTypeId2: request.body.contactTypeId2 
-                };
+        name: request.body.Name,
+        lastName: request.body.LastName,
+        birthdate: request.body.DateOfBirth, //Format: YYYY-MM-DD
+        documentTypeId: request.body.DocumentType,
+        document: request.body.DocumentID,
+        genderId: request.body.Gender,
+        countryId: request.body.Country,
+        contact1: request.body.contact1,
+        contactTypeId1: request.body.contactTypeId1,
+        contact2: request.body.contact2,
+        contactTypeId2: request.body.contactTypeId2
+      };
 
-        let created = await personModel.create(newUser); //Create user
-        if (created){
-          console.log('The person was registered');
-          baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Data was registered satisfactory';
-        }
-        return baseService.returnData;
-
+      let created = await personModel.create(newUser); //Create user
+      if (created) {
+        console.log("The person was registered");
+        baseService.returnData.responseCode = 200;
+        baseService.returnData.message = "Data was registered satisfactory";
+      }
+      return baseService.returnData;
     } catch (err) {
-      console.log('The person wasn´t registered');
+      console.log("The person wasn´t registered");
       baseService.returnData.responseCode = 400; //Validation error
-      baseService.returnData.message = 'Data wasn´t registered satisfactory';
+      baseService.returnData.message = "Data wasn´t registered satisfactory";
     }
-     
   }
-  
+
   async function findById(id) {
     try {
       const person = await model.findOne({
-        where:{
+        where: {
           id
         }
       });
 
       baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.message = "Getting data successfully";
       baseService.returnData.data = person;
     } catch (err) {
-      console.log('Error: ', err);
+      console.log("Error: ", err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
+      baseService.returnData.message = "" + err;
       baseService.returnData.data = [];
     }
 

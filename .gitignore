@@ -10,5 +10,3 @@ node_modules/
 
 #environmet
 environment/development.json
-
-.env-example
