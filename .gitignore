@@ -8,4 +8,5 @@ node_modules/
 /coverage/
 /.nyc_output/
 
-environment/development.json
+#environmet
+environment/
