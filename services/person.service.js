@@ -5,16 +5,42 @@ const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
 
-module.exports = function setupPersonService(dbInstance) {
+module.exports = function setupPersonService(models) {
 
-  const contactTypeModel = dbInstance.contactTypeModel;
-  const countryModel = dbInstance.countryModel;
-  const documentTypeModel = dbInstance.documentTypeModel;
-  const genderModel = dbInstance.genderModel;
-  const personModel = dbInstance.personModel;
+  const contactTypeModel = models.contactTypeModel;
+  const countryModel = models.countryModel;
+  const documentTypeModel = models.documentTypeModel;
+  const genderModel = models.genderModel;
+  const personModel = models.personModel;
   let baseService = new setupBaseService();
 
   //#region Helpers
+  function getDoListModel(people) {
+    return people.map(person => {
+      let contactType1 = null;
+      if (person.contactType1) {
+        contactType1 = person.contactType1.name;
+      }
+      let contactType2 = null;
+      if (person.contactType2) {
+        contactType2 = person.contactType2.name;
+      }
+      return {
+        id: person.id,
+        name: person.name,
+        lastName: person.lastName,
+        birthdate: person.birthdate,
+        documentType: person.documentType.name,
+        document: person.document,
+        gender: person.gender.name,
+        contactType1,
+        contact1: person.contact1,
+        contactType2,
+        contact2: person.contact2
+      };
+    });
+  }
+
   function getOrderField(orderBy) {
     let qOrderBy;
     switch (orderBy) {
@@ -90,29 +116,7 @@ module.exports = function setupPersonService(dbInstance) {
         }
       });
       // Mold the response
-      people = people.map(person => {
-        let contactType1 = null;
-        if (person.contactType1) {
-          contactType1 = person.contactType1.name;
-        }
-        let contactType2 = null;
-        if (person.contactType2) {
-          contactType2 = person.contactType2.name;
-        }
-        return {
-          id: person.id,
-          name: person.name,
-          lastName: person.lastName,
-          birthdate: person.birthdate,
-          documentType: person.documentType.name,
-          document: person.document,
-          gender: person.gender.name,
-          contactType1,
-          contact1: person.contact1,
-          contactType2,
-          contact2: person.contact2
-        };
-      });
+      people = getDoListModel(people);
       // Return the data
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
