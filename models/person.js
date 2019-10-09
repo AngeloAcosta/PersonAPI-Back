@@ -57,14 +57,10 @@ module.exports = function setupPersonModel(config) {
       }
     },
     contact1: {
-      //Phone
       type: Sequelize.STRING(50),
-      allowNull: true,
-      validate: {
-        is: ["^[0-9]+$"] //Allows only numbers
-      }
+      allowNull: true
     },
-    contactTypeId1: {
+    contactType1Id: {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {
@@ -73,14 +69,10 @@ module.exports = function setupPersonModel(config) {
       }
     },
     contact2: {
-      //Email
       type: Sequelize.STRING(50),
-      allowNull: true,
-      validate: {
-        is: ["^[a-zñA-ZÑ@.]+$"] //Allows characters for email
-      }
+      allowNull: true
     },
-    contactTypeId2: {
+    contactType2Id: {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {

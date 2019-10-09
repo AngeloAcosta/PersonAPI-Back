@@ -295,6 +295,7 @@ module.exports = function setupPersonService(models) {
         where: { id: request.body.DocumentTypes }
       });
       const document = request.body.DocumentID;
+      const regExphone = new regExphone("^[0-9]+$"); //Validation for phonenumber
 
       //Validations for DocumentType
       if (documentTypes) {
@@ -315,6 +316,18 @@ module.exports = function setupPersonService(models) {
       } else {
         // document type NO exists
         throw new Error("Type of document invalid");
+      }
+
+      //Validations for Contact1
+      if (contactType1Id) {
+        if (contactType1Id == 1 && regExphone == false) {
+          throw new Error("Only numbers");
+        }
+      }
+      else if(contactType2Id){
+        if(contactType2Id == 1 && regExphone == false){
+          throw new Error("Only numbers");
+        }
       }
 
       const newUser = {
