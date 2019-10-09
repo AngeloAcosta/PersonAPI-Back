@@ -10,6 +10,7 @@ node_modules/
 
 #environmet
 environment/
+development.json
 
 .env
 .env-example
