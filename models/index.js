@@ -19,9 +19,6 @@ module.exports = async function (config) {
       max: 10,
       min: 0,
       iddle: 10000
-    },
-    query: {
-      raw: true
     }
   });
 
