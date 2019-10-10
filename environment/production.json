@@ -1,0 +1,9 @@
+{
+  "dialect": "postgres",
+  "database": "d3m4u0ejddhpmr",
+  "username": "iocybvfagrfewf",
+  "password": "",
+  "host": "ec2-54-225-205-79.compute-1.amazonaws.com",
+  "port": "5432",
+  "operatorsAliases": false
+}

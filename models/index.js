@@ -16,16 +16,20 @@ const setupUserModel = require('./user');
 
 pg.defaults.ssl = true;
 
+function getEnvironmentConf(environment) {
+  const config = require(`./../environment/${environment}.json`);
+  return config;
+}
+
 module.exports = async function (setup = false) {
-  const config = {
-    database: process.env.DATABASE_NAME || devEnvironment.database,
-    username: process.env.DATABASE_USER || devEnvironment.username,
-    password: process.env.DATABASE_PASS || devEnvironment.password,
-    host: process.env.DATABASE_HOST || devEnvironment.host,
-    port: process.env.DATABASE_PORT || devEnvironment.port,
-    dialect: process.env.DATABASE_DIALECT || devEnvironment.dialect,
-    operatorsAliases: false
+  const environment = process.env.NODE_ENV || 'development';
+  const config = getEnvironmentConf(environment);
+
+  // If we are in production, get the database password from there
+  if (process.env.NODE_ENV === 'production') {
+    config.password = process.env.DATABASE_PASS;
   }
+
   const dbInstance = setupDatabase(config);
 
   const contactTypeModel = setupContactTypeModel(config);
