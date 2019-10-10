@@ -60,7 +60,7 @@ app.use(
 );
 
 app.use(fileParser);
-app.use('/api/', require('./api/controllers'));
+app.use('/.netlify/functions/server', require('./api/controllers'));
 
 module.exports = app;
 module.exports.handler = serverless(app);
