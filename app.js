@@ -5,6 +5,7 @@ const app = require('express')();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileParser = require('express-multipart-file-parser');
+const serverless = require('serverless-http');
 
 //const setupDBService = require('./services/');
 //const configEnv = require('./environment/development.json');
@@ -62,3 +63,4 @@ app.use(fileParser);
 app.use('/api/', require('./api/controllers'));
 
 module.exports = app;
+module.exports.handler = serverless(app);
