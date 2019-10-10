@@ -131,7 +131,13 @@ module.exports = function setupPersonService(models) {
   function checkBlankSpacesforUpdate(data) {
     let errors = [];
     for (let prop in data) {
-      if (data[prop] === '' && prop !== 'Contact' && prop !== 'ContactType') {
+      if (
+        data[prop] === '' &&
+        prop !== 'contact1' &&
+        prop !== 'contact2' &&
+        prop !== 'contactType1Id' &&
+        prop !== 'contactType2Id'
+      ) {
         errors.push(`The field ${prop} is required.`);
       }
     }
@@ -140,87 +146,107 @@ module.exports = function setupPersonService(models) {
 
   function checkNameFormatUpdate(data) {
     let errors = [];
-    if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(data.name)) {
-      errors.push('Some characters in the Name field are not allowed.');
+    if (data.name){
+      if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(data.name)) {
+        errors.push('Some characters in the Name field are not allowed.');
+      }
+    }
+    
+    if (data.lastName){
+      if (!/[a-zA-ZñÑ'\s]{1,25}/.test(data.lastName)) {
+        errors.push('Some characters in the Last Name field are not allowed.');
+      }
     }
 
-    if (!/[a-zA-ZñÑ'\s]{1,25}/.test(data.lastName)) {
-      errors.push('Some characters in the Last Name field are not allowed.');
-    }
     return errors;
   }
 
   function checkDocumentUpdate(data) {
     let errors = [];
-    if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
+    if (data.documentTypeId){
+      if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
       errors.push('Invalid submitted Document Type value.');
-    } else {
-      switch (data.documentTypeId) {
-        case '1':
-          if (!/^[0-9]{8}$/.test(data.document)) {
-            errors.push('Invalid submitted DNI format.');
-          }
-          break;
+      } else {
+        switch (data.documentTypeId) {
+          case '1':
+            if (!/^[0-9]{1,8}$/.test(data.document)) {
+              errors.push('Invalid submitted DNI format.');
+            }
+            break;
 
-        case '2':
-          if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
-            errors.push('Invalid submitted PASSPORT format.');
-          }
-          break;
+          case '2':
+            if (!/^([a-zA-Z0-9]){1,12}$/.test(data.document)) {
+              errors.push('Invalid submitted PASSPORT format.');
+            }
+            break;
 
-        case '3':
-          if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
-            errors.push('Invalid submitted CE format.');
-          }
-          break;
+          case '3':
+            if (!/^([a-zA-Z0-9]){1,12}$/.test(data.document)) {
+              errors.push('Invalid submitted CE format.');
+            }
+            break;
 
-        default:
-          break;
+          default:
+            break;
+        }
       }
     }
+    
     return errors;
   }
 
   function checkBirthDataUpdate(data) {
     let errors = [];
-
-    if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
+    const minDate = '1900/01/01';
+    if (data.birthdate){
+      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
       errors.push('Invalid Birth Date field format.');
+      } else {
+        if (new Date(data.birthdate) - new Date(minDate) < 0 || Date.now() - new Date(data.birthdate) < 0) {
+          errors.push('Invalid Birth Date field value.');
+        }
+      }
     }
 
-    if (!/^[0-9]{0,1}$/.test(data.genderId)) {
-      errors.push('Invalid submitted GenderId value.');
+    if (data.genderId){
+      if (!/^[0-9]{0,1}$/.test(data.genderId)) {
+        errors.push('Invalid submitted GenderId value.');
+      }
     }
 
-    if (!/^[0-9]{0,2}$/.test(data.countryId)) {
-      errors.push('Invalid submitted CountryId value.');
+    if (data.countryId){
+      if (!/^[0-9]{0,2}$/.test(data.countryId)) {
+        errors.push('Invalid submitted CountryId value.');
+      }
     }
+
     return errors;
   }
 
   function checkContactDataUpdate(dataTypeField, contactValue) {
     let errors = [];
     // TODO: Technical Debt | Move validations into a service and create constants
-    if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
-      errors.push('Contact Type field is invalid.');
-    } else {
-      //Validation to Contact1
-      if (dataTypeField == 1) {
-        //Telephone
-        if (!/^([0-9]){6,9}$/.test(contactValue)) {
-          errors.push('Invalid Telephone format.');
+    if (dataTypeField && contactValue){
+      if (dataTypeField != '' && contactValue != '') {
+      // If the dataTypeField is blank
+        if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
+          errors.push('Contact Type field is invalid.');
+        } else {
+          //Validation to Contact1
+          if (dataTypeField == 1) {
+            //Telephone
+            if (!/^([0-9]){6,9}$/.test(contactValue)) {
+              errors.push('Invalid Telephone format.');
+            }
+          } else if (dataTypeField == 2) {
+            //Email
+            if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contactValue)) {
+              errors.push('Invalid Email format.');
+            }
+          } else {
+            errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
+          }
         }
-      } else if (dataTypeField == 2) {
-        //Email
-        if (
-          !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(
-            contactValue
-          )
-        ) {
-          errors.push('Invalid Email format.');
-        }
-      } else {
-        errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
       }
     }
 
@@ -231,34 +257,48 @@ module.exports = function setupPersonService(models) {
     let errors = [];
     try {
       //Check if person exists
-      const where = { id: request.params.id };
-      const person = await personModel.findOne({ where });
+      const where = {
+        id: request.params.id
+      };
+      const person = await personModel.findOne({
+        where
+      });
 
       if (person) {
         //Proper data validation for each field to modify
 
-        errors.concat(checkBlankSpacesforUpdate(request.body));
+        errors = errors.concat(checkBlankSpacesforUpdate(request.body));
 
-        errors.concat(checkNameFormatUpdate(request.body));
+        errors = errors.concat(checkNameFormatUpdate(request.body));
 
-        errors.concat(checkDocumentUpdate(request.body));
+        errors = errors.concat(checkDocumentUpdate(request.body));
 
-        errors.concat(checkBirthDataUpdate(request.body));
+        errors = errors.concat(checkBirthDataUpdate(request.body));
 
-        errors.concat(
+        errors = errors.concat(
           checkContactDataUpdate(
-            request.body.contactTypeId1,
+            request.body.contactType1Id,
             request.body.contact1
           )
         );
+        //Set null values if is blank
+        if (request.body.contactType1Id == '') {
+          request.body.contactType1Id = null;
+          request.body.contact1 = null;
+        }
 
-        errors.concat(
+        if (request.body.contactType2Id == '') {
+          request.body.contactType2Id = null;
+          request.body.contact2 = null;
+        }
+
+        errors = errors.concat(
           checkContactDataUpdate(
-            request.body.contactTypeId2,
+            request.body.contactType2Id,
             request.body.contact2
           )
         );
-
+        console.log(request.body);
         //Send Validation Errors or Update the data
 
         if (errors.length) {
