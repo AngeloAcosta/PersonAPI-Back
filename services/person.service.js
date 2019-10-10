@@ -194,7 +194,7 @@ module.exports = function setupPersonService(models) {
     if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
       errors.push('Invalid Birth Date field format.');
     } else {
-      if (new Date(data.birthdate) - new Date(minDate) < 0) {
+      if (new Date(data.birthdate) - new Date(minDate) < 0 || Date.now() - new Date(data.birthdate) < 0) {
         errors.push('Invalid Birth Date field value.');
       }
     }
