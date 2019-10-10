@@ -414,14 +414,47 @@ module.exports = function setupPersonService(models) {
   async function findById(id) {
     try {
       const person = await personModel.findOne({
+        include: [
+          { as: 'documentType', model: documentTypeModel },
+          { as: 'gender', model: genderModel },
+          { as: 'country', model: countryModel },
+          { as: 'contactType1', model: contactTypeModel },
+          { as: 'contactType2', model: contactTypeModel }
+        ],
         where: {
           id
         }
-      });
+        
 
+      }); 
+      let contactType1 = null;
+      if (person.contactType1) {
+        contactType1 = person.contactType1.name;
+      }
+      let contactType2 = null;
+      if (person.contactType2) {
+        contactType2 = person.contactType2.name;
+      }
+      const peopleData = {
+        
+        id: person.id,
+        name: person.name,
+        lastName: person.lastName,
+        birthdate: person.birthdate,
+        documentType: person.documentType.name,
+        document: person.document,
+        country: person.country.name,
+        gender: person.gender.name,
+        contactType1,
+        contact1: person.contact1,
+        contactType2,
+        contact2: person.contact2
+      }
+      
+     
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = person;
+      baseService.returnData.data = peopleData;
     } catch (err) {
       console.log('Error: ', err);
       baseService.returnData.responseCode = 500;
