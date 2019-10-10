@@ -9,4 +9,5 @@ node_modules/
 /.nyc_output/
 
 # Others
+person_db.sqlite
 environment/development.json

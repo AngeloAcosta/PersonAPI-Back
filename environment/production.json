@@ -1,4 +1,4 @@
 {
   "dialect": "sqlite",
-  "storage": "./person_db"
+  "storage": "./person_db.sqlite"
 }
