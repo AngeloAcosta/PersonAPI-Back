@@ -1,5 +1,6 @@
 'use strict';
 
+const devEnvironment = require('./../environment/development.json');
 const defaults = require('defaults');
 
 const setupDatabase = require('./database');
@@ -12,16 +13,16 @@ const setupCountryModel = require('./country');
 const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
 
-module.exports = async function (config) {
-  config = defaults(config, {
-    dialect: 'mysql',
-    pool: {
-      max: 10,
-      min: 0,
-      iddle: 10000
-    }
-  });
-
+module.exports = async function (setup = false) {
+  const config = {
+    database: process.env.DATABASE_NAME || devEnvironment.database,
+    username: process.env.DATABASE_USER || devEnvironment.username,
+    password: process.env.DATABASE_PASS || devEnvironment.password,
+    host: process.env.DATABASE_HOST || devEnvironment.host,
+    port: process.env.DATABASE_PORT || devEnvironment.port,
+    dialect: process.env.DATABASE_DIALECT || devEnvironment.dialect,
+    operatorsAliases: false
+  }
   const dbInstance = setupDatabase(config);
 
   const contactTypeModel = setupContactTypeModel(config);
@@ -34,7 +35,7 @@ module.exports = async function (config) {
 
   await dbInstance.authenticate();
 
-  if (config.setup) {
+  if (setup) {
     await dbInstance.sync({ force: true });
   }
 

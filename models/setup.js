@@ -4,13 +4,13 @@ const debug = require('debug');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const dbInstance = require('./');
-const devEnvironment = require('./../environment/development.json');
+//const devEnvironment = require('./../environment/development.json');
 const seeders = require('./setup.seeders');
 
 const prompt = inquirer.createPromptModule();
 
 async function setup() {
-  const answer = await prompt([
+  /*const answer = await prompt([
     {
       type: 'confirm',
       name: 'setup',
@@ -31,10 +31,10 @@ async function setup() {
     dialect: 'mysql',
     logging: s => debug(s),
     setup: true
-  };
-
+  };*/
+  
   //const db = await dbInstance(config).catch(handleFatalError);
-  const db = await dbInstance(config);
+  const db = await dbInstance(true);
   await seeders.seedContactTypes(db.contactTypeModel);
   await seeders.seedCountries(db.countryModel);
   await seeders.seedDocumentTypes(db.documentTypeModel);
