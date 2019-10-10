@@ -32,6 +32,7 @@ module.exports = function setupPersonService(models) {
         documentType: person.documentType.name,
         document: person.document,
         gender: person.gender.name,
+        country: person.country.name,
         contactType1,
         contact1: person.contact1,
         contactType2,
@@ -44,22 +45,16 @@ module.exports = function setupPersonService(models) {
     let qOrderBy;
     switch (orderBy) {
       case 1:
-        qOrderBy = 'name';
+        qOrderBy = ['name'];
         break;
       case 2:
-        qOrderBy = 'lastName';
+        qOrderBy = ['document'];
         break;
       case 3:
-        qOrderBy = 'birthdate';
+        qOrderBy = ['documentType', 'name'];
         break;
       case 4:
-        qOrderBy = 'document';
-        break;
-      case 5:
-        qOrderBy = 'genderId';
-        break;
-      case 6:
-        qOrderBy = 'countryId';
+        qOrderBy = ['country', 'name'];
         break;
       default:
         qOrderBy = 'name';
@@ -83,13 +78,21 @@ module.exports = function setupPersonService(models) {
     }
     return qOrderType;
   }
+
+  function getQueryWhereClause(queries) {
+    return {
+      [Op.or]: queries.map(q => {
+        return { [Op.like]: `%${q}%` };
+      })
+    };
+  }
   //#endregion
 
   async function doList(requestQuery) {
     try {
       let qOrderBy = getOrderField(requestQuery.orderBy);
       let qOrderType = getOrderType(requestQuery.orderType);
-      let qQuery = `%${requestQuery.query}%`;
+      let qQueryWhereClause = getQueryWhereClause(requestQuery.query.split(' '));
       // Execute the query
       const people = await personModel.findAll({
         include: [
@@ -101,14 +104,14 @@ module.exports = function setupPersonService(models) {
         ],
         limit: requestQuery.limit,
         offset: requestQuery.offset,
-        order: [[qOrderBy, qOrderType]],
+        order: [[...qOrderBy, qOrderType]],
         where: {
           [Op.or]: [
-            { name: { [Op.like]: qQuery } },
-            { lastName: { [Op.like]: qQuery } },
-            { document: { [Op.like]: qQuery } },
-            { contact1: { [Op.like]: qQuery } },
-            { contact2: { [Op.like]: qQuery } }
+            { name: qQueryWhereClause },
+            { lastName: qQueryWhereClause },
+            { document: qQueryWhereClause },
+            { contact1: qQueryWhereClause },
+            { contact2: qQueryWhereClause }
           ]
         }
       });
@@ -146,13 +149,13 @@ module.exports = function setupPersonService(models) {
 
   function checkNameFormatUpdate(data) {
     let errors = [];
-    if (data.name){
+    if (data.name) {
       if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(data.name)) {
         errors.push('Some characters in the Name field are not allowed.');
       }
     }
-    
-    if (data.lastName){
+
+    if (data.lastName) {
       if (!/[a-zA-ZñÑ'\s]{1,25}/.test(data.lastName)) {
         errors.push('Some characters in the Last Name field are not allowed.');
       }
@@ -163,9 +166,9 @@ module.exports = function setupPersonService(models) {
 
   function checkDocumentUpdate(data) {
     let errors = [];
-    if (data.documentTypeId){
+    if (data.documentTypeId) {
       if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
-      errors.push('Invalid submitted Document Type value.');
+        errors.push('Invalid submitted Document Type value.');
       } else {
         switch (data.documentTypeId) {
           case '1':
@@ -191,16 +194,16 @@ module.exports = function setupPersonService(models) {
         }
       }
     }
-    
+
     return errors;
   }
 
   function checkBirthDataUpdate(data) {
     let errors = [];
     const minDate = '1900/01/01';
-    if (data.birthdate){
+    if (data.birthdate) {
       if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
-      errors.push('Invalid Birth Date field format.');
+        errors.push('Invalid Birth Date field format.');
       } else {
         if (new Date(data.birthdate) - new Date(minDate) < 0 || Date.now() - new Date(data.birthdate) < 0) {
           errors.push('Invalid Birth Date field value.');
@@ -208,13 +211,13 @@ module.exports = function setupPersonService(models) {
       }
     }
 
-    if (data.genderId){
+    if (data.genderId) {
       if (!/^[0-9]{0,1}$/.test(data.genderId)) {
         errors.push('Invalid submitted GenderId value.');
       }
     }
 
-    if (data.countryId){
+    if (data.countryId) {
       if (!/^[0-9]{0,2}$/.test(data.countryId)) {
         errors.push('Invalid submitted CountryId value.');
       }
@@ -226,9 +229,9 @@ module.exports = function setupPersonService(models) {
   function checkContactDataUpdate(dataTypeField, contactValue) {
     let errors = [];
     // TODO: Technical Debt | Move validations into a service and create constants
-    if (dataTypeField && contactValue){
+    if (dataTypeField && contactValue) {
       if (dataTypeField != '' && contactValue != '') {
-      // If the dataTypeField is blank
+        // If the dataTypeField is blank
         if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
           errors.push('Contact Type field is invalid.');
         } else {
