@@ -13,14 +13,14 @@ const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
 
 module.exports = async function (config) {
-  /*config = defaults(config, {
+  config = defaults(config, {
     dialect: 'mysql',
     pool: {
       max: 10,
       min: 0,
       iddle: 10000
     }
-  });*/
+  });
 
   const dbInstance = setupDatabase(config);
 

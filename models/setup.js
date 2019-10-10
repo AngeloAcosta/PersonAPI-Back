@@ -5,13 +5,12 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const dbInstance = require('./');
 const devEnvironment = require('./../environment/development.json');
-const prodEnvironment = require('./../environment/production.json');
 const seeders = require('./setup.seeders');
 
 const prompt = inquirer.createPromptModule();
 
 async function setup() {
-  /*const answer = await prompt([
+  const answer = await prompt([
     {
       type: 'confirm',
       name: 'setup',
@@ -32,11 +31,7 @@ async function setup() {
     dialect: 'mysql',
     logging: s => debug(s),
     setup: true
-  };*/
-  const config = {
-    ...prodEnvironment,
-    setup: true
-  }
+  };
 
   //const db = await dbInstance(config).catch(handleFatalError);
   const db = await dbInstance(config);
@@ -46,7 +41,7 @@ async function setup() {
   await seeders.seedGenders(db.genderModel);
   await seeders.seedPeople(db.personModel);
 
-  console.log('Success');
+  //console.log('Success');
   //process.exit(0);
 }
 
