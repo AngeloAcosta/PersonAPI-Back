@@ -7,3 +7,6 @@ node_modules/
 # Unit tests
 /coverage/
 /.nyc_output/
+
+# Others
+environment/development.json
