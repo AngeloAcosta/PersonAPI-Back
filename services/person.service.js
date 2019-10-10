@@ -212,22 +212,25 @@ module.exports = function setupPersonService(models) {
   function checkContactDataUpdate(dataTypeField, contactValue) {
     let errors = [];
     // TODO: Technical Debt | Move validations into a service and create constants
-    if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
-      errors.push('Contact Type field is invalid.');
-    } else {
-      //Validation to Contact1
-      if (dataTypeField == 1) {
-        //Telephone
-        if (!/^([0-9]){6,9}$/.test(contactValue)) {
-          errors.push('Invalid Telephone format.');
-        }
-      } else if (dataTypeField == 2) {
-        //Email
-        if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contactValue)) {
-          errors.push('Invalid Email format.');
-        }
+    if (dataTypeField != '' && contactValue != '') {
+      // If the dataTypeField is blank
+      if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
+        errors.push('Contact Type field is invalid.');
       } else {
-        errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
+        //Validation to Contact1
+        if (dataTypeField == 1) {
+          //Telephone
+          if (!/^([0-9]){6,9}$/.test(contactValue)) {
+            errors.push('Invalid Telephone format.');
+          }
+        } else if (dataTypeField == 2) {
+          //Email
+          if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contactValue)) {
+            errors.push('Invalid Email format.');
+          }
+        } else {
+          errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
+        }
       }
     }
 
@@ -254,14 +257,24 @@ module.exports = function setupPersonService(models) {
 
         errors = errors.concat(
           checkContactDataUpdate(
-            request.body.contactTypeId1,
+            request.body.contactType1Id,
             request.body.contact1
           )
         );
+        //Set null values if is blank
+        if (request.body.contactType1Id == '') {
+          request.body.contactType1Id = null;
+          request.body.contact1 = null;
+        }
+
+        if (request.body.contactType2Id == '') {
+          request.body.contactType2Id = null;
+          request.body.contact2 = null;
+        }
 
         errors = errors.concat(
           checkContactDataUpdate(
-            request.body.contactTypeId2,
+            request.body.contactType2Id,
             request.body.contact2
           )
         );
@@ -372,9 +385,9 @@ module.exports = function setupPersonService(models) {
       }
       return baseService.returnData;
     } catch (err) {
-      console.log('The person wasn\'t registered ' + err);
+      console.log("The person wasn't registered " + err);
       baseService.returnData.responseCode = 500; //Validation error
-      baseService.returnData.message = 'The person wasn\'t registered';
+      baseService.returnData.message = "The person wasn't registered";
     }
   }
 
