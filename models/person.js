@@ -81,14 +81,10 @@ module.exports = function setupPersonModel(config) {
       }
     }
   });
-
-  person.associate = function(models) {
-    person.belongsTo(models.documentType, { as: 'documentType' });
-    person.belongsTo(models.gender, { as: 'gender' });
-    person.belongsTo(models.country, { as: 'country' });
-    person.belongsTo(models.contactType, { as: 'contactType1' });
-    person.belongsTo(models.contactType, { as: 'contactType2' });
-  };
-
+  person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });
+  person.belongsTo(sequelize.models.contactType, { as: 'contactType2' });
+  person.belongsTo(sequelize.models.documentType, { as: 'documentType' });
+  person.belongsTo(sequelize.models.gender, { as: 'gender' });
+  person.belongsTo(sequelize.models.country, { as: 'country' });
   return person;
 };
