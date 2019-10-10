@@ -32,6 +32,7 @@ module.exports = function setupPersonService(models) {
         documentType: person.documentType.name,
         document: person.document,
         gender: person.gender.name,
+        country: person.country.name,
         contactType1,
         contact1: person.contact1,
         contactType2,
@@ -47,18 +48,12 @@ module.exports = function setupPersonService(models) {
         qOrderBy = 'name';
         break;
       case 2:
-        qOrderBy = 'lastName';
-        break;
-      case 3:
-        qOrderBy = 'birthdate';
-        break;
-      case 4:
         qOrderBy = 'document';
         break;
-      case 5:
-        qOrderBy = 'genderId';
+      case 3:
+        qOrderBy = 'documentTypeId';
         break;
-      case 6:
+      case 4:
         qOrderBy = 'countryId';
         break;
       default:
@@ -83,13 +78,21 @@ module.exports = function setupPersonService(models) {
     }
     return qOrderType;
   }
+
+  function getQueryWhereClause(queries) {
+    return {
+      [Op.or]: queries.map(q => {
+        return { [Op.like]: `%${q}%` };
+      })
+    };
+  }
   //#endregion
 
   async function doList(requestQuery) {
     try {
       let qOrderBy = getOrderField(requestQuery.orderBy);
       let qOrderType = getOrderType(requestQuery.orderType);
-      let qQuery = `%${requestQuery.query}%`;
+      let qQueryWhereClause = getQueryWhereClause(requestQuery.query.split(' '));
       // Execute the query
       const people = await personModel.findAll({
         include: [
@@ -104,11 +107,11 @@ module.exports = function setupPersonService(models) {
         order: [[qOrderBy, qOrderType]],
         where: {
           [Op.or]: [
-            { name: { [Op.like]: qQuery } },
-            { lastName: { [Op.like]: qQuery } },
-            { document: { [Op.like]: qQuery } },
-            { contact1: { [Op.like]: qQuery } },
-            { contact2: { [Op.like]: qQuery } }
+            { name: qQueryWhereClause },
+            { lastName: qQueryWhereClause },
+            { document: qQueryWhereClause },
+            { contact1: qQueryWhereClause },
+            { contact2: qQueryWhereClause }
           ]
         }
       });
