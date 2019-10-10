@@ -2,6 +2,7 @@
 
 const devEnvironment = require('./../environment/development.json');
 const defaults = require('defaults');
+const pg = require('pg');
 
 const setupDatabase = require('./database');
 
@@ -12,6 +13,8 @@ const setupKinshipModel = require('./kinship');
 const setupCountryModel = require('./country');
 const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
+
+pg.defaults.ssl = true;
 
 module.exports = async function (setup = false) {
   const config = {

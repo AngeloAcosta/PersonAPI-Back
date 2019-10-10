@@ -5,13 +5,11 @@ const app = require('express')();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileParser = require('express-multipart-file-parser');
-const pg = require('pg');
 
 //const setupDBService = require('./services/');
 //const configEnv = require('./environment/development.json');
 
 //const dbService = setupDBService();
-pg.defaults.ssl = true;
 
 global.XMLHttpRequest = require('xhr2');
 
