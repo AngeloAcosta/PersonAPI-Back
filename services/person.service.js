@@ -92,13 +92,26 @@ module.exports = function setupPersonService(models) {
       let qQuery = `%${requestQuery.query}%`;
       // Execute the query
       const people = await personModel.findAll({
-        include: [
-          { as: 'documentType', model: documentTypeModel },
-          { as: 'gender', model: genderModel },
-          { as: 'country', model: countryModel },
-          { as: 'contactType1', model: contactTypeModel },
-          { as: 'contactType2', model: contactTypeModel }
-
+        include: [{
+            as: 'documentType',
+            model: documentTypeModel
+          },
+          {
+            as: 'gender',
+            model: genderModel
+          },
+          {
+            as: 'country',
+            model: countryModel
+          },
+          {
+            as: 'contactType1',
+            model: contactTypeModel
+          },
+          {
+            as: 'contactType2',
+            model: contactTypeModel
+          }
         ],
         limit: requestQuery.limit,
         offset: requestQuery.offset,
@@ -106,12 +119,31 @@ module.exports = function setupPersonService(models) {
           [qOrderBy, qOrderType]
         ],
         where: {
-          [Op.or]: [
-            { name: { [Op.like]: qQuery } },
-            { lastName: { [Op.like]: qQuery } },
-            { document: { [Op.like]: qQuery } },
-            { contact1: { [Op.like]: qQuery } },
-            { contact2: { [Op.like]: qQuery } }
+          [Op.or]: [{
+              name: {
+                [Op.like]: qQuery
+              }
+            },
+            {
+              lastName: {
+                [Op.like]: qQuery
+              }
+            },
+            {
+              document: {
+                [Op.like]: qQuery
+              }
+            },
+            {
+              contact1: {
+                [Op.like]: qQuery
+              }
+            },
+            {
+              contact2: {
+                [Op.like]: qQuery
+              }
+            }
           ]
         }
       });
