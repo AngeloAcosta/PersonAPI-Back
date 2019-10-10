@@ -5,6 +5,7 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const dbInstance = require('./');
 const devEnvironment = require('./../environment/development.json');
+const prodEnvironment = require('./../environment/production.json');
 const seeders = require('./setup.seeders');
 
 const prompt = inquirer.createPromptModule();
@@ -22,7 +23,7 @@ async function setup() {
     return console.log('Nothing to be worry about :D(just jose)');
   }
 
-  const config = {
+  /*const config = {
     database: process.env.DB_NAME || devEnvironment.database,
     username: process.env.DB_USER || devEnvironment.username,
     password: process.env.DB_PASS || devEnvironment.password,
@@ -31,7 +32,11 @@ async function setup() {
     dialect: 'mysql',
     logging: s => debug(s),
     setup: true
-  };
+  };*/
+  const config = {
+    ...prodEnvironment,
+    setup: true
+  }
 
   const db = await dbInstance(config).catch(handleFatalError);
   await seeders.seedContactTypes(db.contactTypeModel);
