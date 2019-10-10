@@ -40,9 +40,7 @@ docker-compose up -d
 
 Sync database
 
-```
-node models/setup.js
-```
+Navigate to `/api/setup/database`
 
 
 

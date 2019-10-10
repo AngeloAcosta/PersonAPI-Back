@@ -11,7 +11,7 @@ const seeders = require('./setup.seeders');
 const prompt = inquirer.createPromptModule();
 
 async function setup() {
-  const answer = await prompt([
+  /*const answer = await prompt([
     {
       type: 'confirm',
       name: 'setup',
@@ -23,7 +23,7 @@ async function setup() {
     return console.log('Nothing to be worry about :D(just jose)');
   }
 
-  /*const config = {
+  const config = {
     database: process.env.DB_NAME || devEnvironment.database,
     username: process.env.DB_USER || devEnvironment.username,
     password: process.env.DB_PASS || devEnvironment.password,
@@ -38,7 +38,8 @@ async function setup() {
     setup: true
   }
 
-  const db = await dbInstance(config).catch(handleFatalError);
+  //const db = await dbInstance(config).catch(handleFatalError);
+  const db = await dbInstance(config);
   await seeders.seedContactTypes(db.contactTypeModel);
   await seeders.seedCountries(db.countryModel);
   await seeders.seedDocumentTypes(db.documentTypeModel);
@@ -46,7 +47,7 @@ async function setup() {
   await seeders.seedPeople(db.personModel);
 
   console.log('Success');
-  process.exit(0);
+  //process.exit(0);
 }
 
 function handleFatalError(err) {
@@ -55,4 +56,4 @@ function handleFatalError(err) {
   process.exit(1);
 }
 
-setup();
+module.exports = setup;

@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.use('/authenticate', require('./authentication'));
 router.use('/people', require('./people'));
+router.use('/setup', require('./setup'));
 router.use('/users', require('./users'));
 
 module.exports = router;
