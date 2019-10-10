@@ -6,19 +6,21 @@ module.exports = function setupValidationService(models) {
   const kinshipModel = models.kinshipModel;
   const personModel = models.personModel;
 
-  function findUpwardsRecursive(kinships, personId, relativeId) {
-    const personKinships = kinships.filter(k => k.personId === personId && 
-      (k.kinshipType === constants.fatherKinshipType || k.kinshipType === constants.motherKinshipType));
-    
+  function getRootParentsRecursive(kinships, personId) {
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType);
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType);
+    const fatherIsRootPerson = await
+
+    if (fatherKinship) {
+      return getRootFatherIdRecursive(kinships, fatherKinship.relativeId);
+    } else {
+      return personId;
+    }
   }
 
-  function isUpwardsInTree(personId, relativeId) {
-    const kinships = await kinshipModel.findAll();
-    if (personKinships.length > 0) {
-      return findUpwardsRecursive(kinships, personId, relativeId);
-    } else {
-      return false;
-    }
+  async function isRootPerson(personId) {
+    const kinships = await kinshipModel.findAll({ where: { personId } });
+    return kinships.length === 0 || kinships[0].kinshipType === constants.coupleKinshipType;
   }
 
   function isValidKinshipType(kinshipType) {
@@ -34,23 +36,42 @@ module.exports = function setupValidationService(models) {
     return person !== null;
   }
 
-  async function kinshipAlreadyExists(personId, relativeId, kinshipType) {
-    const kinship = await kinshipModel.findOne({ where: { personId, relativeId } })
+  async function kinshipAlreadyExists(personId, relativeId) {
+    const kinship = await kinshipModel.findOne({ where: { personId, relativeId } });
     return kinship !== null;
   }
 
+  async function shareSameRoot(person1Id, person2Id) {
+    const mIsRootPerson1 = await isRootPerson(person1Id);
+    const mIsRootPerson2 = await isRootPerson(person2Id);
+    if (mIsRootPerson1 && mIsRootPerson2) {
+      return false;
+    } else {
+      if (mIsRootPerson1) {
+        
+      } else if (mIsRootPerson2) {
+        
+      } else {
+
+      }
+    }
+  }
+
   async function validateKinshipCreation(personId, relativeId, kinshipType) {
-     switch(kinshipType){
-         case constants.fatherKinshipType:
-            await validateSameGenderParents(personId,relativeId);
-             break;
-         case 'M':
-             
-         break;
-         case 'C':
-             validateSameGenderCouple(personId,relativeId);
-        break;
-     }
+    // Validate given data
+    const mIsValidPerson = await isValidPerson(personId);
+    const mIsValidRelative = await isValidPerson(relativeId);
+    const mIsValidKinshipType = isValidKinshipType(kinshipType);
+    if (!mIsValidPerson || !mIsValidRelative || !mIsValidKinshipType) {
+      return false;
+    }
+    // Validate kinship existance
+    const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
+    if (mKinshipAlreadyExists) {
+      return false;
+    }
+    // Validate already related
+    
   }
 
   return {
