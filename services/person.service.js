@@ -296,19 +296,17 @@ module.exports = function setupPersonService(models) {
     return baseService.returnData;
   }
 
-  function isValidPassport(documentTypeName, document) {
-    return documentTypeName === 'Passport' && document.length <= 12;
+  function isInValidPassport(documentTypeId, document) {
+    return documentTypeId == 2 && document.length > 12;
   }
 
-  function isForeignValidCard(documentTypeName, document) {
-    return documentTypeName === 'Foreign Card' && document.length <= 12;
+  function isNoForeignValidCard(documentTypeId, document) {
+    return documentTypeId == 3 && document.length > 12;
   }
 
   async function create(request) {
     try {
-      const documentTypes = documentTypeModel.findOne({
-        where: { id: request.body.DocumentTypes }
-      });
+      const documentTypeId = request.body.documentTypeId;
       const contactType1Id = request.body.contactType1Id;
       const contactType2Id = request.body.contactType2Id;
       const contact1 = request.body.contact1;
@@ -318,15 +316,15 @@ module.exports = function setupPersonService(models) {
 
       // TODO: Technical Debt: Move this validations into one specific service
       //Validations for DocumentType
-      if (documentTypes) {
+      if (documentTypeId) {
         // document type exists
-        if (documentTypes.name === 'DNI' && document.length != 8) {
+        if (documentTypeId == 1 && document.length != 8) {
           //DNI
           throw new Error('DNI invalid');
-        } else if (!isValidPassport(documentTypes.name, document)) {
+        } else if (isInValidPassport(documentTypeId, document)) {
           // Passport
           throw new Error('Passport invalid');
-        } else if (!isForeignValidCard(documentTypes.name, document)) {
+        } else if (isNoForeignValidCard(documentTypeId, document)) {
           //Foreign Card
           throw new Error('Foreign Card invalid');
         }
@@ -374,9 +372,9 @@ module.exports = function setupPersonService(models) {
       }
       return baseService.returnData;
     } catch (err) {
-      console.log("The person wasn't registered " + err);
+      console.log('The person wasn\'t registered ' + err);
       baseService.returnData.responseCode = 500; //Validation error
-      baseService.returnData.message = "The person wasn't registered";
+      baseService.returnData.message = 'The person wasn\'t registered';
     }
   }
 
