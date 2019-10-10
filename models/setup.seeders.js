@@ -163,4 +163,4 @@ module.exports = {
   seedDocumentTypes,
   seedGenders,
   seedPeople
-}
+};

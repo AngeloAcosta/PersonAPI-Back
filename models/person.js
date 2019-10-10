@@ -10,7 +10,7 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.STRING(25),
       allowNull: false,
       validate: {
-        is: ["^[A-Za-z.\s_-]+$"],
+        is: ["^[A-ZÑa-zñ.s_-]+$"], //Allows only leters
         min: 1
       }
     },
@@ -18,28 +18,25 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.STRING(25),
       allowNull: false,
       validate: {
-        is: ["^[A-Za-z.\s_-]+$"],
+        is: ["^[A-ZÑa-zñ'.s_-]+$"], // Allows only leters and '
         isAlpha: true,
         min: 2
       }
     },
     birthdate: {
       type: Sequelize.DATEONLY,
-      allowNull: false,
-      validate: {
-        isDate: true
-      }
+      allowNull: false
     },
     documentTypeId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: false, //Validation is in person.service
       references: {
         model: 'documentTypes',
         key: 'id'
       }
     },
     document: {
-      type: Sequelize.STRING(50),
+      type: Sequelize.STRING(25),
       allowNull: false,
       unique: true
     },
@@ -48,7 +45,7 @@ module.exports = function setupPersonModel(config) {
       allowNull: false,
       references: {
         model: 'genders',
-        key: 'id'
+        key: 'id' //id is created by default
       }
     },
     countryId: {
@@ -65,6 +62,7 @@ module.exports = function setupPersonModel(config) {
     },
     contactType1Id: {
       type: Sequelize.INTEGER,
+      allowNull: true,
       references: {
         model: 'contactTypes',
         key: 'id'
@@ -76,16 +74,21 @@ module.exports = function setupPersonModel(config) {
     },
     contactType2Id: {
       type: Sequelize.INTEGER,
+      allowNull: true,
       references: {
         model: 'contactTypes',
         key: 'id'
       }
     }
   });
-  person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });
-  person.belongsTo(sequelize.models.contactType, { as: 'contactType2' });
-  person.belongsTo(sequelize.models.documentType, { as: 'documentType' });
-  person.belongsTo(sequelize.models.gender, { as: 'gender' });
-  person.belongsTo(sequelize.models.country, { as: 'country' });
+
+  person.associate = function(models) {
+    person.belongsTo(models.documentType, { as: 'documentType' });
+    person.belongsTo(models.gender, { as: 'gender' });
+    person.belongsTo(models.country, { as: 'country' });
+    person.belongsTo(models.contactType, { as: 'contactType1' });
+    person.belongsTo(models.contactType, { as: 'contactType2' });
+  };
+
   return person;
 };

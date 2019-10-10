@@ -3,11 +3,9 @@
 const setupBaseService = require('./base.service');
 
 module.exports = function setupAuthenticationService() {
-
   const baseService = new setupBaseService();
 
   async function login(data) {
-
     baseService.returnData.message = 'Getting data successfully';
     baseService.returnData.responseCode = 200;
     baseService.returnData.data = {};

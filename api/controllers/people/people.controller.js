@@ -16,22 +16,26 @@ const get = async (request, response) => {
     let orderBy = parseInt(request.query.orderBy) || 1;
     let orderType = parseInt(request.query.orderType) || 1;
     let dbService = await setupDBService();
-    let peopleData = await dbService.personService.doList({ limit, offset, query, orderBy, orderType });
+    let peopleData = await dbService.personService.doList({
+      limit,
+      offset,
+      query,
+      orderBy,
+      orderType
+    });
 
     responseCode = peopleData.responseCode;
     responseData = baseController.getSuccessResponse(
-      peopleData.data, peopleData.message
+      peopleData.data,
+      peopleData.message
     );
-
   } catch (err) {
     responseCode = 500;
     console.error('Error getting all people: ', err);
     responseData = baseController.getErrorResponse('Error getting all people.');
   }
 
-  return response
-    .status(responseCode)
-    .json(responseData);
+  return response.status(responseCode).json(responseData);
 };
 
 module.exports = {

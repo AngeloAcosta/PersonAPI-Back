@@ -28,6 +28,30 @@ const get = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
+const post = async (request, response) => {
+  let responseCode;
+  let responseData;
+
+  try {
+    let dbService = await setupDBService();
+    let personCreateData = await dbService.personService.create(request);
+
+    responseCode = personCreateData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      personCreateData.data,
+      personCreateData.message
+    );
+  } catch (err) {
+    responseCode = 500;
+    console.error('The person wasn\´t registered ' + err);
+    responseData = baseController.getErrorResponse(
+      'The person wasn\´t registered'
+    );
+  }
+
+  return response.status(responseCode).json(responseData);
+};
+
 const put = async (request, response) => {
   let responseCode;
   let responseData;
@@ -54,5 +78,6 @@ const put = async (request, response) => {
 
 module.exports = {
   get,
+  post,
   put
 };

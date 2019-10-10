@@ -1,5 +1,6 @@
 'use strict';
 
+const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
@@ -288,6 +289,90 @@ module.exports = function setupPersonService(models) {
     return baseService.returnData;
   }
 
+  function isValidPassport(documentTypeName, document) {
+    return documentTypeName === 'Passport' && document.length <= 12;
+  }
+
+  function isForeignValidCard(documentTypeName, document) {
+    return documentTypeName === 'Foreign Card' && document.length <= 12;
+  }
+
+  async function create(request) {
+    try {
+      const documentTypes = documentTypeModel.findOne({
+        where: { id: request.body.DocumentTypes }
+      });
+      const contactType1Id = request.body.contactType1Id;
+      const contactType2Id = request.body.contactType2Id;
+      const contact1 = request.body.contact1;
+      const contact2 = request.body.contact2;
+      const document = request.body.document;
+      const regExphone = RegExp('^[0-9]+$'); //Validation for phonenumber
+
+      // TODO: Technical Debt: Move this validations into one specific service
+      //Validations for DocumentType
+      if (documentTypes) {
+        // document type exists
+        if (documentTypes.name === 'DNI' && document.length != 8) {
+          //DNI
+          throw new Error('DNI invalid');
+        } else if (!isValidPassport(documentTypes.name, document)) {
+          // Passport
+          throw new Error('Passport invalid');
+        } else if (!isForeignValidCard(documentTypes.name, document)) {
+          //Foreign Card
+          throw new Error('Foreign Card invalid');
+        }
+      } else {
+        // document type NO exists
+        throw new Error('Type of document invalid');
+      }
+
+      //Validations for Contact
+      if (contactType1Id) {
+        if (contactType1Id == 1) {
+          //phone
+          if (regExphone.test(contact1) == false) {
+            throw new Error('Only numbers');
+          }
+        }
+      } else if (contactType2Id) {
+        if (contactType2Id == 1) {
+          //phone
+          if (regExphone.test(contact2) == false) {
+            throw new Error('Only numbers');
+          }
+        }
+      }
+
+      const newUser = {
+        name: request.body.Name,
+        lastName: request.body.lastName,
+        birthdate: request.body.birthdate, //Format: YYYY-MM-DD
+        documentTypeId: request.body.documentTypeId,
+        document: request.body.document,
+        genderId: request.body.genderId,
+        countryId: request.body.countryId,
+        contact1: request.body.contact1,
+        contactType1Id: request.body.contactType1Id,
+        contact2: request.body.contact2,
+        contactType2Id: request.body.contactType2Id
+      };
+
+      let created = await personModel.create(newUser); //Create user
+      if (created) {
+        console.log('The person was registered');
+        baseService.returnData.responseCode = 200;
+        baseService.returnData.message = 'Data was registered satisfactory';
+      }
+      return baseService.returnData;
+    } catch (err) {
+      console.log("The person wasn't registered " + err);
+      baseService.returnData.responseCode = 500; //Validation error
+      baseService.returnData.message = "The person wasn't registered";
+    }
+  }
+
   async function findById(id) {
     try {
       const person = await personModel.findOne({
@@ -311,6 +396,7 @@ module.exports = function setupPersonService(models) {
 
   return {
     doList,
+    create,
     modifyPerson,
     findById
   };
