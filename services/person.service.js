@@ -131,7 +131,13 @@ module.exports = function setupPersonService(models) {
   function checkBlankSpacesforUpdate(data) {
     let errors = [];
     for (let prop in data) {
-      if (data[prop] === '' && prop !== 'Contact' && prop !== 'ContactType') {
+      if (
+        data[prop] === '' &&
+        prop !== 'contact1' &&
+        prop !== 'contact2' &&
+        prop !== 'contactType1Id' &&
+        prop !== 'contactType2Id'
+      ) {
         errors.push(`The field ${prop} is required.`);
       }
     }
@@ -157,19 +163,19 @@ module.exports = function setupPersonService(models) {
     } else {
       switch (data.documentTypeId) {
         case '1':
-          if (!/^[0-9]{8}$/.test(data.document)) {
+          if (!/^[0-9]{1,8}$/.test(data.document)) {
             errors.push('Invalid submitted DNI format.');
           }
           break;
 
         case '2':
-          if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
+          if (!/^([a-zA-Z0-9]){1,12}$/.test(data.document)) {
             errors.push('Invalid submitted PASSPORT format.');
           }
           break;
 
         case '3':
-          if (!/^([a-zA-Z0-9]){12}$/.test(data.document)) {
+          if (!/^([a-zA-Z0-9]){1,12}$/.test(data.document)) {
             errors.push('Invalid submitted CE format.');
           }
           break;
@@ -183,9 +189,14 @@ module.exports = function setupPersonService(models) {
 
   function checkBirthDataUpdate(data) {
     let errors = [];
+    const minDate = '1900/01/01';
 
     if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
       errors.push('Invalid Birth Date field format.');
+    } else {
+      if (new Date(data.birthdate) - new Date(minDate) < 0) {
+        errors.push('Invalid Birth Date field value.');
+      }
     }
 
     if (!/^[0-9]{0,1}$/.test(data.genderId)) {
@@ -212,11 +223,7 @@ module.exports = function setupPersonService(models) {
         }
       } else if (dataTypeField == 2) {
         //Email
-        if (
-          !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/.test(
-            contactValue
-          )
-        ) {
+        if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contactValue)) {
           errors.push('Invalid Email format.');
         }
       } else {
@@ -237,22 +244,22 @@ module.exports = function setupPersonService(models) {
       if (person) {
         //Proper data validation for each field to modify
 
-        errors.concat(checkBlankSpacesforUpdate(request.body));
+        errors = errors.concat(checkBlankSpacesforUpdate(request.body));
 
-        errors.concat(checkNameFormatUpdate(request.body));
+        errors = errors.concat(checkNameFormatUpdate(request.body));
 
-        errors.concat(checkDocumentUpdate(request.body));
+        errors = errors.concat(checkDocumentUpdate(request.body));
 
-        errors.concat(checkBirthDataUpdate(request.body));
+        errors = errors.concat(checkBirthDataUpdate(request.body));
 
-        errors.concat(
+        errors = errors.concat(
           checkContactDataUpdate(
             request.body.contactTypeId1,
             request.body.contact1
           )
         );
 
-        errors.concat(
+        errors = errors.concat(
           checkContactDataUpdate(
             request.body.contactTypeId2,
             request.body.contact2
