@@ -19,7 +19,7 @@ module.exports = function setupPersonModel(config) {
       allowNull: false,
       validate: {
         is: ["^[A-ZÑa-zñ'.s_-]+$"], // Allows only leters and '
-        isAlpha: true,
+        //isAlpha: true,
         min: 2
       }
     },
