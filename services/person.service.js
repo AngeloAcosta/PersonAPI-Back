@@ -213,17 +213,7 @@ module.exports = function setupPersonService(models) {
 
   async function create(request) {
     try {
-      const documentTypeId = request.body.documentTypeId;
-      const contactType1Id = request.body.contactType1Id;
-      const contactType2Id = request.body.contactType2Id;
-      const contact1 = request.body.contact1;
-      const contact2 = request.body.contact2;
-      const document = request.body.document;
-      const regExphone = RegExp('^[0-9]+$'); //Validation for phonenumber
-
-     
-
-      const newUser = {
+       const newUser = {
         name: request.body.Name,
         lastName: request.body.lastName,
         birthdate: request.body.birthdate, //Format: YYYY-MM-DD
@@ -237,16 +227,16 @@ module.exports = function setupPersonService(models) {
         contactType2Id: request.body.contactType2Id
       };
 
-      let created = await personModel.create(newUser); //Create user
       let errors = [];
-      if(created) {
-        errors = errors.concat(personValidator.checkBlankSpacesfor(request.body));
+      errors = errors.concat(personValidator.checkBlankSpacesfor(request.body));
   
-        errors = errors.concat(personValidator.checkDocument(request.body));
+      errors = errors.concat(personValidator.checkDocument(request.body));
   
-        errors = errors.concat(personValidator.checkBirthData(request.body));
+      errors = errors.concat(personValidator.checkBirthData(request.body));
+
+      errors = errors.concat(personValidator.checkNameFormat(request.body));
         
-        errors = errors.concat(
+      errors = errors.concat(
           personValidator.checkContactData(
             request.body.contactType1Id,
             request.body.contact1
@@ -259,20 +249,29 @@ module.exports = function setupPersonService(models) {
             request.body.contact2
           )
         );
-
-       console.log('The person was registered');
-        baseService.returnData.responseCode = 200;
-        baseService.returnData.message = 'Data was registered satisfactory';
+          
+        if (errors.length) {
+          baseService.returnData.responseCode = 400;
+          baseService.returnData.message = 'Errors from data validation';
+          baseService.returnData.data = errors;
+        } else {
+          let created = await personModel.create(newUser); //Create user
+          if (created){
+            console.log('The person was registered');
+            baseService.returnData.responseCode = 200;
+            baseService.returnData.message = 'Data was registered satisfactory';
+          }
+          
+        } 
       
-      return baseService.returnData;}
-
+      
+     
     } catch (err) {
       console.log('The person wasn\'t registered ' + err);
       baseService.returnData.responseCode = 500; //Validation error
       baseService.returnData.message = 'The person wasn\'t registered';
     }
-   
-    
+    return baseService.returnData; 
   }
 
   async function findById(id) {
