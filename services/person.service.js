@@ -214,7 +214,7 @@ module.exports = function setupPersonService(models) {
   async function create(request) {
     try {
        const newUser = {
-        name: request.body.Name,
+        name: request.body.name,
         lastName: request.body.lastName,
         birthdate: request.body.birthdate, //Format: YYYY-MM-DD
         documentTypeId: request.body.documentTypeId,
