@@ -81,7 +81,6 @@ module.exports = function personValidationSetup(){
 
   function checkContactData(dataTypeField, contactValue) {
     let errors = [];
-    // TODO: Technical Debt | Move validations into a service and create constants
     if (dataTypeField && contactValue) {
       if (dataTypeField != '' && contactValue != '') {
         // If the dataTypeField is blank
@@ -105,7 +104,7 @@ module.exports = function personValidationSetup(){
         }
       }
     }
-
+    console.log(errors);
     return errors;
   }
 
@@ -133,42 +132,7 @@ module.exports = function personValidationSetup(){
     return errors;
   }
 
-  /*
-   if (documentTypeId) {
-        // document type exists
-        if (documentTypeId == 1 && document.length != 8) {
-          //DNI
-          throw new Error('DNI invalid');
-        } else if (isInValidPassport(documentTypeId, document)) {
-          // Passport
-          throw new Error('Passport invalid');
-        } else if (isNoForeignValidCard(documentTypeId, document)) {
-          //Foreign Card
-          throw new Error('Foreign Card invalid');
-        }
-      } else {
-        // document type NO exists
-        throw new Error('Type of document invalid');
-      }
-      //Validations for Contact
-      if (contactType1Id) {
-        if (contactType1Id == 1) {
-          //phone
-          if (regExphone.test(contact1) == false) {
-            throw new Error('Only numbers');
-          }
-        }
-      } else if (contactType2Id) {
-        if (contactType2Id == 1) {
-          //phone
-          if (regExphone.test(contact2) == false) {
-            throw new Error('Only numbers');
-          }
-        }
-      }
-  */ 
-
-  return {
+   return {
     checkBlankSpacesfor,
     isNoForeignValidCard,
     isInValidPassport,

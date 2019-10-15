@@ -240,25 +240,32 @@ module.exports = function setupPersonService(models) {
       let created = await personModel.create(newUser); //Create user
       let errors = [];
       if(created) {
-          
         errors = errors.concat(personValidator.checkBlankSpacesfor(request.body));
   
         errors = errors.concat(personValidator.checkDocument(request.body));
   
         errors = errors.concat(personValidator.checkBirthData(request.body));
-  
+        
         errors = errors.concat(
           personValidator.checkContactData(
             request.body.contactType1Id,
-            request.boy.contact1
+            request.body.contact1
           )
-        );}
-      if (created) {
-        console.log('The person was registered');
+        );
+
+        errors = errors.concat(
+          personValidator.checkContactData(
+            request.body.contactType2Id,
+            request.body.contact2
+          )
+        );
+
+       console.log('The person was registered');
         baseService.returnData.responseCode = 200;
         baseService.returnData.message = 'Data was registered satisfactory';
-      }
-      return baseService.returnData;
+      
+      return baseService.returnData;}
+
     } catch (err) {
       console.log('The person wasn\'t registered ' + err);
       baseService.returnData.responseCode = 500; //Validation error
