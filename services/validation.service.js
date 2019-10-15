@@ -31,6 +31,18 @@ module.exports = function setupValidationService(models) {
     );
   }
 
+  async function isOlderThanParents(personId, relativeId, kinshipType){
+    const person1 = await personModel.findOne({ where: { personId } });
+    const person2 = await personModel.findOne({ where: { relativeId } });
+    if(kinshipType === constants.fatherKinshipType || kinshipType === constants.motherKinshipType){
+      if(person1.birthdate>person2){
+        return true;
+      }
+    } else{
+
+    }
+  }
+
   async function isValidPerson(personId) {
     const person = await personModel.findOne({ where: { id: personId } });
     return person !== null;
@@ -39,6 +51,19 @@ module.exports = function setupValidationService(models) {
   async function kinshipAlreadyExists(personId, relativeId) {
     const kinship = await kinshipModel.findOne({ where: { personId, relativeId } });
     return kinship !== null;
+  }
+
+  async function isSameGenderCouple(personId, relativeId, kinshipType){
+    const person1 = await personModel.findOne({ where: { personId } });
+    const person2 = await personModel.findOne({ where: { relativeId } });
+    if(kinshipType == constants.coupleKinshipType){
+      if(person1.genderId === person2.genderId){
+        return true;
+      } else{
+        false
+      }
+    }
+    return false;
   }
 
   async function shareSameRoot(person1Id, person2Id) {
@@ -65,6 +90,7 @@ module.exports = function setupValidationService(models) {
     const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
     const mIsSameGenderCouple = isSameGenderCouple(personId, relativeId, kinshipType);
     const mIsOlderThanParents = isOlderThanParents(personId, relativeId, kinshipType);
+    const mIsCorrectGenderParents = isCorrectGenderParents(personId, relativeId, kinshipType);
     if (!mIsValidPerson || !mIsValidRelative || !mIsValidKinshipType) {
       return false;
     } 
@@ -73,7 +99,7 @@ module.exports = function setupValidationService(models) {
       return false;
     }
 
-    // Validate opposite sex of couple
+    // Validate gender of Kinship
     if(mIsSameGenderCouple){
       return false;
     } 
@@ -82,7 +108,8 @@ module.exports = function setupValidationService(models) {
       return false;
     }
     //Validar si papa es Masculino y mama es Femenino
-    
+    //Validar si mi pareja ya tiene pareja en la bd
+
   }
   return {
     validateKinshipCreation
