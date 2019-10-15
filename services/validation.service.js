@@ -62,19 +62,29 @@ module.exports = function setupValidationService(models) {
     const mIsValidPerson = await isValidPerson(personId);
     const mIsValidRelative = await isValidPerson(relativeId);
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
+    const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
+    const mIsSameGenderCouple = isSameGenderCouple(personId, relativeId, kinshipType);
+    const mIsOlderThanParents = isOlderThanParents(personId, relativeId, kinshipType);
     if (!mIsValidPerson || !mIsValidRelative || !mIsValidKinshipType) {
       return false;
-    }
+    } 
     // Validate kinship existance
-    const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
     if (mKinshipAlreadyExists) {
       return false;
     }
-    // Validate already related
+
+    // Validate opposite sex of couple
+    if(mIsSameGenderCouple){
+      return false;
+    } 
+    //Validate age
+    if(mIsOlderThanParents){
+      return false;
+    }
+    //Validar si papa es Masculino y mama es Femenino
     
   }
-
   return {
-    validateAll
+    validateKinshipCreation
   };
 };
