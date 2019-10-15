@@ -31,6 +31,20 @@ module.exports = function setupValidationService(models) {
     );
   }
 
+  async function isOlderThanParents(personId, relativeId, kinshipType) {
+    const person1 = await personModel.findOne({ where: { personId } });
+    const person2 = await personModel.findOne({ where: { relativeId } });
+    if (
+      kinshipType === constants.fatherKinshipType ||
+      kinshipType === constants.motherKinshipType
+    ) {
+      if (person1.birthdate > person2) {
+        return true;
+      }
+    } else {
+    }
+  }
+
   async function isValidPerson(personId) {
     const person = await personModel.findOne({ where: { id: personId } });
     console.log('jhola');
@@ -38,11 +52,57 @@ module.exports = function setupValidationService(models) {
   }
 
   async function kinshipAlreadyExists(personId, relativeId) {
-    const kinship = await kinshipModel.findOne({ where: { personId, relativeId } });
+    const kinship = await kinshipModel.findOne({
+      where: { personId, relativeId }
+    });
     return kinship !== null;
   }
 
-  async function shareSameRoot(person1Id, person2Id) {
+  async function isSameGenderCouple(personId, relativeId, kinshipType) {
+    const person1 = await personModel.findOne({ where: { personId } });
+    const person2 = await personModel.findOne({ where: { relativeId } });
+    if (kinshipType == constants.coupleKinshipType) {
+      if (person1.genderId === person2.genderId) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  async function isIncorrectGenderParents(relativeId, kinshipType) {
+    const person = await personModel.findOne({ where: { relativeId } });
+    if (kinshipType == constants.fatherKinshipType) {
+      if (person.genderId == 1) {
+        return true;
+      } else {
+        return false;
+      }
+    } else if (kinshipType == constants.motherKinshipType) {
+      if (person.genderId == 2) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  function isValidGenderForKinshipType(genderId, kinshipType) {
+    return (
+      (genderId === 1 && kinshipType === "F") ||
+      (genderId === 2 && kinshipType === "M") ||
+      (genderId === 1 && kinshipType === "B") ||
+      (genderId === 2 && kinshipType === "S") ||
+      (genderId === 1 && kinshipType === "GF") ||
+      (genderId === 2 && kinshipType === "GM") ||
+      ((genderId === 1 || genderId === 2) && kinshipType === "C")
+    );
+  }
+
+  /*async function shareSameRoot(person1Id, person2Id) {
     const mIsRootPerson1 = await isRootPerson(person1Id);
     const mIsRootPerson2 = await isRootPerson(person2Id);
     if (mIsRootPerson1 && mIsRootPerson2) {
@@ -92,21 +152,25 @@ module.exports = function setupValidationService(models) {
     const mIsOlderThanParents = await isOlderThanParents(personId, relativeId, kinshipType);
     if (!mIsValidPerson || !mIsValidRelative || !mIsValidKinshipType) {
       return false;
-    } 
+    }
     // Validate kinship existance
     if (mKinshipAlreadyExists) {
       return false;
     }
-
-    // Validate opposite sex of couple
-    if(mIsSameGenderCouple){
-      return false;
-    } 
-    //Validate age
-    if(mIsOlderThanParents){
+    // Validate couple gender
+    if (mIsSameGenderCouple) {
       return false;
     }
+    //Validate age
+    /*if (mIsOlderThanParents) {
+      return false;
+    }*/
     //Validar si papa es Masculino y mama es Femenino
+    if (mIsIncorrectGenderParents) {
+      return false;
+    }
+    //Validar si mi pareja ya tiene pareja en la bd
+
     return true;
   }
 
