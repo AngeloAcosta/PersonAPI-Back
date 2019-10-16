@@ -39,17 +39,10 @@ module.exports = function setupValidationService(models) {
     return kinship !== null;
   }
 
-  async function isSameGenderCouple(personId, relativeId, kinshipType) {
-    const person1 = await personModel.findOne({ where: { personId } });
-    const person2 = await personModel.findOne({ where: { relativeId } });
+  async function isSameGenderCouple(genderId, relativeGenderId, kinshipType) {
     if (kinshipType == constants.coupleKinshipType) {
-      if (person1.genderId === person2.genderId) {
-        return true;
-      } else {
-        return false;
-      }
+      return genderId === relativeGenderId;
     }
-    return false;
   }
 
   async function isIncorrectGenderParents(relativeId, kinshipType) {
@@ -70,16 +63,13 @@ module.exports = function setupValidationService(models) {
       return false;
     }
   }
+  async function isIncorrectGenderFather() {}
+  async function isIncorrectGenderMother() {}
 
-  function isValidGenderForKinshipType(genderId, kinshipType) {
+  function isValidGenderForKinshipType(personId, relativeId, kinshipType) {
     return (
-      (genderId === 1 && kinshipType === "F") ||
-      (genderId === 2 && kinshipType === "M") ||
-      (genderId === 1 && kinshipType === "B") ||
-      (genderId === 2 && kinshipType === "S") ||
-      (genderId === 1 && kinshipType === "GF") ||
-      (genderId === 2 && kinshipType === "GM") ||
-      ((genderId === 1 || genderId === 2) && kinshipType === "C")
+      isIncorrectGenderParents(relativeId, kinshipType) ||
+      isSameGenderCouple(personId, relativeId, kinshipType)
     );
   }
 
@@ -100,14 +90,15 @@ module.exports = function setupValidationService(models) {
   }*/
 
   async function validateKinshipCreation(personId, relativeId, kinshipType) {
-    // Validate given data
+    const person1 = await personModel.findOne({ where: { personId } });
+    const person2 = await personModel.findOne({ where: { relativeId } });
     const mIsValidPerson = await isValidPerson(personId);
     const mIsValidRelative = await isValidPerson(relativeId);
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
     const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
     const mIsSameGenderCouple = isSameGenderCouple(
-      personId,
-      relativeId,
+      person1.genderId,
+      person2.genderId,
       kinshipType
     );
     const mIsOlderThanParents = isOlderThanParents(
@@ -133,7 +124,7 @@ module.exports = function setupValidationService(models) {
     //Validate age
     /*if (mIsOlderThanParents) {
       return false;
-    }*/
+    }
     //Validar si papa es Masculino y mama es Femenino
     if (mIsIncorrectGenderParents) {
       return false;
@@ -144,5 +135,6 @@ module.exports = function setupValidationService(models) {
   }
   return {
     validateKinshipCreation
-  };
+  };*/
+  }
 };
