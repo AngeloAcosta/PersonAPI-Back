@@ -20,7 +20,7 @@ module.exports = function setupKinshipService(models) {
       if (validationResult) {
         await kinshipModel.create(kinshipData);
         baseService.returnData.responseCode = 200;
-        baseService.returnData.message = 'Getting data successfully';
+        baseService.returnData.message = 'Inserting Data Successfully';
         baseService.returnData.data = {};
       } else {
         baseService.returnData.responseCode = 400;
@@ -34,9 +34,9 @@ module.exports = function setupKinshipService(models) {
         baseService.returnData.message = '' + err;
         baseService.returnData.data = [];
       }
-    baseService.returnData.responseCode = 200;
+   /* baseService.returnData.responseCode = 200;
     baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = {};
+    baseService.returnData.data = {};*/
 
     return baseService.returnData;
   }

@@ -4,6 +4,10 @@ module.exports = {
     brotherKinshipType: 'B',
     sisterKinshipType: 'S',
     grandfatherKinshipType: 'GF',
-    grandmotherKinshipType: 'GM',
+    KinshipType: 'GM',
+    grandmothermotherkinshipTyp: 'GMM',
+    grandfathermotherkinshipTyp: 'GFM',
+    grandmotherfatherkinshipTyp: 'GMF',
+    grandfatherfatherkinshipTyp: 'GFF',
     coupleKinshipType: 'C'
 }
