@@ -25,6 +25,7 @@ module.exports = async function () {
    });
   const userService = setupUserService(dbInstance.userModel);
   const kinshipService = setupKinshipService({
+    personModel: dbInstance.personModel,
     kinshipModel: dbInstance.kinshipModel,
     validationService
   });

@@ -12,7 +12,12 @@ const get = async (request, response) => {
 
   try {
     let dbService = await setupDBService();
-    let kinshipsData = await dbService.kinshipService.doList();
+    let limit = parseInt(request.query.limit) || 20;
+    let offset = parseInt(request.query.offset) || 0;
+    let query = request.query.query || '';
+    let orderBy = parseInt(request.query.orderBy) || 1;
+    let orderType = parseInt(request.query.orderType) || 1;
+    let kinshipsData = await dbService.kinshipService.doList({ limit, offset, query, orderBy, orderType });
 
     responseCode = kinshipsData.responseCode;
     responseData = baseController.getSuccessResponse(
