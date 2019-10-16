@@ -41,7 +41,7 @@ module.exports = function setupPersonModel(config) {
     },
     genderId: {
       type: Sequelize.INTEGER,
-      allowNull: true,
+      allowNull: false,
       references: {
         model: 'genders',
         key: 'id' //id is created by default

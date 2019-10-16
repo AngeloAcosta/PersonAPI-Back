@@ -2,8 +2,8 @@
   "dialect": "mysql",
   "database": "person_db",
   "username": "person_db_user",
-  "password": "",
+  "password": "secret",
   "host": "127.0.0.1",
-  "port": "3036",
+  "port": "8084",
   "operatorsAliases": false
 }
