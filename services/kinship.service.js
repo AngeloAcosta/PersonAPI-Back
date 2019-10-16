@@ -16,7 +16,7 @@ module.exports = function setupKinshipService(models) {
       const relativeId = kinshipData.relativeId
       const kinshipType = kinshipData.kinshipType
       const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
-
+     
       if (validationResult) {
         await kinshipModel.create(kinshipData);
         baseService.returnData.responseCode = 200;
