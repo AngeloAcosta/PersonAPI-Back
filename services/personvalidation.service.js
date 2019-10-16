@@ -70,16 +70,7 @@ module.exports = function personValidationSetup(){
 
   function checkBirthData(data) {
     let errors = [];
-    const minDate = '1900/01/01';
-    if (data.birthdate) {
-      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(data.birthdate)) {
-        errors.push('Invalid Birth Date field format.');
-      } else {
-        if (new Date(data.birthdate) - new Date(minDate) < 0 || Date.now() - new Date(data.birthdate) < 0) {
-          errors.push('Invalid Birth Date field value.');
-        }
-      }
-    }
+    checkBirthday(data.birthdate,errors)
 
     if (data.genderId) {
       if (!/^[0-9]{0,1}$/.test(data.genderId)) {
@@ -96,28 +87,28 @@ module.exports = function personValidationSetup(){
     return errors;
   }
 
+  function checkBirthday(param,err){
+    const minDate='1900/01/01';
+    if (param) {
+      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(param)) {
+        err.push('Invalid Birth Date field format.');
+      } else {
+        if (new Date(param) - new Date(minDate) < 0 || Date.now() - new Date(param) < 0) {
+          err.push('Invalid Birth Date field value.');
+        }
+      }
+  }
+}
   function checkContactData(dataTypeField, contactValue) {
     let errors = [];
     if (dataTypeField && contactValue) {
-      if (dataTypeField != '' && contactValue != '') {
+      if (dataTypeField !== '' && contactValue !== '') {
         // If the dataTypeField is blank
         if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
           errors.push('Contact Type field is invalid.');
         } else {
           //Validation to Contact1
-          if (dataTypeField == 1) {
-            //Telephone
-            if (!/^([0-9]){6,9}$/.test(contactValue)) {
-              errors.push('Invalid Telephone format.');
-            }
-          } else if (dataTypeField == 2) {
-            //Email
-            if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contactValue)) {
-              errors.push('Invalid Email format.');
-            }
-          } else {
-            errors.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
-          }
+          validateContact(dataTypeField,contactValue,errors)
         }
       }
     }
@@ -125,6 +116,21 @@ module.exports = function personValidationSetup(){
     return errors;
   }
 
+  function validateContact(dataTypef,contact,err){
+    if (dataTypef === 1) {
+      //Telephone
+      if (!/^([0-9]){6,9}$/.test(contact)) {
+        err.push('Invalid Telephone format.');
+      }
+    } else if (dataTypef === 2) {
+      //Email
+      if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contact)) {
+        err.push('Invalid Email format.');
+      }
+    } else {
+      err.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
+    }
+  }
   function isInValidPassport(documentTypeId, document) {
     return documentTypeId == 2 && document.length > 12;
   }
