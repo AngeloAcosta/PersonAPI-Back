@@ -43,39 +43,24 @@ module.exports = function setupPersonService(models) {
   }
 
   function getOrderField(orderBy) {
-    let qOrderBy;
-    switch (orderBy) {
-      case 1:
-        qOrderBy = ['name'];
-        break;
-      case 2:
-        qOrderBy = ['document'];
-        break;
-      case 3:
-        qOrderBy = ['documentType', 'name'];
-        break;
-      case 4:
-        qOrderBy = ['country', 'name'];
-        break;
-      default:
-        qOrderBy = 'name';
-        break;
+    let qOrderBy = ['name'];
+    if(orderBy===2){
+      qOrderBy = ['document']
+    }else if(orderBy===3){
+      qOrderBy =['documentType','name']
+    }else if(orderBy ===4){
+      qOrderBy =['country','name']
     }
     return qOrderBy;
   }
 
   function getOrderType(orderType) {
-    let qOrderType;
-    switch (orderType) {
-      case 1:
-        qOrderType = 'ASC';
-        break;
-      case 2:
+    let qOrderType="ASC";
+    if (orderType===2) {
         qOrderType = 'DESC';
-        break;
-      default:
-        qOrderType = 'ASC';
-        break;
+    }
+    else if(orderType===1){
+      qOrderType='ASC'
     }
     return qOrderType;
   }

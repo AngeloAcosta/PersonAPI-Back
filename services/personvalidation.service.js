@@ -3,13 +3,13 @@ module.exports = function personValidationSetup(){
     function checkNameFormat(data) {
     let errors = [];
     if (data.name) {
-        if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(data.name)) {
+        if (!validateNames(data.name)) {
           errors.push('Some characters in the Name field are not allowed.');
         }
       }
   
       if (data.lastName) {
-        if (!/[a-zA-ZñÑ'\s]{1,25}/.test(data.lastName)) {
+        if (!validateNames(data.lastName)) {
           errors.push('Some characters in the Last Name field are not allowed.');
         }
       }
@@ -17,38 +17,55 @@ module.exports = function personValidationSetup(){
       return errors;
     }
 
+  function validateNames(param){
+    if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(param)) {
+      return false
+  }
+  return true
+}
   function checkDocument(data) {
     let errors = [];
     if (data.documentTypeId) {
       if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
         errors.push('Invalid submitted Document Type value.');
       } else {
-        switch (data.documentTypeId) {
-          case '1':
-            if (!/^[0-9]{1,8}$/.test(data.document)) {
-              errors.push('Invalid submitted DNI format.');
-            }
-            break;
-
-          case '2':
-            if (!/^([a-zA-Z0-9]){1,12}$/.test(data.document)) {
-              errors.push('Invalid submitted PASSPORT format.');
-            }
-            break;
-
-          case '3':
-            if (!/^([a-zA-Z0-9]){1,12}$/.test(data.document)) {
-              errors.push('Invalid submitted CE format.');
-            }
-            break;
-
-          default:
-            break;
-        }
-      }
+        validateDocument(data.documentTypeId,data.document,errors)
     }
-    
     return errors;
+  }
+}
+
+  function validateForeignDocument(param){
+    if (!/^([a-zA-Z0-9]){1,12}$/.test(param)){
+      return false
+    }
+    return true
+  }
+
+  function validateDocument(doctype,document,err){
+    switch (doctype) {
+      case '1':
+        if (!/^[0-9]{1,8}$/.test(document)) {
+          err.push(`Invalid submitted DNI format.`);
+        }
+        break;
+
+      case '2':
+        if (!validateForeignDocument(document)) {
+          err.push('Invalid submitted PASSPORT format.');
+        }
+        break;
+
+      case '3':
+        if (!validateForeignDocument(document)) {
+          err.push('Invalid submitted CE format.');
+        }
+        break;
+
+      default:
+        break;
+    }
+
   }
 
   function checkBirthData(data) {
