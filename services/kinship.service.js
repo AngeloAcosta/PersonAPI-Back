@@ -46,39 +46,21 @@ module.exports = function setupKinshipService(models) {
   }
 
   function getOrderField(orderBy) {
-    let qOrderBy;
-    switch (orderBy) {
-      case 1:
-        qOrderBy = ["person", "name"];
-        break;
-      case 2:
-        qOrderBy = ["person", "document"];
-        break;
-      case 3:
-        qOrderBy = ["relative", "name"];
-        break;
-      case 4:
-        qOrderBy = ["relative", "document"];
-        break;
-      default:
-        qOrderBy = ["person", "name"];
-        break;
-    }
+    let qOrderBy = ["person", "name"];
+    if(orderBy === 2){
+      qOrderBy = ["person", "name"];
+    } else if(orderBy === 3){
+      qOrderBy = ["relative", "name"];
+    } else if(orderBy === 4){
+      qOrderBy = ["relative", "document"];
+    }         
     return qOrderBy;
   }
 
   function getOrderType(orderType) {
-    let qOrderType;
-    switch (orderType) {
-      case 1:
-        qOrderType = "ASC";
-        break;
-      case 2:
-        qOrderType = "DESC";
-        break;
-      default:
-        qOrderType = "ASC";
-        break;
+    let qOrderType = "ASC";
+    if( orderType === 2){
+      qOrderType = "DESC";
     }
     return qOrderType;
   }
