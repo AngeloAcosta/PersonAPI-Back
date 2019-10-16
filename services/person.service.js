@@ -104,14 +104,10 @@ module.exports = function setupPersonService(models) {
       // Mold the response
       const peopleData = getDoListModel(people);
       // Return the data
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
       baseService.returnData.data = peopleData;
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      baseService.responseData(500,err,{})
     }
 
     return baseService.returnData;
@@ -168,28 +164,19 @@ module.exports = function setupPersonService(models) {
         //Send Validation Errors or Update the data
 
         if (errors.length) {
-          baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
-          baseService.returnData.data = errors;
+          baseService.responseData(400,"Errors from data validation",errors)
         } else {
           const personModified = await personModel.update(request.body, {
             where
           });
-
-          baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Update completed successfully.';
-          baseService.returnData.data = personModified;
+          baseService.responseData(200,"Update completed successfully",personModified)
         }
       } else {
-        baseService.returnData.responseCode = 400;
-        baseService.returnData.message = 'Person doesnt exist on the database.';
-        baseService.returnData.data = errors;
+        baseService.responseData(400,"Person doesnt exist on the database",errors)
       }
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      baseService.responseData(500,err,[])
     }
 
     return baseService.returnData;
@@ -236,15 +223,12 @@ module.exports = function setupPersonService(models) {
         );
           
         if (errors.length) {
-          baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
-          baseService.returnData.data = errors;
+          baseService.responseData(errors,"Errors from data validation",400)
         } else {
           let created = await personModel.create(newUser); //Create user
           if (created){
             console.log('The person was registered');
-            baseService.returnData.responseCode = 200;
-            baseService.returnData.message = 'Data was registered satisfactory';
+            baseService.responseData(200,"Data was registered satisfactory");
           }
           
         } 
@@ -253,8 +237,7 @@ module.exports = function setupPersonService(models) {
      
     } catch (err) {
       console.log('The person wasn\'t registered ' + err);
-      baseService.returnData.responseCode = 500; //Validation error
-      baseService.returnData.message = 'The person wasn\'t registered';
+      baseService.responseData(500,"The person wasn\'t registered");
     }
     return baseService.returnData; 
   }
@@ -299,15 +282,10 @@ module.exports = function setupPersonService(models) {
         contact2: person.contact2
       }
       
-     
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = peopleData;
+      baseService.responseData(200,"Getting data successfully",peopleData)
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      baseService.responseData(500,err,[])
     }
 
     return baseService.returnData;

@@ -6,23 +6,23 @@ module.exports = function setupAuthenticationService() {
   const baseService = new setupBaseService();
 
   async function login(data) {
-   return responseData(baseService);
+    return baseService.responseData();
   }
 
   async function checkLogin(email, password) {
-    return responseData(baseService);
+    return baseService.responseData();
   }
 
   async function changePassword(password) {
-    return responseData(baseService);
+    return baseService.responseData();
   }
 
   async function resetPassword(email) {
-    return responseData(baseService);
+    return baseService.responseData();
   }
 
   async function logout() {
-    return responseData(baseService);
+    return baseService.responseData();
   }
   
   return {
@@ -34,10 +34,4 @@ module.exports = function setupAuthenticationService() {
   };
 };
 
-function responseData(baseService){
-  baseService.returnData.message = 'Getting data successfully';
-  baseService.returnData.responseCode = 200;
-  baseService.returnData.data = {};
 
-  return baseService.returnData;
-}
