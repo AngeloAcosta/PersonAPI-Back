@@ -46,21 +46,21 @@ module.exports = function setupKinshipService(models) {
   }
 
   function getOrderField(orderBy) {
-    let qOrderBy = ["person", "name"];
+    let qOrderBy = ['person', 'name'];
     if(orderBy === 2){
-      qOrderBy = ["person", "name"];
+      qOrderBy = ['person', 'name'];
     } else if(orderBy === 3){
-      qOrderBy = ["relative", "name"];
+      qOrderBy = ['relative', 'name'];
     } else if(orderBy === 4){
-      qOrderBy = ["relative", "document"];
+      qOrderBy = ['relative', 'document'];
     }         
     return qOrderBy;
   }
 
   function getOrderType(orderType) {
-    let qOrderType = "ASC";
+    let qOrderType = 'ASC';
     if( orderType === 2){
-      qOrderType = "DESC";
+      qOrderType = 'DESC';
     }
     return qOrderType;
   }
@@ -96,11 +96,11 @@ module.exports = function setupKinshipService(models) {
       const kinships = await kinshipModel.findAll({
         include: [
           {
-            as: "person",
+            as: 'person',
             model: personModel
           },
           {
-            as: "relative",
+            as: 'relative',
             model: personModel
           }
         ],
@@ -122,12 +122,12 @@ module.exports = function setupKinshipService(models) {
       kinships = getDoListModel(kinships);
 
       baseService.returnData.responseCode = 200;
-      baseService.returnData.message = "Getting data successfully";
+      baseService.returnData.message = 'Getting data successfully';
       baseService.returnData.data = kinships;
     } catch (err) {
-      console.log("Error: ", err);
+      console.log('Error: ', err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = "" + err;
+      baseService.returnData.message = '' + err;
       baseService.returnData.data = [];
     }
 
@@ -145,12 +145,12 @@ module.exports = function setupKinshipService(models) {
       });
 
       baseService.returnData.responseCode = 200;
-      baseService.returnData.message = "Getting data successfully";
+      baseService.returnData.message = 'Getting data successfully';
       baseService.returnData.data = kinship;
     } catch (err) {
-      console.log("Error: ", err);
+      console.log('Error: ', err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = "" + err;
+      baseService.returnData.message = '' + err;
       baseService.returnData.data = [];
     }
 
