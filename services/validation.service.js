@@ -51,7 +51,12 @@ module.exports = function setupValidationService(models) {
       where: { personId: personId, relativeId: relativeId }
     });
     console.log("Already Exist");
-    return kinship !== null;
+    if(kinship !== null){
+      console.log("Estoy aqui1");
+       return true} 
+       
+      console.log("Estoy aqui2");
+       return false;
   }
   async function isSameGenderCouple(genderId, relativeGenderId, kinshipType) {
     if (kinshipType == constants.coupleKinshipType) {
@@ -261,7 +266,9 @@ module.exports = function setupValidationService(models) {
 
   function validateKinshipCreation(personId, relativeId, kinshipType) {
     switch (kinshipType) {
-      case "M" || "F":
+      case "M":
+      return kinshipSecondLevel(personId, relativeId, kinshipType);
+      case "F":
         return kinshipSecondLevel(personId, relativeId, kinshipType);
       case "C":
         return kinshipCouple(personId, relativeId, kinshipType);
