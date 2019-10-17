@@ -7,21 +7,22 @@ module.exports = function personValidationSetup(){
         if (!validateNames(data.name)) {
           errors.push('Some characters in the Name field are not allowed.');
         }
+      } else {
+          errors.push("Name can't be null")
       }
   
       if (data.lastName) {
         if (!validateNames(data.lastName)) {
           errors.push('Some characters in the Last Name field are not allowed.');
+        } else {
+          errors.push("Last name can't be null")
         }
     
         return errors;
       }
     }
   function validateNames(param){
-    if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(param)) {
-      return false
-  }
-  return true
+      return /^[a-zA-ZñÑ'\s]{1,25}$/.test(param) 
 }
   function checkDocument(data) {
     let errors = [];
@@ -36,10 +37,7 @@ module.exports = function personValidationSetup(){
 }
 
   function validateForeignDocument(param){
-    if (!/^([a-zA-Z0-9]){1,12}$/.test(param)){
-      return false
-    }
-    return true
+    return /^([a-zA-Z0-9]){1,12}$/.test(param)
   }
 
   function validateDocument(doctype,document,err){
@@ -49,19 +47,16 @@ module.exports = function personValidationSetup(){
           err.push(`Invalid submitted DNI format.`);
         }
         break;
-
       case '2':
         if (!validateForeignDocument(document)) {
           err.push('Invalid submitted PASSPORT format.');
         }
         break;
-
       case '3':
         if (!validateForeignDocument(document)) {
           err.push('Invalid submitted CE format.');
         }
         break;
-
       default:
         break;
     }
