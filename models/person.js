@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-const Sequelize = require("sequelize");
-const setupDatabase = require("./database");
+const Sequelize = require('sequelize');
+const setupDatabase = require('./database');
 
 module.exports = function setupPersonModel(config) {
   const sequelize = setupDatabase(config);
-  const person = sequelize.define("person", {
+  const person = sequelize.define('person', {
     name: {
       type: Sequelize.STRING(25),
       allowNull: true,
@@ -28,8 +28,8 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.INTEGER,
       allowNull: true, //Validation is in person.service
       references: {
-        model: "documentTypes",
-        key: "id"
+        model: 'documentTypes',
+        key: 'id'
       }
     },
     document: {
@@ -41,16 +41,16 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: "genders",
-        key: "id" //id is created by default
+        model: 'genders',
+        key: 'id' //id is created by default
       }
     },
     countryId: {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {
-        model: "countries",
-        key: "id"
+        model: 'countries',
+        key: 'id'
       }
     },
     contact1: {
@@ -61,8 +61,8 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {
-        model: "contactTypes",
-        key: "id"
+        model: 'contactTypes',
+        key: 'id'
       }
     },
     contact2: {
@@ -73,8 +73,8 @@ module.exports = function setupPersonModel(config) {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {
-        model: "contactTypes",
-        key: "id"
+        model: 'contactTypes',
+        key: 'id'
       }
     },
     isGhost: {
@@ -82,10 +82,10 @@ module.exports = function setupPersonModel(config) {
       allowNull: false
     }
   });
-  person.belongsTo(sequelize.models.contactType, { as: "contactType1" });
-  person.belongsTo(sequelize.models.contactType, { as: "contactType2" });
-  person.belongsTo(sequelize.models.documentType, { as: "documentType" });
-  person.belongsTo(sequelize.models.gender, { as: "gender" });
-  person.belongsTo(sequelize.models.country, { as: "country" });
+  person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });
+  person.belongsTo(sequelize.models.contactType, { as: 'contactType2' });
+  person.belongsTo(sequelize.models.documentType, { as: 'documentType' });
+  person.belongsTo(sequelize.models.gender, { as: 'gender' });
+  person.belongsTo(sequelize.models.country, { as: 'country' });
   return person;
 };
