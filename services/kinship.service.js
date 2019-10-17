@@ -65,6 +65,7 @@ module.exports = function setupKinshipService(models) {
     return qOrderType;
   }
 
+  /*
   function getDoListModel(kinships) {
     return kinships.map(kinship => {
       const person = {
@@ -85,7 +86,7 @@ module.exports = function setupKinshipService(models) {
         kinshipType
       }
     });
-  }
+  }*/
 
   async function doList(requestQuery) {
     try {
@@ -119,7 +120,7 @@ module.exports = function setupKinshipService(models) {
         order: [[...qOrderBy, qOrderType]]
       });
       // Mold the response
-      kinships = getDoListModel(kinships);
+     // kinships = getDoListModel(kinships);
 
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
