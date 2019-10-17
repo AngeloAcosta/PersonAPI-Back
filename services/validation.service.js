@@ -5,6 +5,7 @@ const constants = require("./constants");
 module.exports = function setupValidationService(models) {
   const kinshipModel = models.kinshipModel;
   const personModel = models.personModel;
+  var cer = [];
 
   function getRootParentsRecursive(kinships, personId) {
     const fatherKinship = kinships.find(
@@ -102,23 +103,64 @@ module.exports = function setupValidationService(models) {
     );
   }
 
-  /*async function shareSameRoot(person1Id, person2Id) {
-    const mIsRootPerson1 = await isRootPerson(person1Id);
-    const mIsRootPerson2 = await isRootPerson(person2Id);
-    if (mIsRootPerson1 && mIsRootPerson2) {
-      return false;
-    } else {
-      if (mIsRootPerson1) {
-        
-      } else if (mIsRootPerson2) {
-        
-      } else {
+  function isIntheSameTree(personId, relativeId) {
+    var pil = [[]];
+    var temp = [];
+    temp.push(personId);
+    pil.push(temp);
+    procesa([["S"]], "G");
+  }
 
+  function procesa(pil, fin) {
+    var trayectoria_nueva = [];
+    var prim = [];
+    var ult = "";
+    do {
+      console.log(pil);
+      if (pil === []) {
+        console.log("No hay solución");
+      }
+      prim = pil[0];
+      pil.shift();
+      ult = prim[0];
+      if (ult == fin) {
+        console.log(prim);
+        break;
+      }
+      trayectoria_nueva = Object.values(trayectoriaNueva(ult, prim));
+      for (var i = 0; i < pil.length; i++) {
+        trayectoria_nueva.push(pil[i]);
+      }
+      pil = trayectoria_nueva;
+    } while (true);
+  }
+
+  function trayectoriaNueva(ult, prim) {
+    var tray_nuev = [];
+    var lb = [];
+    if (cer.includes(ult)) {
+      return [];
+    }
+    cer = [ult, ...cer];
+    for (var i = 0; i < Object.values(espacioBusqueda()).length; i++) {
+      if (Object.values(espacioBusqueda())[i][0] == ult) {
+        lb = Object.values(espacioBusqueda())[i];
+        break;
       }
     }
-  } */
+    lb = lb.filter(x => !cer.includes(x));
+    for (var i = 0; i < lb.length; i++) {
+      var temp = [];
+      temp.push(lb[i]);
+      for (var j = 0; j < prim.length; j++) {
+        temp.push(prim[j]);
+      }
+      tray_nuev.push(temp);
+    }
+    return tray_nuev;
+  }
 
-/*Validación de comparación de edades entre parientes*/
+  /*Validación de comparación de edades entre parientes*/
   async function isOlderThanParents(
     personBirthdate,
     relativeBirthdate,
@@ -142,6 +184,7 @@ module.exports = function setupValidationService(models) {
     const mIsValidRelative = await isValidPerson(relativeId);
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
     const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
+    const mIsInTheSameTree = isIntheSameTree(personId, relativeId);
 
     const mIsValidGenderForKinshipType = isValidGenderForKinshipType(
       person1.genderId,
@@ -157,6 +200,10 @@ module.exports = function setupValidationService(models) {
     }
     // Validate incorrect gender kinship
     if (mIsValidGenderForKinshipType) {
+      return false;
+    }
+
+    if (mIsInTheSameTree) {
       return false;
     }
     return true;
