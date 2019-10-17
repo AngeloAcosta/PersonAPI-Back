@@ -37,7 +37,8 @@ module.exports = function setupPersonService(models) {
         contactType1,
         contact1: person.contact1,
         contactType2,
-        contact2: person.contact2
+        contact2: person.contact2,
+        isGhost: person.isGhost
       };
     });
   }
@@ -224,7 +225,8 @@ module.exports = function setupPersonService(models) {
         contact1: request.body.contact1,
         contactType1Id: request.body.contactType1Id,
         contact2: request.body.contact2,
-        contactType2Id: request.body.contactType2Id
+        contactType2Id: request.body.contactType2Id,
+        isGhost: false
       };
 
       let errors = [];
@@ -311,7 +313,8 @@ module.exports = function setupPersonService(models) {
         contactType1,
         contact1: person.contact1,
         contactType2,
-        contact2: person.contact2
+        contact2: person.contact2,
+        isGhost: person.isGhost
       }
       
      
