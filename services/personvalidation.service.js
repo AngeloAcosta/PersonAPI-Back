@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = function personValidationSetup(){
     function checkNameFormat(data) {
     let errors = [];
@@ -12,11 +13,10 @@ module.exports = function personValidationSetup(){
         if (!validateNames(data.lastName)) {
           errors.push('Some characters in the Last Name field are not allowed.');
         }
+    
+        return errors;
       }
-  
-      return errors;
     }
-
   function validateNames(param){
     if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(param)) {
       return false
@@ -102,7 +102,7 @@ module.exports = function personValidationSetup(){
   function checkContactData(dataTypeField, contactValue) {
     let errors = [];
     if (dataTypeField && contactValue) {
-      if (dataTypeField !== '' && contactValue !== '') {
+      if(!dataTypeField && !contactValue) {
         // If the dataTypeField is blank
         if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
           errors.push('Contact Type field is invalid.');
@@ -132,11 +132,11 @@ module.exports = function personValidationSetup(){
     }
   }
   function isInValidPassport(documentTypeId, document) {
-    return documentTypeId == 2 && document.length > 12;
+    return documentTypeId === 2 && document.length > 12;
   }
 
   function isNoForeignValidCard(documentTypeId, document) {
-    return documentTypeId == 3 && document.length > 12;
+    return documentTypeId === 3 && document.length > 12;
   }
 
   function checkBlankSpacesfor(data) {
@@ -163,5 +163,6 @@ module.exports = function personValidationSetup(){
     checkNameFormat,
     checkBirthData,
     checkDocument
-  }
-}
+    }
+   }
+  

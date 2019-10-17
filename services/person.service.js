@@ -2,7 +2,7 @@
 
 const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
-const personValidation = require('./personvalidation.service');
+const personValidation = require('./personvalidation.service.js');
 
 const Op = Sequelize.Op;
 
