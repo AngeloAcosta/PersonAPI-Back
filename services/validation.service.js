@@ -259,7 +259,9 @@ module.exports = function setupValidationService(models) {
 
   function validateKinshipCreation(personId, relativeId, kinshipType) {
     switch (kinshipType) {
-      case "M" || "F":
+      case "M":
+      return kinshipSecondLevel(personId, relativeId, kinshipType);
+      case "F":
         return kinshipSecondLevel(personId, relativeId, kinshipType);
       case "C":
         return kinshipCouple(personId, relativeId, kinshipType);
