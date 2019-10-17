@@ -8,39 +8,35 @@ module.exports = function setupPersonModel(config) {
   const person = sequelize.define('person', {
     name: {
       type: Sequelize.STRING(25),
-      allowNull: false,
+      allowNull: true,
       validate: {
-        is: ["^[A-Za-z.\s_-]+$"],
+        is: ["^[A-ZÑa-zñ.s_-]+$"], //Allows only leters
         min: 1
       }
     },
     lastName: {
       type: Sequelize.STRING(25),
-      allowNull: false,
+      allowNull: true,
       validate: {
-        is: ["^[A-Za-z.\s_-]+$"],
-        isAlpha: true,
+        is: ["^[A-ZÑa-zñ'.s_-]+$"], // Allows only leters and '
         min: 2
       }
     },
     birthdate: {
       type: Sequelize.DATEONLY,
-      allowNull: false,
-      validate: {
-        isDate: true
-      }
+      allowNull: true
     },
     documentTypeId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true, //Validation is in person.service
       references: {
         model: 'documentTypes',
         key: 'id'
       }
     },
     document: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
+      type: Sequelize.STRING(25),
+      allowNull: true,
       unique: true
     },
     genderId: {
@@ -48,12 +44,12 @@ module.exports = function setupPersonModel(config) {
       allowNull: false,
       references: {
         model: 'genders',
-        key: 'id'
+        key: 'id' //id is created by default
       }
     },
     countryId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'countries',
         key: 'id'
@@ -65,6 +61,7 @@ module.exports = function setupPersonModel(config) {
     },
     contactType1Id: {
       type: Sequelize.INTEGER,
+      allowNull: true,
       references: {
         model: 'contactTypes',
         key: 'id'
@@ -76,10 +73,15 @@ module.exports = function setupPersonModel(config) {
     },
     contactType2Id: {
       type: Sequelize.INTEGER,
+      allowNull: true,
       references: {
         model: 'contactTypes',
         key: 'id'
       }
+    },
+    isGhost: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false
     }
   });
   person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });

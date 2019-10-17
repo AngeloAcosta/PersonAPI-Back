@@ -1,4 +1,5 @@
 {
+  "dialect": "mysql",
   "database": "person_db",
   "username": "person_db_user",
   "password": "secret",

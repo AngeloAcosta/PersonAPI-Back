@@ -3,13 +3,11 @@
 const setupBaseService = require('./base.service');
 
 module.exports = function setupUserService(userModel) {
-
   const model = userModel;
 
   let baseService = new setupBaseService();
 
   async function create(userData) {
-    
     baseService.returnData.responseCode = 200;
     baseService.returnData.message = 'Getting data successfully';
     baseService.returnData.data = {};
@@ -19,7 +17,6 @@ module.exports = function setupUserService(userModel) {
 
   async function doList() {
     try {
-
       const users = await userModel.findAll();
 
       baseService.returnData.responseCode = 200;

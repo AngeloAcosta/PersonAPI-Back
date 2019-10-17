@@ -12,7 +12,7 @@ var app = require('./app');
  */
 
 //This can receive the port number from .env, in which case it will be a string
-var port = normalizePort(5001);
+var port = process.env.PORT || normalizePort(5001);
 app.set('port', port);
 
 /**
