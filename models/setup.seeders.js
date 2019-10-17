@@ -150,6 +150,7 @@ async function seedPeople(model) {
       contactType1Id,
       contact2,
       contactType2Id,
+      isGhost: false,
       createdAt: faker.date.past(),
       updatedAt: new Date()
     });
