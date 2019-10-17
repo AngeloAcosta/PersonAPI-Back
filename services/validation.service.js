@@ -163,7 +163,7 @@ if (person1.genderId != person2.genderId){
 
 }return false;
 }
-  async function isOlderThanParents(
+ /* async function isOlderThanParents(
     personBirthdate,
     relativeBirthdate,
     kinshipType
@@ -176,7 +176,7 @@ if (person1.genderId != person2.genderId){
       return true;
     }
     return false;
-  }
+  }*/
 async function kinshipSecondLevel(personId, relativeId,kinshipType){
   const mIsValidPerson = await isValidPerson(personId);
   const mIsValidRelative = await isValidPerson(relativeId);
@@ -194,14 +194,14 @@ async function kinshipSecondLevel(personId, relativeId,kinshipType){
   return true;
 }
 function kinshipCouple(personId, relativeId,kinshipType){
-  const mGenderCouple = GenderCouple(personId,relativeId,kinshiptype);
+  const mGenderCouple = GenderCouple(personId,relativeId,kinshipType);
   const mkinship = kinshipSecondLevel(personId, relativeId, kinshipType);
   if(!mGenderCouple || !mkinship){
     return false;
   }return true;
 }
 function kinshipGF(personId, relativeId,kinshipType){
-  const mFather = validatoGFather(personId,relativeId,kinshiptype);
+  const mFather = validatoGFather(personId,relativeId,kinshipType);
           const mkinship = kinshipSecondLevel(personId, relativeId, kinshipType);
           if(!mFather || !mkinship){
             return false;
@@ -209,13 +209,17 @@ function kinshipGF(personId, relativeId,kinshipType){
 }
 function kinshipGM(personId, relativeId,kinshipType){
   const mkinship = kinshipSecondLevel(personId, relativeId, kinshipType);
-          const mMother = validatoGMother(personId,relativeId,kinshiptype);
+          const mMother = validatoGMother(personId,relativeId,kinshipType);
           const mkinship = kinshipSecondLevel(personId, relativeId, kinshipType);
           if(!mMother || !mkinship){
             return false;
           }return true;
 }
 function TypeKinship(personId,relativeId,kinshipType){
+ 
+  }
+
+ function validateKinshipCreation(personId, relativeId, kinshipType) {
   switch (kinshipType) {
     case 'M' || 'F':
      return kinshipSecondLevel(personId, relativeId, kinshipType);
@@ -228,11 +232,7 @@ function TypeKinship(personId,relativeId,kinshipType){
     default:
       console.log("It just appear for default");
       break;
-  }}
-
- function validateKinshipCreation(personId, relativeId, kinshipType) {
-    return TypeKinship(personId,relativeId,kinshipType)
-    }
+    }}
   return {
     validateKinshipCreation
   };
