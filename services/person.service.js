@@ -38,7 +38,6 @@ module.exports = function setupPersonService(models) {
         contact1: person.contact1,
         contactType2,
         contact2: person.contact2,
-        isGhost: person.isGhost
       };
     });
   }
@@ -314,7 +313,6 @@ module.exports = function setupPersonService(models) {
         contact1: person.contact1,
         contactType2,
         contact2: person.contact2,
-        isGhost: person.isGhost
       }
       
      
