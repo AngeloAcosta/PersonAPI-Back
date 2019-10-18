@@ -167,14 +167,33 @@ module.exports = function setupValidationService(models) {
   }
 
   async function searchSpace(){
-    var arr = [];
+    let arr = [];
+    let arrF = [];
+    let t;
     const eb = await kinshipModel.findAll({
       attributes: ['personId', 'relativeId']
     });
     arr = eb.map(k => {
       return [k.personId, k.relativeId];
     });
-    return arr;
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr[i].length; j++) {
+        let arrTemp = [];
+        arrTemp.push(arr[i][j]);
+        arrF.push(arrTemp);
+      }
+    }
+    arrF = arrF.filter((t={}, a=> !(t[a]=a in t) ));
+    for (let index = 0; index < arrF.length; index++) {
+      for (let i = 0; i < arr.length; i++) {
+        if(arr[i][0]==arrF[index][0]){
+          arrF[index].push(arr[i][1]);
+        } else if(arr[i][1]==arrF[index][0]){
+          arrF[index].push(arr[i][0]);
+        }
+      }
+    }
+    return arrF;
   }
   async function validatoGMother(personId, GfatherId) {
     const PersonObject = await kinshipModel.findOne({
