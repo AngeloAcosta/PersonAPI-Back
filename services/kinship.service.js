@@ -46,21 +46,21 @@ module.exports = function setupKinshipService(models) {
   }
 
   function getOrderField(orderBy) {
-    let qOrderBy = ['person', 'name'];
-    if(orderBy === 2){
-      qOrderBy = ['person', 'name'];
-    } else if(orderBy === 3){
-      qOrderBy = ['relative', 'name'];
-    } else if(orderBy === 4){
-      qOrderBy = ['relative', 'document'];
-    }         
+    let qOrderBy = ["person", "name"];
+    if (orderBy === 2) {
+      qOrderBy = ["person", "name"];
+    } else if (orderBy === 3) {
+      qOrderBy = ["relative", "name"];
+    } else if (orderBy === 4) {
+      qOrderBy = ["relative", "document"];
+    }
     return qOrderBy;
   }
 
   function getOrderType(orderType) {
-    let qOrderType = 'ASC';
-    if( orderType === 2){
-      qOrderType = 'DESC';
+    let qOrderType = "ASC";
+    if (orderType === 2) {
+      qOrderType = "DESC";
     }
     return qOrderType;
   }
@@ -90,51 +90,32 @@ module.exports = function setupKinshipService(models) {
 
   async function doList(requestQuery) {
     try {
-      let qOrderBy = getOrderField(requestQuery.orderBy);
-      let qOrderType = getOrderType(requestQuery.orderType);
-      const qQueryWhereClause = { [Op.like]: `%${requestQuery.query}%` };
-
-      const kinships = await kinshipModel.findAll({
-        include: [
-          {
-            as: 'person',
-            model: personModel
-          },
-          {
-            as: 'relative',
-            model: personModel
-          }
-        ],
-        limit: requestQuery.limit,
-        offset: requestQuery.offset,
+      const levelTwo = kinshipModel.findAll({
         where: {
-          [Op.or]: [
-            { '$person.name$': qQueryWhereClause },
-            { '$person.lastName$': qQueryWhereClause },
-            { '$person.document$': qQueryWhereClause },
-            { '$relative.name$': qQueryWhereClause },
-            { '$relative.lastName$': qQueryWhereClause },
-            { '$relative.document$': qQueryWhereClause }
-          ]
-        },
-        order: [[...qOrderBy, qOrderType]]
+          [Op.or]: [{ kinshipType: "M" }, { kinshipType: "F" }]
+        }
       });
+      console.log(levelTwo);
       // Mold the response
-     // kinships = getDoListModel(kinships);
+      // kinships = getDoListModel(kinships);
 
       baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = kinships;
+      baseService.returnData.message = "Getting data successfully";
+      baseService.returnData.data = levelTwo;
     } catch (err) {
-      console.log('Error: ', err);
+      console.log("Error: ", err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
+      baseService.returnData.message = "" + err;
       baseService.returnData.data = [];
     }
 
     return baseService.returnData;
   }
-
+  //Obtiene Padre y Madre
+  /*function getLevelTwo(){
+    
+    return levelTwo;
+  }*/
   async function findById(id) {
     try {
       console.log(id);
@@ -146,12 +127,12 @@ module.exports = function setupKinshipService(models) {
       });
 
       baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
+      baseService.returnData.message = "Getting data successfully";
       baseService.returnData.data = kinship;
     } catch (err) {
-      console.log('Error: ', err);
+      console.log("Error: ", err);
       baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
+      baseService.returnData.message = "" + err;
       baseService.returnData.data = [];
     }
 
