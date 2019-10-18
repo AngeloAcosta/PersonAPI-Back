@@ -1,6 +1,8 @@
 'use strict';
 
+const devEnvironment = require('./../environment/development.json');
 const defaults = require('defaults');
+const pg = require('pg');
 
 const setupDatabase = require('./database');
 
@@ -12,15 +14,21 @@ const setupCountryModel = require('./country');
 const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
 
-module.exports = async function (config) {
-  config = defaults(config, {
-    dialect: 'mysql',
-    pool: {
-      max: 10,
-      min: 0,
-      iddle: 10000
-    }
-  });
+pg.defaults.ssl = true;
+
+function getEnvironmentConf(environment) {
+  const config = require(`./../environment/${environment}.json`);
+  return config;
+}
+
+module.exports = async function (setup = false) {
+  const environment = process.env.NODE_ENV || 'development';
+  const config = getEnvironmentConf(environment);
+
+  // If we are in production, get the database password from there
+  if (process.env.NODE_ENV === 'production') {
+    config.password = process.env.DATABASE_PASS;
+  }
 
   const dbInstance = setupDatabase(config);
 
@@ -34,7 +42,7 @@ module.exports = async function (config) {
 
   await dbInstance.authenticate();
 
-  if (config.setup) {
+  if (setup) {
     await dbInstance.sync({ force: true });
   }
 
