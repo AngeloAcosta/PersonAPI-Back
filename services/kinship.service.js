@@ -16,7 +16,7 @@ module.exports = function setupKinshipService(models) {
       const relativeId = kinshipData.relativeId
       const kinshipType = kinshipData.kinshipType
       const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
-     
+     const errorValidation = validationService.Err;
       if (validationResult) {
         await kinshipModel.create(kinshipData);
         baseService.returnData.responseCode = 200;
@@ -25,7 +25,7 @@ module.exports = function setupKinshipService(models) {
       } else {
         baseService.returnData.responseCode = 400;
         baseService.returnData.message = 'Error adding kinship';
-        baseService.returnData.data = {};
+        baseService.returnData.data = {errorValidation};
       }
         
     } catch (err) {

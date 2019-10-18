@@ -31,87 +31,85 @@ module.exports = function setupValidationService(models) {
   }*/
 
   function isValidKinshipType(kinshipType) {
-    console.log("isValidKinshipType");
-    return (
-      kinshipType === constants.fatherKinshipType ||
-      kinshipType === constants.motherKinshipType ||
-      kinshipType === constants.coupleKinshipType ||
-      kinshipType === constants.grandmotherKinshipType ||
-      kinshipType === constants.grandfatherKinshipType
-    );
+    const result = kinshipType === constants.fatherKinshipType ||
+    kinshipType === constants.motherKinshipType ||
+    kinshipType === constants.coupleKinshipType ||
+    kinshipType === constants.grandmotherKinshipType ||
+    kinshipType === constants.grandfatherKinshipType;
+    if (!result) {
+      console.log('Invalid kinship type');
+      
+    }
+    return result;
   }
 
   async function isValidPerson(personId) {
     const person = await personModel.findOne({ where: { id: personId } });
-
+    if (person === null) { 
+      console.log('Invalid person');
+    }
     return person !== null;
   }
   async function kinshipAlreadyExists(personId, relativeId) {
     const kinship = await kinshipModel.findOne({
       where: { personId: personId, relativeId: relativeId }
     });
-    console.log("Already Exist");
+   
     if(kinship !== null){
-      console.log("Estoy aqui1");
+      console.log('Kinship already exists');
+      
        return true} 
        
-      console.log("Estoy aqui2");
        return false;
   }
-  async function isSameGenderCouple(genderId, relativeGenderId, kinshipType) {
-    if (kinshipType == constants.coupleKinshipType) {
-      return genderId === relativeGenderId;
+ 
+  async function isIncorrectGenderFather(relativeId) {
+    const Person= await personModel.findOne({where: { id: relativeId}})
+    if (Person.genderId === 1 ){
+      return true;
     }
+    console.log('Incorrect gender father');
+    return false;
   }
-  async function isIncorrectGenderFather(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.fatherKinshipType) {
-      return relativeGenderId == 1;
+  async function isIncorrectGenderMother(relativeId) {
+    const Person= await personModel.findOne({where: { id: relativeId}})
+    if (Person.genderId === 2 ){
+      return true;
     }
-  }
-  async function isIncorrectGenderMother(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.fatherKinshipType) {
-      return relativeGenderId == 2;
+    console.log('Incorrect gender mother');
+    return false;
+
+
     }
+  
+
+  async function isIncorrectGenderGrandFather(relativeId) {
+    const Person= await personModel.findOne({where: { id: relativeId}})
+    if (Person.genderId === 1 ){
+      return true;
+    }return false;
   }
 
-  async function isIncorrectGenderGrandFather(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.grandfatherKinshipType) {
-      return relativeGenderId == 1;
-    }
+  async function isIncorrectGenderGrandMother(relativeId) {
+    const Person= await personModel.findOne({where: { id: relativeId}})
+    if (Person.genderId === 2 ){
+      return true;
+    }return false;
   }
 
-  async function isIncorrectGenderGrandMother(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.grandmotherKinshipType) {
-      return relativeGenderId == 2;
-    }
-  }
+ 
 
-  async function isIncorrectGenderBrother(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.brotherKinshipType) {
-      return relativeGenderId == 1;
-    }
-  }
 
-  async function isIncorrectGenderSister(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.sisterKinshipType) {
-      return relativeGenderId == 2;
-    }
-  }
-
-  function isValidGenderForKinshipType(
-    genderId,
-    relativeGenderId,
+ async function isValidGenderForKinshipType(
+    relativeId,
     kinshipType
   ) {
-    return (
-      isSameGenderCouple(genderId, relativeGenderId, kinshipType) ||
-      isIncorrectGenderFather(relativeGenderId, kinshipType) ||
-      isIncorrectGenderMother(relativeGenderId, kinshipType) ||
-      isIncorrectGenderGrandFather(relativeGenderId, kinshipType) ||
-      isIncorrectGenderGrandMother(relativeGenderId, kinshipType) ||
-      isIncorrectGenderBrother(relativeGenderId, kinshipType) ||
-      isIncorrectGenderSister(relativeGenderId, kinshipType)
-    );
+    switch (kinshipType) {
+      case 'M':
+      return await  isIncorrectGenderMother(relativeId);
+      case 'F':
+      return await  isIncorrectGenderFather(relativeId)
+    }
   }
 
   function isIntheSameTree(personId, relativeId) {
@@ -209,26 +207,26 @@ module.exports = function setupValidationService(models) {
   }
 
   async function kinshipSecondLevel(personId, relativeId, kinshipType) {
+   
     const mIsValidPerson = await isValidPerson(personId);
     const mIsValidRelative = await isValidPerson(relativeId);
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
-    const misValidGenderForKinshipType = isValidGenderForKinshipType(
-      personId,
+    const misValidGenderForKinshipType = await isValidGenderForKinshipType(
       relativeId,
       kinshipType
     );
-    const mKinshipAlreadyExists = kinshipAlreadyExists(personId, relativeId);
+    const mKinshipAlreadyExists = await kinshipAlreadyExists(personId, relativeId);
+    
     if (
-      !mIsValidPerson ||
-      !mIsValidRelative ||
-      !mIsValidKinshipType ||
-      misValidGenderForKinshipType
+      mIsValidPerson &&
+      mIsValidRelative &&
+      mIsValidKinshipType &&
+      misValidGenderForKinshipType &&
+      !mKinshipAlreadyExists
     ) {
-      return false;
-    } else if (mKinshipAlreadyExists) {
-      return false;
-    }
-    return true;
+      return true;
+    } 
+    return false;
   }
   function kinshipCouple(personId, relativeId, kinshipType) {
     const mGenderCouple = GenderCouple(personId, relativeId, kinshipType);
@@ -249,7 +247,7 @@ module.exports = function setupValidationService(models) {
   function kinshipGM(personId, relativeId, kinshipType) {
     const mkinship = kinshipSecondLevel(personId, relativeId, kinshipType);
     const mMother = validatoGMother(personId, relativeId, kinshipType);
-    const mkinship = kinshipSecondLevel(personId, relativeId, kinshipType);
+    
     if (!mMother || !mkinship) {
       return false;
     }
@@ -258,6 +256,7 @@ module.exports = function setupValidationService(models) {
   function TypeKinship(personId, relativeId, kinshipType) {}
 
   function validateKinshipCreation(personId, relativeId, kinshipType) {
+    
     switch (kinshipType) {
       case "M":
       return kinshipSecondLevel(personId, relativeId, kinshipType);
@@ -265,10 +264,10 @@ module.exports = function setupValidationService(models) {
         return kinshipSecondLevel(personId, relativeId, kinshipType);
       case "C":
         return kinshipCouple(personId, relativeId, kinshipType);
-      case "GF":
+    /*  case "G":
         return kinshipGF(personId, relativeId, kinshipType);
       case "GM":
-        return kinshipGM(personId, relativeId, kinshipType);
+        return kinshipGM(personId, relativeId, kinshipType);*/
       default:
         console.log("It just appear for default");
         break;
