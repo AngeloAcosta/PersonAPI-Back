@@ -69,7 +69,7 @@ module.exports = function setupValidationService(models) {
     }
   }
   async function isIncorrectGenderMother(relativeGenderId, kinshipType) {
-    if (kinshipType == constants.fatherKinshipType) {
+    if (kinshipType == constants.motherKinshipType) {
       return relativeGenderId == 2;
     }
   }
@@ -101,7 +101,7 @@ module.exports = function setupValidationService(models) {
   function isValidGenderForKinshipType(
     genderId,
     relativeGenderId,
-    kinshipType
+    kinshipType //M
   ) {
     return (
       isSameGenderCouple(genderId, relativeGenderId, kinshipType) ||
@@ -265,6 +265,7 @@ module.exports = function setupValidationService(models) {
   function TypeKinship(personId, relativeId, kinshipType) {}
 
   function validateKinshipCreation(personId, relativeId, kinshipType) {
+   
     switch (kinshipType) {
       case "M":
       return kinshipSecondLevel(personId, relativeId, kinshipType);
