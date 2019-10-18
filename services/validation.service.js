@@ -71,10 +71,16 @@ module.exports = function setupValidationService(models) {
     console.log('Incorrect gender father');
     return false;
   }
+<<<<<<< HEAD
   async function isIncorrectGenderMother(relativeId) {
     const Person= await personModel.findOne({where: { id: relativeId}})
     if (Person.genderId === 2 ){
       return true;
+=======
+  async function isIncorrectGenderMother(relativeGenderId, kinshipType) {
+    if (kinshipType == constants.motherKinshipType) {
+      return relativeGenderId == 2;
+>>>>>>> 0fddff93aee1aa8851530ea986fee84fd93d325d
     }
     console.log('Incorrect gender mother');
     return false;
@@ -97,12 +103,19 @@ module.exports = function setupValidationService(models) {
     }return false;
   }
 
+<<<<<<< HEAD
  
 
 
  async function isValidGenderForKinshipType(
     relativeId,
     kinshipType
+=======
+  function isValidGenderForKinshipType(
+    genderId,
+    relativeGenderId,
+    kinshipType //M
+>>>>>>> 0fddff93aee1aa8851530ea986fee84fd93d325d
   ) {
     switch (kinshipType) {
       case 'M':
@@ -112,47 +125,43 @@ module.exports = function setupValidationService(models) {
     }
   }
 
-  function isIntheSameTree(personId, relativeId) {
-    var pil = [[]];
-    var temp = [];
-    temp.push(personId);
-    pil.push(temp);
-    procesa([["S"]], "G");
+  function isInTheSameTree(personId, relativeId) {
+    var flag = false;
+    flag = processData([[personId]], relativeId);
+    return flag;
   }
 
-  function procesa(pil, fin) {
+  function processData(pil, end) {
     var trayectoria_nueva = [];
     var prim = [];
-    var ult = "";
+    var last;
     do {
-      console.log(pil);
-      if (pil === []) {
-        console.log("No hay solución");
+      if (pil.length === 0) {
+        return false;
       }
       prim = pil[0];
       pil.shift();
-      ult = prim[0];
-      if (ult == fin) {
-        console.log(prim);
-        break;
+      last = prim[0];
+      if (last == end) {
+        return true;
       }
-      trayectoria_nueva = Object.values(trayectoriaNueva(ult, prim));
+      trayectoria_nueva = Object.values(newTrajectory(last, prim));
       for (var i = 0; i < pil.length; i++) {
         trayectoria_nueva.push(pil[i]);
       }
       pil = trayectoria_nueva;
     } while (true);
   }
-  function trayectoriaNueva(ult, prim) {
+  function newTrajectory(last, prim) {
     var tray_nuev = [];
     var lb = [];
-    if (cer.includes(ult)) {
+    if (cer.includes(last)) {
       return [];
     }
-    cer = [ult, ...cer];
-    for (var i = 0; i < Object.values(espacioBusqueda()).length; i++) {
-      if (Object.values(espacioBusqueda())[i][0] == ult) {
-        lb = Object.values(espacioBusqueda())[i];
+    cer = [last, ...cer];
+    for (var i = 0; i < Object.values(searchSpace()).length; i++) {
+      if (Object.values(searchSpace())[i][0] == last) {
+        lb = Object.values(searchSpace())[i];
         break;
       }
     }
@@ -166,6 +175,36 @@ module.exports = function setupValidationService(models) {
       tray_nuev.push(temp);
     }
     return tray_nuev;
+  }
+
+  async function searchSpace(){
+    let arr = [];
+    let arrF = [];
+    let t;
+    const eb = await kinshipModel.findAll({
+      attributes: ['personId', 'relativeId']
+    });
+    arr = eb.map(k => {
+      return [k.personId, k.relativeId];
+    });
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr[i].length; j++) {
+        let arrTemp = [];
+        arrTemp.push(arr[i][j]);
+        arrF.push(arrTemp);
+      }
+    }
+    arrF = arrF.filter((t={}, a=> !(t[a]=a in t) ));
+    for (let index = 0; index < arrF.length; index++) {
+      for (let i = 0; i < arr.length; i++) {
+        if(arr[i][0]==arrF[index][0]){
+          arrF[index].push(arr[i][1]);
+        } else if(arr[i][1]==arrF[index][0]){
+          arrF[index].push(arr[i][0]);
+        }
+      }
+    }
+    return arrF;
   }
   async function validatoGMother(personId, GfatherId) {
     const PersonObject = await kinshipModel.findOne({
@@ -256,7 +295,11 @@ module.exports = function setupValidationService(models) {
   function TypeKinship(personId, relativeId, kinshipType) {}
 
   function validateKinshipCreation(personId, relativeId, kinshipType) {
+<<<<<<< HEAD
     
+=======
+   
+>>>>>>> 0fddff93aee1aa8851530ea986fee84fd93d325d
     switch (kinshipType) {
       case "M":
       return kinshipSecondLevel(personId, relativeId, kinshipType);
@@ -274,6 +317,7 @@ module.exports = function setupValidationService(models) {
     }
   }
   return {
-    validateKinshipCreation
+    validateKinshipCreation,
+    searchSpace
   };
 };

@@ -44,7 +44,8 @@ module.exports = function setupKinshipService(models) {
   async function doList() {
     try {
       const kinships = await kinshipModel.findAll();
-
+      const searchSpace = await validationService.searchSpace();
+      console.log(searchSpace);
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
       baseService.returnData.data = kinships;
@@ -80,7 +81,6 @@ module.exports = function setupKinshipService(models) {
 
     return baseService.returnData;
   }
-  
 
   return {
     doList,
