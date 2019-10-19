@@ -13,7 +13,7 @@ module.exports = function setupValidationService(models) {
       kinshipType === constants.motherKinshipType ||
       kinshipType === constants.coupleKinshipType ||
       kinshipType === constants.grandmotherKinshipType ||
-      kinshipType === constants.grandfatherKinshipType;//UPDATE CONS
+      kinshipType === constants.grandfatherKinshipType; //UPDATE CONS
     if (!result) {
       console.log("Invalid kinship type");
     }
@@ -54,60 +54,97 @@ module.exports = function setupValidationService(models) {
     return false;
   }
 
-  async function isValidGenderForKinshipType(personId,relativeId,kinshipType) {
+  async function isValidGenderForKinshipType(
+    personId,
+    relativeId,
+    kinshipType
+  ) {
     switch (kinshipType) {
       case "M":
         return await verifyGenderMother(relativeId);
       case "F":
         return await verifyGenderFather(relativeId);
       case "C":
-        return await GenderCouple(personId,relativeId)
-        default:
-          return "Default Gender"
+        return await GenderCouple(personId, relativeId);
+      default:
+        return "Default Gender";
     }
   }
 
   function isInTheSameTree(personId, relativeId) {
-    var flag = false;
-    flag = processData([[personId]], relativeId);
+    let flag = false;
+    let pil = [];
+    let arr = [];
+    arr.push(personId);
+    pil.push(arr);
+    console.log("pila mandada", arr);
+    flag = processData(pil, relativeId);
     return flag;
   }
 
-  function processData(pil, end) {
-    var trayectoria_nueva = [];
-    var prim = [];
-    var last;
+  async function processData(pil, end) {
+    console.log("pila recibida", pil);
+    let trayectoria_nueva = [];
+    let prim = [];
+    let last;
     do {
       if (pil.length === 0) {
         return false;
       }
       prim = pil[0];
-      pil.shift();
+      console.log("pila recibida", pil);
+      console.log("es un", typeof pil);
+      console.log("pila", pil);
+
+       pil.splice(0, 1);
+      //pil.shift();
+      console.log("pila sp", pil);
       last = prim[0];
+      console.log("ulttt" + last);
       if (last == end) {
+        console.log("trayectoriaFF",prim);
         return true;
+        break;
       }
-      trayectoria_nueva = Object.values(newTrajectory(last, prim));
+      trayectoria_nueva = await newTrajectory(last, prim);
+      console.log("tray nuevv1", trayectoria_nueva);
       for (var i = 0; i < pil.length; i++) {
         trayectoria_nueva.push(pil[i]);
       }
+      console.log("tray nuevvv", trayectoria_nueva);
       pil = trayectoria_nueva;
     } while (true);
   }
-  function newTrajectory(last, prim) {
+  async function newTrajectory(last, prim) {
+    console.log("last", last);
+    console.log("primmm", prim);
     var tray_nuev = [];
     var lb = [];
     if (cer.includes(last)) {
       return [];
     }
     cer = [last, ...cer];
-    for (var i = 0; i < Object.values(searchSpace()).length; i++) {
-      if (Object.values(searchSpace())[i][0] == last) {
-        lb = Object.values(searchSpace())[i];
+    console.log("cerrados 1", cer);
+    //const searchSpaceC = await this.searchSpace();
+   // console.log("espaccooo",searchSpaceC);
+    //console.log("espacio busqueda", searchSpace());
+    const searchSpaceC = await searchSpace();
+    for (var i = 0; i < searchSpaceC.length; i++) {
+      if (searchSpaceC[i][0] == last) {
+        lb = searchSpaceC[i];
         break;
       }
     }
-    lb = lb.filter(x => !cer.includes(x));
+    console.log("lista encontrada", lb);
+    for (let index = 0; index < lb.length; index++) {
+      for (let j = 0; j < cer.length; j++) {
+        if (lb[index]==cer[j]) {
+          lb.splice(index, 1);
+        }
+      }
+    }
+    //lb = lb.filter(x => !cer.includes(x));
+    console.log("lista sin cerrados", lb);
     for (var i = 0; i < lb.length; i++) {
       var temp = [];
       temp.push(lb[i]);
@@ -116,6 +153,7 @@ module.exports = function setupValidationService(models) {
       }
       tray_nuev.push(temp);
     }
+    console.log("trayector mandada",tray_nuev);
     return tray_nuev;
   }
   async function searchSpace() {
@@ -147,6 +185,8 @@ module.exports = function setupValidationService(models) {
     }
     return arrF;
   }
+
+
 
   async function validatoGMother(personId, GfatherId) {
     const PersonObject = await kinshipModel.findOne({
@@ -188,7 +228,6 @@ module.exports = function setupValidationService(models) {
   }
 
   async function kinshipSecondLevel(personId, relativeId, kinshipType) {
-    const mIsInTheSameTree = await isInTheSameTree(personId, relativeId);
     const mIsValidPerson = await isValidPerson(personId);
     const mIsValidRelative = await isValidPerson(relativeId);
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
@@ -201,13 +240,13 @@ module.exports = function setupValidationService(models) {
       personId,
       relativeId
     );
-console.log(mIsInTheSameTree);
-console.log(mIsValidPerson);
-console.log(mIsValidRelative);
-console.log(mIsValidKinshipType);
-console.log(misValidGenderForKinshipType);
-console.log(mKinshipAlreadyExists);
-console.log(processData(4,17));
+    const mIsInTheSameTree = await isInTheSameTree(personId, relativeId);
+    console.log(mIsInTheSameTree);
+    console.log(mIsValidPerson);
+    console.log(mIsValidRelative);
+    console.log(mIsValidKinshipType);
+    console.log(misValidGenderForKinshipType);
+    console.log(mKinshipAlreadyExists);
     if (
       !mIsInTheSameTree &&
       mIsValidPerson &&
@@ -248,15 +287,15 @@ console.log(processData(4,17));
   function transformKinship(kinshipTypeT) {
     switch (kinshipTypeT) {
       case "GFF":
-        return kinshipTypeT == 'F'
+        return kinshipTypeT == "F";
       case "GFM":
-        return kinshipTypeT == 'F'
+        return kinshipTypeT == "F";
       case "GMF":
-        return kinshipTypeT == 'M'
+        return kinshipTypeT == "M";
       case "GMM":
-        return kinshipTypeT == 'M'
-      default :
-      break;
+        return kinshipTypeT == "M";
+      default:
+        break;
     }
   }
   function validateKinshipCreation(personId, relativeId, kinshipType) {

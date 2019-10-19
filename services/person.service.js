@@ -5,7 +5,7 @@ const setupBaseService = require('./base.service');
 const personValidation = require('./personvalidation.service.js');
 
 const Op = Sequelize.Op;
-
+//APRENDETE TU CONTRASEÑA tu flaca es trans
 module.exports = function setupPersonService(models) {
   const contactTypeModel = models.contactTypeModel;
   const countryModel = models.countryModel;
