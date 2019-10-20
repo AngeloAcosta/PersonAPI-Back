@@ -8,42 +8,29 @@ module.exports = function setupUserService(userModel) {
   let baseService = new setupBaseService();
 
   async function create(userData) {
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = {};
-
+    baseService.responseData(200,'Getting data successfully');
     return baseService.returnData;
   }
 
   async function doList() {
     try {
       const users = await userModel.findAll();
-
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = users;
+      baseService.responseData(200,'Getting data successfully',users);
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      baseService.responseData(500,err,[]);
     }
 
     return baseService.returnData;
   }
 
   async function findById(id) {
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = {};
-
+    baseService.responseData(200,'Getting data successfully');
     return baseService.returnData;
   }
 
   async function update(userId, userData) {
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = [];
+    baseService.responseData(200,'Getting data successfully',[]);
 
     return baseService.returnData;
   }

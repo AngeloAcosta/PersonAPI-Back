@@ -62,13 +62,13 @@ module.exports = function personValidationSetup(){
     checkBirthday(data.birthdate,errors)
 
     if (data.genderId) {
-      if (!/^[0-9]{0,1}$/.test(data.genderId)) {
+      if (!checkGender(data.genderId)) {
         errors.push('Invalid submitted GenderId value.');
       }
     }
 
     if (data.countryId) {
-      if (!/^[0-9]{0,2}$/.test(data.countryId)) {
+      if (!checkCountry(data.countryId)) {
         errors.push('Invalid submitted CountryId value.');
       }
     }
@@ -76,7 +76,10 @@ module.exports = function personValidationSetup(){
   }
 
   function checkGender(gender){
-    return /^[0-9]{0,1}$/.test(gender);
+      return /^[0-9]{0,1}$/.test(gender);
+  }
+  function checkCountry(country){
+    return /^[0-9]{0,2}$/.test(country)
   }
 
   function checkBirthday(date,err){
