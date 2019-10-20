@@ -3,12 +3,12 @@ const faker = require('faker');
 async function seedContactTypes(model) {
   await model.bulkCreate([
     {
-      name: 'Teléfono',
+      name: 'Phone',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Correo electrónico',
+      name: 'Email',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -18,7 +18,7 @@ async function seedContactTypes(model) {
 async function seedCountries(model) {
   await model.bulkCreate([
     {
-      name: 'Perú',
+      name: 'Peru',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
@@ -83,12 +83,12 @@ async function seedDocumentTypes(model) {
       updatedAt: new Date()
     },
     {
-      name: 'Pasaporte',
+      name: 'Passport',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Carnet de extranjeria',
+      name: 'Foreign card',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -98,12 +98,12 @@ async function seedDocumentTypes(model) {
 async function seedGenders(model) {
   await model.bulkCreate([
     {
-      name: 'Masculino',
+      name: 'Male',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     },
     {
-      name: 'Femenino',
+      name: 'Female',
       createdAt: faker.date.past(),
       updatedAt: new Date()
     }
@@ -116,14 +116,8 @@ async function seedPeople(model) {
   let genderIds = [1, 2];
   let contactTypeIds = [1, 2];
   let people = [];
-  for (let index = 0; index < 25; index++) {
+  for (let index = 0; index < 50; index++) {
     let genderId = faker.random.arrayElement(genderIds);
-    let gender = '';
-    if (genderId == 1) {
-      gender = 'male';
-    } else {
-      gender = 'female';
-    }
     let contactType1Id = faker.random.arrayElement(contactTypeIds);
     let contactType2Id = faker.random.arrayElement(contactTypeIds);
     let contact1 = '';
@@ -139,7 +133,7 @@ async function seedPeople(model) {
       contact2 = faker.internet.email();
     }
     people.push({
-      name: faker.name.firstName(gender),
+      name: faker.name.firstName(),
       lastName: faker.name.lastName(),
       birthdate: faker.date.past(),
       document: faker.random.alphaNumeric(8).toUpperCase(),
@@ -150,6 +144,7 @@ async function seedPeople(model) {
       contactType1Id,
       contact2,
       contactType2Id,
+      isGhost: false,
       createdAt: faker.date.past(),
       updatedAt: new Date()
     });

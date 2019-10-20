@@ -8,27 +8,19 @@ module.exports = function setupPersonModel(config) {
   const person = sequelize.define('person', {
     name: {
       type: Sequelize.STRING(25),
-      allowNull: false,
-      validate: {
-        is: ["^[A-ZÑa-zñ.s_-]+$"], //Allows only leters
-        min: 1
-      }
+      allowNull: true
     },
     lastName: {
       type: Sequelize.STRING(25),
-      allowNull: false,
-      validate: {
-        is: ["^[A-ZÑa-zñ'.s_-]+$"], // Allows only leters and '
-        min: 2
-      }
+      allowNull: true
     },
     birthdate: {
       type: Sequelize.DATEONLY,
-      allowNull: false
+      allowNull: true
     },
     documentTypeId: {
       type: Sequelize.INTEGER,
-      allowNull: false, //Validation is in person.service
+      allowNull: true, //Validation is in person.service
       references: {
         model: 'documentTypes',
         key: 'id'
@@ -36,7 +28,7 @@ module.exports = function setupPersonModel(config) {
     },
     document: {
       type: Sequelize.STRING(25),
-      allowNull: false,
+      allowNull: true,
       unique: true
     },
     genderId: {
@@ -49,7 +41,7 @@ module.exports = function setupPersonModel(config) {
     },
     countryId: {
       type: Sequelize.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'countries',
         key: 'id'
@@ -78,6 +70,10 @@ module.exports = function setupPersonModel(config) {
         model: 'contactTypes',
         key: 'id'
       }
+    },
+    isGhost: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false
     }
   });
   person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });
