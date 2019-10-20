@@ -7,17 +7,11 @@ module.exports = function personValidationSetup(){
         if (!validateNames(data.name)) {
           errors.push('Some characters in the Name field are not allowed.');
         }
-      } else {
-          errors.push("Name can't be null")
-      }
-  
+      }   
       if (data.lastName) {
         if (!validateNames(data.lastName)) {
           errors.push('Some characters in the Last Name field are not allowed.');
-        } else {
-          errors.push("Last name can't be null")
-        }
-    
+        }     
         return errors;
       }
     }
@@ -78,17 +72,20 @@ module.exports = function personValidationSetup(){
         errors.push('Invalid submitted CountryId value.');
       }
     }
-
     return errors;
   }
 
-  function checkBirthday(param,err){
+  function checkGender(gender){
+    return /^[0-9]{0,1}$/.test(gender);
+  }
+
+  function checkBirthday(date,err){
     const minDate='1900/01/01';
-    if (param) {
-      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(param)) {
+    if (date) {
+      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date)) {
         err.push('Invalid Birth Date field format.');
       } else {
-        if (new Date(param) - new Date(minDate) < 0 || Date.now() - new Date(param) < 0) {
+        if (new Date(date) - new Date(minDate) < 0 || Date.now() - new Date(date) < 0) {
           err.push('Invalid Birth Date field value.');
         }
       }

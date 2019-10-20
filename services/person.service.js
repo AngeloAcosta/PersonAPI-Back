@@ -223,7 +223,7 @@ module.exports = function setupPersonService(models) {
         );
           
         if (errors.length) {
-          baseService.responseData(errors,"Errors from data validation",400)
+          baseService.responseData(400,"Errors from data validation",errors)
         } else {
           let created = await personModel.create(newUser); //Create user
           if (created){
