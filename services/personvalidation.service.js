@@ -3,55 +3,54 @@
 module.exports = function personValidationSetup(){
     function checkNameFormat(data) {
     let errors = [];
-    if (data.name) {
-        if (!validateNames(data.name)) {
-          errors.push('Some characters in the Name field are not allowed.');
-        }
-      }   
-      if (data.lastName) {
-        if (!validateNames(data.lastName)) {
-          errors.push('Some characters in the Last Name field are not allowed.');
-        }     
-        return errors;
-      }
+    if (data.name && !validateNames(data.name)) {
+        errors.push('Some characters in the Name field are not allowed.');
+    }   
+    if (data.lastName && !validateNames(data.lastName)) {
+      errors.push('Some characters in the Last Name field are not allowed.');
+    }    
+    return errors;
     }
+  
   function validateNames(param){
       return /^[a-zA-ZñÑ'\s]{1,25}$/.test(param) 
-}
+  }
   function checkDocument(data) {
     let errors = [];
     if (data.documentTypeId) {
+      // IF DOCUMENT TYPE HAVE MORE THAN ONE DIGIT
       if (!/^([0-9]){0,1}$/.test(data.documentTypeId)) {
         errors.push('Invalid submitted Document Type value.');
       } else {
-        validateDocument(data.documentTypeId,data.document,errors)
+        validateDocument(data.documentTypeId, data.document, errors)
     }
     return errors;
-  }
-}
+    }
+  } 
 
   function validateForeignDocument(param){
     return /^([a-zA-Z0-9]){1,12}$/.test(param)
   }
 
-  function validateDocument(doctype,document,err){
+  function validateDocument(doctype, userDoc, errors){
     switch (doctype) {
       case '1':
-        if (!/^[0-9]{1,8}$/.test(document)) {
-          err.push(`Invalid submitted DNI format.`);
+        // TEST DNI FORMAT
+        if (!/^[0-9]{1,8}$/.test(userDoc)) {
+          errors.push(`Invalid submitted DNI format.`);
         }
         break;
       case '2':
-        if (!validateForeignDocument(document)) {
-          err.push('Invalid submitted PASSPORT format.');
+        // TEST PASSPORT FORMAT
+        if (!validateForeignDocument(userDoc)) {
+          errors.push('Invalid submitted PASSPORT format.');
         }
         break;
       case '3':
-        if (!validateForeignDocument(document)) {
-          err.push('Invalid submitted CE format.');
+        // TEST CE FORMAT
+        if (!validateForeignDocument(userDoc)) {
+          errors.push('Invalid submitted CE format.');
         }
-        break;
-      default:
         break;
     }
 
@@ -59,67 +58,67 @@ module.exports = function personValidationSetup(){
 
   function checkBirthData(data) {
     let errors = [];
-    checkBirthday(data.birthdate,errors)
-
-    if (data.genderId) {
-      if (!checkGender(data.genderId)) {
-        errors.push('Invalid submitted GenderId value.');
-      }
+    let errMsg = checkBirthday(data.birthdate)
+    if (errMsg) {
+      errors.push(errMsg)
     }
 
-    if (data.countryId) {
-      if (!checkCountry(data.countryId)) {
-        errors.push('Invalid submitted CountryId value.');
-      }
+    if (data.genderId && !checkGender(data.genderId)) {
+      errors.push('Invalid submitted GenderId value.');
+    }
+
+    if (data.countryId && !checkCountry(data.countryId)) {
+      errors.push('Invalid submitted CountryId value.');
     }
     return errors;
   }
 
-  function checkGender(gender){
-      return /^[0-9]{0,1}$/.test(gender);
+  function checkGender(gender) {
+    return /^[0-9]{0,1}$/.test(gender);
   }
-  function checkCountry(country){
+  
+  function checkCountry(country) {
     return /^[0-9]{0,2}$/.test(country)
   }
 
-  function checkBirthday(date,err){
-    const minDate='1900/01/01';
-    if (date) {
-      if (!/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date)) {
-        err.push('Invalid Birth Date field format.');
-      } else {
-        if (new Date(date) - new Date(minDate) < 0 || Date.now() - new Date(date) < 0) {
-          err.push('Invalid Birth Date field value.');
-        }
-      }
+  function checkBirthday(date) {
+    const minDate ='1900/01/01';
+    const invalidDate = new Date(date) - new Date(minDate) < 0 || Date.now() - new Date(date) < 0;
+    // if not in format YYYY-MM-DD
+    if (date && !/[0-9]{4}-[0-9]{2}-[0-9]{2}/.test(date)) {
+      return 'Invalid Birth Date field format.';
+    } else if (invalidDate) {
+      return 'Invalid Birth Date field value.';
+    } else {
+      return;
+    }
   }
-}
+  
+
   function checkContactData(dataTypeField, contactValue) {
     let errors = [];
-    if (dataTypeField && contactValue) {
-          //Validation to Contact1
-        validateContact(dataTypeField,contactValue,errors)
-    } else if(!dataTypeField && contactValue) {
-        errors.push("No type of contact selected")
+    let errMsg = validateContact(dataTypeField,contactValue)
+    if (dataTypeField && contactValue && errMsg) {
+      //Validation to Contacts
+      errors.push(errMsg)
+    } else if (!dataTypeField && contactValue) {
+      errors.push("No type of contact selected")
     }
-    console.log(errors);
     return errors;
   }
 
-  function validateContact(dataTypef,contact,err){
-    if (dataTypef === "1") {
-      //Telephone
-      if (!/^([0-9]){6,9}$/.test(contact)) {
-        err.push('Invalid Telephone format.');
-      }
-    } else if (dataTypef === "2") {
-      //Email
-      if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contact)) {
-        err.push('Invalid Email format.');
-      }
-    } else {
-      err.push('Contact Type field is invalid.'); //When is submitted other values like 3, 4 and so
-    }
+  function validateContact(dataTypef, contact){
+     //Telephone
+     const regexEmail = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+     const regexPhone = /^([0-9]){6,9}$/;
+
+    if (dataTypef === "1" && !regexPhone.test(contact)) {
+      return 'Invalid Telephone format.';
+    } else if (dataTypef === "2" && !regexEmail.test(contact)) {
+      return 'Invalid Email format.';
+    } else if (dataTypef >=3 || dataTypef <=0) {
+      return 'Contact Type field is invalid.'; //When is submitted other values like 3, 4 and so
+    } else return;
   }
   function isInValidPassport(documentTypeId, document) {
     return documentTypeId === 2 && document.length > 12;

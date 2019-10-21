@@ -44,23 +44,23 @@ module.exports = function setupPersonService(models) {
 
   function getOrderField(orderBy) {
     let qOrderBy = ['name'];
-    if(orderBy===2){
+    if (orderBy === 2) {
       qOrderBy = ['document']
-    }else if(orderBy===3){
+    } else if (orderBy=== 3) {
       qOrderBy =['documentType','name']
-    }else if(orderBy ===4){
+    } else if (orderBy === 4) {
       qOrderBy =['country','name']
     }
     return qOrderBy;
   }
 
   function getOrderType(orderType) {
-    let qOrderType="ASC";
-    if (orderType===2) {
+    let qOrderType = "ASC";
+    if (orderType === 2) {
         qOrderType = 'DESC';
     }
-    else if(orderType===1){
-      qOrderType='ASC'
+    else if (orderType === 1){
+      qOrderType = 'ASC';
     }
     return qOrderType;
   }
@@ -107,7 +107,7 @@ module.exports = function setupPersonService(models) {
       baseService.returnData.data = peopleData;
     } catch (err) {
       console.log('Error: ', err);
-      baseService.responseData(500,err,{})
+      baseService.responseData(500, err, {})
     }
 
     return baseService.returnData;
@@ -164,19 +164,19 @@ module.exports = function setupPersonService(models) {
         //Send Validation Errors or Update the data
 
         if (errors.length) {
-          baseService.responseData(400,"Errors from data validation",errors)
+          baseService.responseData(400, "Errors from data validation", errors)
         } else {
           const personModified = await personModel.update(request.body, {
             where
           });
-          baseService.responseData(200,"Update completed successfully",personModified)
+          baseService.responseData(200, "Update completed successfully", personModified)
         }
       } else {
-        baseService.responseData(400,"Person doesnt exist on the database",errors)
+        baseService.responseData(400, "Person doesnt exist on the database", errors)
       }
     } catch (err) {
       console.log('Error: ', err);
-      baseService.responseData(500,err,[])
+      baseService.responseData(500, err, [])
     }
 
     return baseService.returnData;
@@ -224,12 +224,12 @@ module.exports = function setupPersonService(models) {
         );
           
         if (errors.length) {
-          baseService.responseData(400,"Errors from data validation",errors)
+          baseService.responseData(400, "Errors from data validation", errors)
         } else {
           let created = await personModel.create(newUser); //Create user
           if (created){
             console.log('The person was registered');
-            baseService.responseData(200,"Data was registered satisfactory");
+            baseService.responseData(200, "Data was registered satisfactory");
           }
           
         } 
@@ -238,7 +238,7 @@ module.exports = function setupPersonService(models) {
      
     } catch (err) {
       console.log('The person wasn\'t registered ' + err);
-      baseService.responseData(500,"The person wasn\'t registered");
+      baseService.responseData(500, "The person wasn\'t registered");
     }
     return baseService.returnData; 
   }
@@ -283,10 +283,10 @@ module.exports = function setupPersonService(models) {
         contact2: person.contact2,
       }
       
-      baseService.responseData(200,"Getting data successfully",peopleData)
+      baseService.responseData(200, "Getting data successfully", peopleData)
     } catch (err) {
       console.log('Error: ', err);
-      baseService.responseData(500,err,[])
+      baseService.responseData(500, err, [])
     }
 
     return baseService.returnData;
