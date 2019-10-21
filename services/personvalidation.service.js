@@ -97,27 +97,22 @@ module.exports = function personValidationSetup(){
   function checkContactData(dataTypeField, contactValue) {
     let errors = [];
     if (dataTypeField && contactValue) {
-      if(!dataTypeField && !contactValue) {
-        // If the dataTypeField is blank
-        if (!/^[0-9]{0,1}$/.test(dataTypeField)) {
-          errors.push('Contact Type field is invalid.');
-        } else {
           //Validation to Contact1
-          validateContact(dataTypeField,contactValue,errors)
-        }
-      }
+        validateContact(dataTypeField,contactValue,errors)
+    } else if(!dataTypeField && contactValue) {
+        errors.push("No type of contact selected")
     }
     console.log(errors);
     return errors;
   }
 
   function validateContact(dataTypef,contact,err){
-    if (dataTypef === 1) {
+    if (dataTypef === "1") {
       //Telephone
       if (!/^([0-9]){6,9}$/.test(contact)) {
         err.push('Invalid Telephone format.');
       }
-    } else if (dataTypef === 2) {
+    } else if (dataTypef === "2") {
       //Email
       if (!/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contact)) {
         err.push('Invalid Email format.');
