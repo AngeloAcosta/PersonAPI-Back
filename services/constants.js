@@ -1,7 +1,7 @@
 module.exports = {
     fatherKinshipType: 'F',
     motherKinshipType: 'M',
-    siblingKinshipType: 'B',
+    siblingKinshipType: 'S',
     grandmothermotherkinshipTyp: 'GMM',
     grandfathermotherkinshipTyp: 'GFM',
     grandmotherfatherkinshipTyp: 'GMF',
