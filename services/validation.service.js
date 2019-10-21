@@ -104,7 +104,6 @@ module.exports = function setupValidationService(models) {
       if (last == end) {
         console.log("trayectoriaFF",prim);
         return true;
-        break;
       }
       trayectoria_nueva = await newTrajectory(last, prim);
       console.log("tray nuevv1", trayectoria_nueva);
