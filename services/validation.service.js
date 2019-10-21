@@ -63,6 +63,7 @@ module.exports = function setupValidationService(models) {
     relativeId,
     kinshipType
   ) {
+    
     switch (kinshipType) {
       case "M":
         return await verifyGenderMother(relativeId);
@@ -71,7 +72,7 @@ module.exports = function setupValidationService(models) {
       case "C":
         return await isValidCouple(personId, relativeId);
       default:
-        return true;
+        return 'DEFAULT VALID GENDER FOR KINSHIP TYPE';
     }
   }
 
@@ -325,7 +326,7 @@ module.exports = function setupValidationService(models) {
       }
     }
   }
-  async function isValidCouple(personId, relativeId) {
+  async function isValidCouple(personId, relativeId) {   
     const mGenderCouple = await genderCouple(personId, relativeId);
     const mAlreadyHasCouple = await alreadyHasCouple(relativeId);
     return mGenderCouple && mAlreadyHasCouple;
@@ -346,11 +347,13 @@ module.exports = function setupValidationService(models) {
         kinshipType: "C"
       }
     });
-    if (kinship) {
-      return true;
-    } else {
-      return false;
-    }
+    const kinship2 = await kinshipModel.findOne({
+      where: {
+        personId: relativeId,
+        kinshipType: "C"
+      }
+    });
+    return kinship == null && kinship2 == null;
   }
   async function kinshipSecondLevel(personId, relativeId, kinshipType) {
     const mIsValidPerson = await isValidPerson(personId);
