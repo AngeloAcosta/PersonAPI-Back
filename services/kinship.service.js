@@ -101,6 +101,8 @@ module.exports = function setupKinshipService(models) {
             model: personModel 
           }
         ],
+        limit: requestQuery.limit,
+        offset: requestQuery.offset,
         order: [[...qOrderBy,qOrderType]],
         where: {
         [Op.or]:[ {'$person.name$': qQueryWhereClause },{ '$person.lastName$': qQueryWhereClause}]
