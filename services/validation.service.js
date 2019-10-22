@@ -366,7 +366,7 @@ module.exports = function setupValidationService(models) {
     } else if (person == null && person2 != null) {
       const ghostF = await createGhost(1);
       await createKinship(
-        person.personId,
+        person2.personId,
         ghostF.id,
         constants.fatherKinshipType
       );
