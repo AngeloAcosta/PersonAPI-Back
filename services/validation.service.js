@@ -298,9 +298,10 @@ module.exports = function setupValidationService(models) {
     }
   }
   function validateKinshipCreation(personId, relativeId, kinshipType) {
-    //const kinshipTypeT = transformKinship(kinshipType)
-    switch (kinshipType) {
+    const kinshipTypeT = transformKinship(kinshipType)
+    switch (kinshipTypeT) {
       case "M":
+        
         return kinshipSecondLevel(personId, relativeId, kinshipType);
       case "F":
         /*if(kinshipType == 'GFF'){ kinshipGF(personId,relativeId)}if (kinshipType == 'GMF') {
