@@ -52,6 +52,8 @@ module.exports = function personValidationSetup(){
           errors.push('Invalid submitted CE format.');
         }
         break;
+        default: 
+        break;
     }
 
   }
@@ -116,7 +118,7 @@ module.exports = function personValidationSetup(){
       return 'Invalid Telephone format.';
     } else if (dataTypef === "2" && !regexEmail.test(contact)) {
       return 'Invalid Email format.';
-    } else if (dataTypef >=3 || dataTypef <=0) {
+    } else if (dataTypef >= 3 || dataTypef <= 0) {
       return 'Contact Type field is invalid.'; //When is submitted other values like 3, 4 and so
     } else return;
   }
