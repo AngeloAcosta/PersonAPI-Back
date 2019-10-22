@@ -15,11 +15,14 @@ module.exports = function setupKinshipService(models) {
       const personId = kinshipData.personId
       const relativeId = kinshipData.relativeId
       const kinshipType = kinshipData.kinshipType
+      
       const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
       console.log("JAJAJAJAJAJAJAJAJA", validationResult);
     
       if (validationResult) {
-        await validationService.kinshipGrandParents(kinshipData);
+
+        await validationService.kinshipGrandParents(personId,relativeId,kinshipType);
+
         baseService.returnData.responseCode = 200;
         baseService.returnData.message = 'Inserting Data Successfully';
         baseService.returnData.data = {};

@@ -24,6 +24,7 @@ module.exports = function setupValidationService(models) {
   }
   async function isValidPerson(personId) {
     const person = await personModel.findOne({ where: { id: personId } });
+    console.log(person , " AQUIIIIIIIIIIIIIIIIIIII");
     if (person === null) {
       console.log("Invalid person");
     }
@@ -63,14 +64,14 @@ module.exports = function setupValidationService(models) {
     relativeId,
     kinshipType
   ) {
-    
-    switch (kinshipType) {
+    const kinshipTypeT = transformKinship(kinshipType);
+    switch (kinshipTypeT) {
       case "M":
         return await verifyGenderMother(relativeId);
       case "F":
         return await verifyGenderFather(relativeId);
       case "C":
-        return await isValidCouple(personId, relativeId);
+        return await genderCouple(personId, relativeId);
       default:
         return 'DEFAULT VALID GENDER FOR KINSHIP TYPE';
     }
@@ -169,7 +170,7 @@ module.exports = function setupValidationService(models) {
     }
     return arrF;
   }
-  async function validatoGMotherM(personId, GfatherId) {
+  async function validatoGMotherM(personId, relativeId) {
     const personObject = await kinshipModel.findOne({
       where: { personId: personId, kinshipType: "M" }
     });
@@ -208,7 +209,7 @@ module.exports = function setupValidationService(models) {
       }
     }
   }
-  async function validatoGMotherF(personId, GfatherId) {
+  async function validatoGMotherF(personId, relativeId) {
     const personObject = await kinshipModel.findOne({
       where: { personId: personId, kinshipType: "F" }
     });
@@ -232,22 +233,23 @@ module.exports = function setupValidationService(models) {
       const sameFather = await kinshipModel.findOne({
         where: { personId: personObject.relativeId, kinshipType: "M" }
       });
-      if (sameFather.relativeId != relativeId) {
-        console.log(
-          "Error wrong grandparent , that is not the father of your parent"
-        );
-        return false;
-      }
       if (sameFather == null) {
         await kinshipModel.create({
           personId: personObject.relativeId,
           relativeId: relativeId,
           kinshipType: "M"
         });
+      }else
+      if (sameFather.relativeId != relativeId) {
+        console.log(
+          "Error wrong grandparent , that is not the father of your parent"
+        );
+        return false;
       }
+      
     }
   }
-  async function validatoGFatherM(personId, relativeId, GfatherId) {
+  async function validatoGFatherM(personId, relativeId ) {
     const personObject = await kinshipModel.findOne({
       where: { personId: personId, kinshipType: "M" }
     });
@@ -286,7 +288,7 @@ module.exports = function setupValidationService(models) {
       }}    
     }
   }
-  async function validatoGFatherF(personId, relativeId, GfatherId) {
+  async function validatoGFatherF(personId, relativeId) {
     const personObject = await kinshipModel.findOne({
       where: { personId: personId, kinshipType: "F" }
     });
@@ -332,8 +334,9 @@ module.exports = function setupValidationService(models) {
     return mGenderCouple && mAlreadyHasCouple;
   }
   async function genderCouple(personId, relativeId) {
-    const person1 = await personModel.findOne({ where: { id: personId } });
+   const person1 = await personModel.findOne({ where: { id: personId } });
     const person2 = await personModel.findOne({ where: { id: relativeId } });
+   console.log(person1.genderId , " siguente gender ID " , person2.genderId)
     if (person1.genderId != person2.genderId) {
       return true;
     }
@@ -356,6 +359,7 @@ module.exports = function setupValidationService(models) {
     return kinship == null && kinship2 == null;
   }
   async function kinshipSecondLevel(personId, relativeId, kinshipType) {
+    
     const mIsValidPerson = await isValidPerson(personId);
     const mIsValidRelative = await isValidPerson(relativeId);
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
@@ -428,7 +432,8 @@ module.exports = function setupValidationService(models) {
       case "GMM":
         return kinshipGMM(personId, relativeId,'M');
       default:
-        return kinshipModel.create(personId, relativeId, kinshipType);
+        console.log(personId,"   siguiente   ", relativeId, "     siguiente     ", kinshipType)
+        return kinshipModel.create({personId: personId, relativeId: relativeId, kinshipType:kinshipType});
     }
   }
   function transformKinship(kinshipTypeT) {
@@ -436,22 +441,17 @@ module.exports = function setupValidationService(models) {
       case "GFF":
         return (kinshipTypeT = "F");
       case "GFM":
-        return (kinshipTypeT = "M");
-      case "GMF":
         return (kinshipTypeT = "F");
+      case "GMF":
+        return (kinshipTypeT = "M");
       case "GMM":
         return (kinshipTypeT = "M");
       default:
         return kinshipTypeT;
     }
   }
-<<<<<<< HEAD
-  function validateKinshipCreation(personId, relativeId, kinshipType) {
-    const kinshipTypeT = transformKinship(kinshipType)
-    switch (kinshipTypeT) {
-      case "M":
+
         
-=======
   /* const kinshipTypeT = transformKinship(kinshipType)
     console.log("Over Here!",kinshipTypeT);
     switch (kinshipTypeT) {
@@ -461,7 +461,6 @@ module.exports = function setupValidationService(models) {
           if (kinshipType == 'GMM') {
             return kinshipGMM(personId,relativeId)   
           }
->>>>>>> 7287bb473fa7dbac3230860e5033369290267476
         return kinshipSecondLevel(personId, relativeId, kinshipType);
       case "F":
         if(kinshipType == 'GFM'){ return kinshipGFF(personId,relativeId)}
@@ -480,6 +479,7 @@ module.exports = function setupValidationService(models) {
         break;*/
   async function validateKinshipCreation(personId, relativeId, kinshipType) {
     const validation = await kinshipSecondLevel(personId, relativeId, kinshipType);
+   
     console.log("okokokoko",validation);
     if (validation) {
       return true;
@@ -492,4 +492,4 @@ module.exports = function setupValidationService(models) {
     searchSpace,
     kinshipGrandParents
   };
-};
+}
