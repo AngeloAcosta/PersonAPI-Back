@@ -150,7 +150,6 @@ module.exports = function setupPersonService(dependencies) {
       }
       // Check if document exists
       const documentExists = await personModel.findOne({ where: { document: person.document } });
-      console.log(documentExists, id);
       if (documentExists && documentExists.id !== id) {
         return baseService.getServiceResponse(400, 'Document field must be unique', {});
       }
@@ -195,6 +194,11 @@ module.exports = function setupPersonService(dependencies) {
 
   async function create(person) {
     try {
+      // Check if document exists
+      const documentExists = await personModel.findOne({ where: { document: person.document } });
+      if (documentExists) {
+        return baseService.getServiceResponse(400, 'Document field must be unique', {});
+      }
       // Validate errors
       const errors = [];
       validationService.validateBirthdate(person.birthdate, errors);
