@@ -101,8 +101,7 @@ module.exports = function setupKinshipService(models) {
           }
         ],
         where: {
-          [Op.or]: [{kinshipType: 'M'},{kinshipType: 'F'}],
-          [Op.or]:[ {'$person.name$': qQueryWhereClause },{ '$person.lastName$': qQueryWhereClause}]
+        [Op.or]:[ {'$person.name$': qQueryWhereClause },{ '$person.lastName$': qQueryWhereClause}]
         }
       })
         // Mold the response
