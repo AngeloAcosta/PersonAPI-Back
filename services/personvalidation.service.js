@@ -49,7 +49,7 @@ module.exports = function personValidationSetup(){
       case 3:
         // TEST CE FORMAT
         if (!validateForeignDocument(userDoc)) {
-          errors.push('Invalid submitted CE format.');
+          errors.push('Invalid submitted FC format.');
         }
         break;
         default: 
