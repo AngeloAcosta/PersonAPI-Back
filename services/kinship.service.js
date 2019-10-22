@@ -16,16 +16,17 @@ module.exports = function setupKinshipService(models) {
       const relativeId = kinshipData.relativeId
       const kinshipType = kinshipData.kinshipType
       const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
-     const errorValidation = validationService.Err;
+      console.log("JAJAJAJAJAJAJAJAJA", validationResult);
+    
       if (validationResult) {
-        await kinshipModel.create(kinshipData);
+        await validationService.kinshipGrandParents(kinshipData);
         baseService.returnData.responseCode = 200;
         baseService.returnData.message = 'Inserting Data Successfully';
         baseService.returnData.data = {};
       } else {
         baseService.returnData.responseCode = 400;
         baseService.returnData.message = 'Error adding kinship';
-        baseService.returnData.data = {errorValidation};
+        baseService.returnData.data = [];
       }
         
     } catch (err) {
