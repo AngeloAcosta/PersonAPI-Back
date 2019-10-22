@@ -34,19 +34,19 @@ module.exports = function personValidationSetup(){
 
   function validateDocument(doctype, userDoc, errors){
     switch (doctype) {
-      case '1':
+      case 1:
         // TEST DNI FORMAT
         if (!/^[0-9]{1,8}$/.test(userDoc)) {
           errors.push(`Invalid submitted DNI format.`);
         }
         break;
-      case '2':
+      case 2:
         // TEST PASSPORT FORMAT
         if (!validateForeignDocument(userDoc)) {
           errors.push('Invalid submitted PASSPORT format.');
         }
         break;
-      case '3':
+      case 3:
         // TEST CE FORMAT
         if (!validateForeignDocument(userDoc)) {
           errors.push('Invalid submitted CE format.');
@@ -114,9 +114,9 @@ module.exports = function personValidationSetup(){
      const regexEmail = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
      const regexPhone = /^([0-9]){6,9}$/;
 
-    if (dataTypef === "1" && !regexPhone.test(contact)) {
+    if (dataTypef === 1 && !regexPhone.test(contact)) {
       return 'Invalid Telephone format.';
-    } else if (dataTypef === "2" && !regexEmail.test(contact)) {
+    } else if (dataTypef === 2 && !regexEmail.test(contact)) {
       return 'Invalid Email format.';
     } else if (dataTypef >= 3 || dataTypef <= 0) {
       return 'Contact Type field is invalid.'; //When is submitted other values like 3, 4 and so
