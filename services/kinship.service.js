@@ -42,17 +42,16 @@ module.exports = function setupKinshipService(models) {
     return baseService.returnData;
   }
 
-  function getOrderField(orderBy) {
-    let qOrderBy = ['person', 'name'];
-    if (orderBy === 2) {
-      qOrderBy = ['person', 'name'];
-    } else if (orderBy === 3) {
-      qOrderBy = ['relative', 'name'];
-    } else if (orderBy === 4) {
-      qOrderBy = ['relative', 'document'];
+  function getOrderField(orderBy){
+    let qOrderBy = ['person','name'];
+    if(orderBy === 2){
+      qOrderBy = ['kinshipType'];
+    } else if (orderBy === 3){
+      qOrderBy = ['person','name'];
     }
     return qOrderBy;
   }
+
 
   function getOrderType(orderType) {
     let qOrderType = 'ASC';
@@ -87,6 +86,8 @@ module.exports = function setupKinshipService(models) {
 
   async function doList(requestQuery) {
     try {
+      let qOrderBy = getOrderField(requestQuery.orderBy);
+      let qOrderType = getOrderType(requestQuery.orderType);
       const qQueryWhereClause = { [Op.like]: `%${requestQuery.query}%` };
       const levelTwo = await kinshipModel.findAll({
         attributes: ['kinshipType'],
@@ -100,6 +101,7 @@ module.exports = function setupKinshipService(models) {
             model: personModel 
           }
         ],
+        order: [[...qOrderBy,qOrderType]],
         where: {
         [Op.or]:[ {'$person.name$': qQueryWhereClause },{ '$person.lastName$': qQueryWhereClause}]
         }
