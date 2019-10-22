@@ -20,11 +20,13 @@ module.exports = function setupValidationService() {
 
   function validateContact(contactTypeId, contact, errors) {
     // Assuming that the contactTypeId is not null
+    const phoneRegex = /^([0-9]){6,9}$/;
+    const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
     if (![1, 2].includes(contactTypeId)) {
       errors.push('Invalid submitted contact type');
-    } else if (contactTypeId === 1 && !/^([0-9]){6,9}$/.test(contact)) {
+    } else if (contactTypeId === 1 && !phoneRegex.test(contact)) {
       errors.push('Invalid phone format');
-    } else if (contactTypeId === 2 && !/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(contact)) {
+    } else if (contactTypeId === 2 && !emailRegex.test(contact)) {
       errors.push('Invalid email format');
     }
   }
@@ -38,15 +40,18 @@ module.exports = function setupValidationService() {
   }
 
   function validateDocument(documentTypeId, document, errors) {
+    const dniRegex = /^[0-9]{1,8}$/;
+    const passportRegex = /^([a-zA-Z0-9]){1,12}$/;
+    const foreignCardRegex = /^([a-zA-Z0-9]){1,12}$/;
     if (!documentTypeId) {
       errors.push('The document field is required');
     } else if (![1, 2, 3].includes(documentTypeId)) {
       errors.push('Invalid submitted document type');
-    } else if (documentTypeId === 1 && !/^[0-9]{1,8}$/.test(document)) {
+    } else if (documentTypeId === 1 && !dniRegex.test(document)) {
       errors.push('Invalid DNI format');
-    } else if (documentTypeId === 2 && !/^([a-zA-Z0-9]){1,12}$/.test(document)) {
+    } else if (documentTypeId === 2 && !passportRegex.test(document)) {
       errors.push('Invalid passport format');
-    } else if (documentTypeId === 3 && !/^([a-zA-Z0-9]){1,12}$/.test(document)) {
+    } else if (documentTypeId === 3 && !foreignCardRegex.test(document)) {
       errors.push('Invalid foreign card format');
     }
   }
@@ -60,17 +65,19 @@ module.exports = function setupValidationService() {
   }
 
   function validateLastName(lastName, errors) {
+    const lastNameRegex = /^[a-zA-ZñÑ'\s]{1,25}$/;
     if (!lastName) {
       errors.push('The last name field is required');
-    } else if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(lastName)) {
+    } else if (!lastNameRegex.test(lastName)) {
       errors.push('Invalid last name format');
     }
   }
 
   function validateName(name, errors) {
+    const nameRegex = /^[a-zA-ZñÑ'\s]{1,25}$/;
     if (!name) {
       errors.push('The name field is required');
-    } else if (!/^[a-zA-ZñÑ'\s]{1,25}$/.test(name)) {
+    } else if (!nameRegex.test(name)) {
       errors.push('Invalid name format');
     }
   }
