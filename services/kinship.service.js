@@ -17,7 +17,6 @@ module.exports = function setupKinshipService(models) {
       const kinshipType = kinshipData.kinshipType
       
       const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
-      console.log("JAJAJAJAJAJAJAJAJA", validationResult);
     
       if (validationResult) {
 
