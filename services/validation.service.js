@@ -51,14 +51,6 @@ module.exports = function setupValidationService(models) {
     return Person.genderId === 1;
   }
 
-  async function verifyGenderDad(relativeId) {
-    let error = [];
-    const Person = await personModel.findOne({ where: { id: relativeId } });
-    if (Person.genderId === 1) {
-      errors.push('Incorrect gender father');
-    }
-    return error;
-  }
   async function verifyGenderMother(relativeId) {
     const Person = await personModel.findOne({ where: { id: relativeId } });
     return Person.genderId === 2;
@@ -92,7 +84,7 @@ module.exports = function setupValidationService(models) {
   }
 
   async function processData(pil, end) {
-    let trayectoria_nueva = [];
+    let mNewTrajectory = [];
     let prim = [];
     let last;
     do {
@@ -105,16 +97,16 @@ module.exports = function setupValidationService(models) {
       if (last == end) {
         return true;
       }
-      trayectoria_nueva = await newTrajectory(last, prim);
+      mNewTrajectory = await newTrajectory(last, prim);
       for (var i = 0; i < pil.length; i++) {
-        trayectoria_nueva.push(pil[i]);
+        mNewTrajectory.push(pil[i]);
       }
-      pil = trayectoria_nueva;
+      pil = mNewTrajectory;
     } while (true);
   }
   async function newTrajectory(last, prim) {
-    var tray_nuev = [];
-    var lb = [];
+    let mNewTrajectory = [];
+    let lb = [];
     if (cer.includes(last)) {
       return [];
     }
@@ -139,9 +131,9 @@ module.exports = function setupValidationService(models) {
       for (var j = 0; j < prim.length; j++) {
         temp.push(prim[j]);
       }
-      tray_nuev.push(temp);
+      mNewTrajectory.push(temp);
     }
-    return tray_nuev;
+    return mNewTrajectory;
   }
   async function searchSpace() {
     let arr = [];
@@ -193,23 +185,23 @@ module.exports = function setupValidationService(models) {
       });
     }
     if (personObject != null) {
-      const sameFather = await kinshipModel.findOne({
+      const sameMother = await kinshipModel.findOne({
         where: {
           personId: personObject.relativeId,
           kinshipType: constants.motherKinshipType
         }
       });
-      if (sameFather.relativeId != relativeId) {
+      if (sameMother.relativeId != relativeId) {
         return false;
       }
-      if (sameFather == null) {
+      if (sameMother == null) {
         await kinshipModel.create({
           personId: personObject.relativeId,
           relativeId: relativeId,
           kinshipType: constants.motherKinshipType
         });
       } else {
-        if (sameFather.relativeId != relativeId) {
+        if (sameMother.relativeId != relativeId) {
           return false;
         }
       }
@@ -236,19 +228,19 @@ module.exports = function setupValidationService(models) {
       });
     }
     if (personObject != null) {
-      const sameFather = await kinshipModel.findOne({
+      const sameMother = await kinshipModel.findOne({
         where: {
           personId: personObject.relativeId,
           kinshipType: constants.motherKinshipType
         }
       });
-      if (sameFather == null) {
+      if (sameMother == null) {
         await kinshipModel.create({
           personId: personObject.relativeId,
           relativeId: relativeId,
           kinshipType: constants.motherKinshipType
         });
-      } else if (sameFather.relativeId != relativeId) {
+      } else if (sameMother.relativeId != relativeId) {
         return false;
       }
     }
