@@ -2,6 +2,8 @@
 
 const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
+const constants = require('./constants');
+
 const Op = Sequelize.Op;
 
 module.exports = function setupPersonService(dependencies) {
@@ -10,9 +12,35 @@ module.exports = function setupPersonService(dependencies) {
   const countryModel = dependencies.countryModel;
   const documentTypeModel = dependencies.documentTypeModel;
   const genderModel = dependencies.genderModel;
+  const kinshipModel = dependencies.kinshipModel;
   const personModel = dependencies.personModel;
   const validationService = dependencies.validationService;
+
   //#region Helpers
+  async function getCouple(personId) {
+    const coupleKinship = await kinshipModel.findOne({
+      include: [{ as: 'relative', model: personModel }],
+      where: { personId, kinshipType: constants.coupleKinshipType.id }
+    });
+    return coupleKinship && coupleKinship.relative;
+  }
+
+  async function getFather(personId) {
+    const fatherKinship = await kinshipModel.findOne({
+      include: [{ as: 'relative', model: personModel }],
+      where: { personId, kinshipType: constants.fatherKinshipType.id }
+    });
+    return fatherKinship && fatherKinship.relative;
+  }
+
+  async function getMother(personId) {
+    const motherKinship = await kinshipModel.findOne({
+      include: [{ as: 'relative', model: personModel }],
+      where: { personId, kinshipType: constants.motherKinshipType.id }
+    });
+    return motherKinship && motherKinship.relative;
+  }
+
   function getOrderField(orderBy) {
     let qOrderBy;
     switch (orderBy) {
@@ -57,6 +85,84 @@ module.exports = function setupPersonService(dependencies) {
         return { [Op.like]: `%${q}%` };
       })
     };
+  }
+
+  async function getPersonKinships(person) {
+    const kinships = [];
+    // Get and attach couple
+    const couple = await getCouple(person.id);
+    if (couple && !couple.isGhost) {
+      kinships.push(getSimpleKinshipModel(person, couple, constants.coupleKinshipType));
+    }
+    // Get father
+    const father = await getFather(person.id);
+    // If there is at least a father, then the person has a tree...
+    if (father) {
+      // Attach father
+      if (!father.isGhost) {
+        kinships.push(getSimpleKinshipModel(person, father, constants.fatherKinshipType));
+      }
+      // Get and attach mother
+      const mother = await getMother(person.id);
+      if (mother && !mother.isGhost) {
+        kinships.push(getSimpleKinshipModel(person, mother, constants.motherKinshipType));
+      }
+      // Get and attach siblings
+      const siblings = await getSiblings(person.id, father.id);
+      siblings.forEach(s => {
+        if (s && !s.isGhost) {
+          kinships.push(getSimpleKinshipModel(person, s, constants.siblingKinshipType));
+        }
+      });
+      // Get and attach paternal grandfather
+      const paternalGrandfather = await getFather(father.id);
+      if (paternalGrandfather && !paternalGrandfather.isGhost) {
+        kinships.push(getSimpleKinshipModel(person, paternalGrandfather, constants.paternalGrandfatherKinshipType));
+      }
+      // Get and attach paternal grandmother
+      const paternalGrandmother = await getMother(father.id);
+      if (paternalGrandmother && !paternalGrandmother.isGhost) {
+        kinships.push(getSimpleKinshipModel(person, paternalGrandmother, constants.paternalGrandmotherKinshipType));
+      }
+      // Get and attach maternal grandfather
+      const maternalGrandfather = await getFather(mother.id);
+      if (maternalGrandfather && !maternalGrandfather.isGhost) {
+        kinships.push(getSimpleKinshipModel(person, maternalGrandfather, constants.maternalGrandfatherKinshipType));
+      }
+      // Get and attach maternal grandmother
+      const maternalGrandmother = await getMother(mother.id);
+      if (maternalGrandmother && !maternalGrandmother.isGhost) {
+        kinships.push(getSimpleKinshipModel(person, maternalGrandmother, constants.maternalGrandmotherKinshipType));
+      }
+    }
+    return kinships;
+  }
+
+  function getSimpleKinshipModel(person, relative, kinshipType) {
+    return {
+      personId: person.id,
+      personName: person.name,
+      personLastName: person.lastName,
+      relativeId: relative.id,
+      relativeName: relative.name,
+      relativeLastName: relative.lastName,
+      kinshipTypeId: kinshipType.id,
+      kinshipType: kinshipType.name
+    };
+  }
+
+  async function getSiblings(id, fatherId) {
+    const siblingKinships = await kinshipModel.findAll({
+      include: [{ as: 'person', model: personModel }],
+      where: {
+        personId: {
+          [Op.ne]: id
+        },
+        relativeId: fatherId,
+        kinshipType: constants.fatherKinshipType.id
+      }
+    });
+    return siblingKinships.map(sK => (sK.person));
   }
 
   function getSimplePersonModel(model) {
@@ -117,6 +223,33 @@ module.exports = function setupPersonService(dependencies) {
     }
   }
 
+  async function doListKinships(id) {
+    try {
+      // Get person
+      const person = await personModel.findOne({ where: { id } });
+      // Validate if person exists
+      if (!person || person.isGhost) {
+        baseService.returnData.responseCode = 404;
+        baseService.returnData.message = 'Not found';
+        baseService.returnData.data = {};
+        return baseService.returnData;
+      }
+      // Get kinships
+      const personData = await getPersonKinships(person);
+      // Return the data
+      baseService.returnData.responseCode = 200;
+      baseService.returnData.message = 'Success';
+      baseService.returnData.data = personData;
+    } catch (err) {
+      console.log('Error: ', err);
+      baseService.returnData.responseCode = 500;
+      baseService.returnData.message = '' + err;
+      baseService.returnData.data = [];
+    }
+
+    return baseService.returnData;
+  }
+
   async function modify(id, person) {
     try {
       // Check if person exists
@@ -132,7 +265,7 @@ module.exports = function setupPersonService(dependencies) {
       // Validate errors
       const errors = [];
       if (person.birthdate) {
-        validationService.validateBirthdate(person.birthdate, errors);  
+        validationService.validateBirthdate(person.birthdate, errors);
       }
       if (person.contactType1Id) {
         validationService.validateContact(person.contactType1Id, person.contact1, errors);
@@ -151,7 +284,7 @@ module.exports = function setupPersonService(dependencies) {
       }
       if (person.name) {
         validationService.validateName(person.name, errors);
-      }      
+      }
       if (errors.length > 0) {
         // If some errors were found, return 400
         return baseService.getServiceResponse(400, errors.join('\n'), {})
@@ -255,8 +388,10 @@ module.exports = function setupPersonService(dependencies) {
 
   return {
     doList,
+    doListKinships,
     create,
     modify,
-    findById
+    findById,
+    getPersonKinships // TODO: Move this to a shared service file
   };
 };

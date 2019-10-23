@@ -27,6 +27,7 @@ async function setup() {
   await seeders.seedDocumentTypes(db.documentTypeModel);
   await seeders.seedGenders(db.genderModel);
   await seeders.seedPeople(db.personModel);
+  await seeders.seedKinships(db.kinshipModel);
 
   console.log('Success');
   process.exit(0);

@@ -27,6 +27,28 @@ const get = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
+const getKinships = async (request, response) => {
+  let responseCode;
+  let responseData;
+
+  try {
+    let dbService = await setupServices();
+    let personData = await dbService.personService.doListKinships(request.params.id);
+
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      personData.data,
+      personData.message
+    );
+  } catch (err) {
+    responseCode = 500;
+    console.error('Error: ', err);
+    responseData = baseController.getErrorResponse('Error.');
+  }
+
+  return response.status(responseCode).json(responseData);
+}
+
 const post = async (request, response) => {
   let responseCode;
   let responseData;
@@ -103,6 +125,7 @@ const put = async (request, response) => {
 
 module.exports = {
   get,
+  getKinships,
   post,
   put
 };
