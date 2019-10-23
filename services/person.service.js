@@ -12,6 +12,7 @@ module.exports = function setupPersonService(dependencies) {
   const countryModel = dependencies.countryModel;
   const documentTypeModel = dependencies.documentTypeModel;
   const genderModel = dependencies.genderModel;
+  const kinshipModel = dependencies.kinshipModel;
   const personModel = dependencies.personModel;
   const validationService = dependencies.validationService;
 

@@ -32,7 +32,7 @@ const getKinships = async (request, response) => {
   let responseData;
 
   try {
-    let dbService = await setupDBService();
+    let dbService = await setupServices();
     let personData = await dbService.personService.doListKinships(request.params.id);
 
     responseCode = personData.responseCode;
