@@ -2,46 +2,17 @@
 
 const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
-const personValidation = require('./personvalidation.service.js');
-
 const Op = Sequelize.Op;
 
-module.exports = function setupPersonService(models) {
-  const contactTypeModel = models.contactTypeModel;
-  const countryModel = models.countryModel;
-  const documentTypeModel = models.documentTypeModel;
-  const genderModel = models.genderModel;
-  const personModel = models.personModel;
+module.exports = function setupPersonService(dependencies) {
   let baseService = new setupBaseService();
-  const personValidator = new personValidation();
+  const contactTypeModel = dependencies.contactTypeModel;
+  const countryModel = dependencies.countryModel;
+  const documentTypeModel = dependencies.documentTypeModel;
+  const genderModel = dependencies.genderModel;
+  const personModel = dependencies.personModel;
+  const validationService = dependencies.validationService;
   //#region Helpers
-  function getDoListModel(people) {
-    return people.map(person => {
-      let contactType1 = null;
-      if (person.contactType1) {
-        contactType1 = person.contactType1.name;
-      }
-      let contactType2 = null;
-      if (person.contactType2) {
-        contactType2 = person.contactType2.name;
-      }
-      return {
-        id: person.id,
-        name: person.name,
-        lastName: person.lastName,
-        birthdate: person.birthdate,
-        documentType: person.documentType.name,
-        document: person.document,
-        gender: person.gender.name,
-        country: person.country.name,
-        contactType1,
-        contact1: person.contact1,
-        contactType2,
-        contact2: person.contact2,
-      };
-    });
-  }
-
   function getOrderField(orderBy) {
     let qOrderBy;
     switch (orderBy) {
@@ -87,6 +58,28 @@ module.exports = function setupPersonService(models) {
       })
     };
   }
+
+  function getSimplePersonModel(model) {
+    return {
+      id: model.id,
+      birthdate: model.birthdate,
+      contact1: model.contact1,
+      contactType1: model.contactType1 && model.contactType1.name,
+      contactType1Id: model.contactType1 && model.contactType1.id,
+      contact2: model.contact2,
+      contactType2: model.contactType2 && model.contactType2.name,
+      contactType2Id: model.contactType2 && model.contactType2.id,
+      country: model.country.name,
+      countryId: model.country.id,
+      document: model.document,
+      documentType: model.documentType.name,
+      documentTypeId: model.documentType.id,
+      gender: model.gender.name,
+      genderId: model.gender.id,
+      lastName: model.lastName,
+      name: model.name
+    };
+  }
   //#endregion
 
   async function doList(requestQuery) {
@@ -116,167 +109,126 @@ module.exports = function setupPersonService(models) {
           ]
         }
       });
-      // Mold the response
-      const peopleData = getDoListModel(people);
       // Return the data
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = peopleData;
+      return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-
-    return baseService.returnData;
   }
 
- 
- 
-  async function modifyPerson(request) {
-    let errors = [];
+  async function modify(id, person) {
     try {
-      //Check if person exists
-      const where = {
-        id: request.params.id
-      };
-      const person = await personModel.findOne({
-        where
-      });
-
-      if (person) {
-        //Proper data validation for each field to modify
-
-        errors = errors.concat(personValidator.checkBlankSpacesfor(request.body));
-
-        errors = errors.concat(personValidator.checkNameFormat(request.body));
-
-        errors = errors.concat(personValidator.checkDocument(request.body));
-
-        errors = errors.concat(personValidator.checkBirthData(request.body));
-
-        errors = errors.concat(
-          personValidator.checkContactData(
-            request.body.contactType1Id,
-            request.body.contact1
-          )
-        );
-        //Set null values if is blank
-        if (request.body.contactType1Id == '') {
-          request.body.contactType1Id = null;
-          request.body.contact1 = null;
-        }
-
-        if (request.body.contactType2Id == '') {
-          request.body.contactType2Id = null;
-          request.body.contact2 = null;
-        }
-
-        errors = errors.concat(
-          personValidator.checkContactData(
-            request.body.contactType2Id,
-            request.body.contact2
-          )
-        );
-        console.log(request.body);
-        //Send Validation Errors or Update the data
-
-        if (errors.length) {
-          baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
-          baseService.returnData.data = errors;
-        } else {
-          const personModified = await personModel.update(request.body, {
-            where
-          });
-
-          baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Update completed successfully.';
-          baseService.returnData.data = personModified;
-        }
+      // Check if person exists
+      const personExists = await personModel.findOne({ where: { id } });
+      if (!personExists || personExists.isGhost) {
+        return baseService.getServiceResponse(404, 'Not found', {});
+      }
+      // Check if document exists
+      const documentExists = await personModel.findOne({ where: { document: person.document } });
+      if (documentExists && documentExists.id !== id) {
+        return baseService.getServiceResponse(400, 'Document field must be unique', {});
+      }
+      // Validate errors
+      const errors = [];
+      if (person.birthdate) {
+        validationService.validateBirthdate(person.birthdate, errors);  
+      }
+      if (person.contactType1Id) {
+        validationService.validateContact(person.contactType1Id, person.contact1, errors);
+      }
+      if (person.contactType2Id) {
+        validationService.validateContact(person.contactType2Id, person.contact2, errors);
+      }
+      if (person.countryId) {
+        validationService.validateCountry(person.countryId, errors);
+      }
+      if (person.documentTypeId) {
+        validationService.validateDocument(person.documentTypeId, person.document, errors);
+      }
+      if (person.lastName) {
+        validationService.validateLastName(person.lastName, errors);
+      }
+      if (person.name) {
+        validationService.validateName(person.name, errors);
+      }      
+      if (errors.length > 0) {
+        // If some errors were found, return 400
+        return baseService.getServiceResponse(400, errors.join('\n'), {})
       } else {
-        baseService.returnData.responseCode = 400;
-        baseService.returnData.message = 'Person doesnt exist on the database.';
-        baseService.returnData.data = errors;
+        // Else, create the person
+        let modifiedPerson = await personModel.update(person, { where: { id } });
+        // Then obtain their complete data (including associations)
+        modifiedPerson = await personModel.findOne({
+          include: [
+            { as: 'documentType', model: documentTypeModel },
+            { as: 'gender', model: genderModel },
+            { as: 'country', model: countryModel },
+            { as: 'contactType1', model: contactTypeModel },
+            { as: 'contactType2', model: contactTypeModel }
+          ],
+          where: { id }
+        });
+        // And return 200
+        return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
+      }
+
+    } catch (err) {
+      console.log('Error: ', err);
+      return baseService.getServiceResponse(500, err, {});
+    }
+  }
+
+  async function create(person) {
+    try {
+      // Check if document exists
+      const documentExists = await personModel.findOne({ where: { document: person.document } });
+      if (documentExists) {
+        return baseService.getServiceResponse(400, 'Document field must be unique', {});
+      }
+      // Validate errors
+      const errors = [];
+      validationService.validateBirthdate(person.birthdate, errors);
+      validationService.validateCountry(person.countryId, errors);
+      validationService.validateDocument(person.documentTypeId, person.document, errors);
+      validationService.validateGender(person.genderId, errors);
+      validationService.validateLastName(person.lastName, errors);
+      validationService.validateName(person.name, errors);
+      if (person.contactType1Id) {
+        validationService.validateContact(person.contactType1Id, person.contact1, errors);
+      }
+      if (person.contactType2Id) {
+        validationService.validateContact(person.contactType2Id, person.contact2, errors);
+      }
+      if (errors.length > 0) {
+        // If some errors were found, return 400
+        return baseService.getServiceResponse(400, errors.join('\n'), {})
+      } else {
+        // Else, create the person
+        let createdPerson = await personModel.create(person);
+        // Then obtain their complete data (including associations)
+        createdPerson = await personModel.findOne({
+          include: [
+            { as: 'documentType', model: documentTypeModel },
+            { as: 'gender', model: genderModel },
+            { as: 'country', model: countryModel },
+            { as: 'contactType1', model: contactTypeModel },
+            { as: 'contactType2', model: contactTypeModel }
+          ],
+          where: { id: createdPerson.id }
+        });
+        // And return 200
+        return baseService.getServiceResponse(200, "Person created", getSimplePersonModel(createdPerson));
       }
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-
-    return baseService.returnData;
-  }
-
-
-  async function create(request) {
-    try {
-       const newUser = {
-        name: request.body.name,
-        lastName: request.body.lastName,
-        birthdate: request.body.birthdate, //Format: YYYY-MM-DD
-        documentTypeId: request.body.documentTypeId,
-        document: request.body.document,
-        genderId: request.body.genderId,
-        countryId: request.body.countryId,
-        contact1: request.body.contact1,
-        contactType1Id: request.body.contactType1Id,
-        contact2: request.body.contact2,
-        contactType2Id: request.body.contactType2Id,
-        isGhost: false
-      };
-
-      let errors = [];
-      errors = errors.concat(personValidator.checkBlankSpacesfor(request.body));
-  
-      errors = errors.concat(personValidator.checkDocument(request.body));
-  
-      errors = errors.concat(personValidator.checkBirthData(request.body));
-
-      errors = errors.concat(personValidator.checkNameFormat(request.body));
-        
-      errors = errors.concat(
-          personValidator.checkContactData(
-            request.body.contactType1Id,
-            request.body.contact1
-          )
-        );
-
-        errors = errors.concat(
-          personValidator.checkContactData(
-            request.body.contactType2Id,
-            request.body.contact2
-          )
-        );
-          
-        if (errors.length) {
-          baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
-          baseService.returnData.data = errors;
-        } else {
-          let created = await personModel.create(newUser); //Create user
-          if (created){
-            console.log('The person was registered');
-            baseService.returnData.responseCode = 200;
-            baseService.returnData.message = 'Data was registered satisfactory';
-          }
-          
-        } 
-      
-      
-     
-    } catch (err) {
-      console.log('The person wasn\'t registered ' + err);
-      baseService.returnData.responseCode = 500; //Validation error
-      baseService.returnData.message = 'The person wasn\'t registered';
-    }
-    return baseService.returnData; 
   }
 
   async function findById(id) {
     try {
+      // Get models and find person
       const person = await personModel.findOne({
         include: [
           { as: 'documentType', model: documentTypeModel },
@@ -285,54 +237,26 @@ module.exports = function setupPersonService(models) {
           { as: 'contactType1', model: contactTypeModel },
           { as: 'contactType2', model: contactTypeModel }
         ],
-        where: {
-          id
-        }
-        
+        where: { id }
+      });
+      if (person && !person.isGhost) {
+        // If a person was found, return 200
+        return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
+      } else {
+        // Else, return 404
+        return baseService.getServiceResponse(404, "Not found", {});
+      }
 
-      }); 
-      let contactType1 = null;
-      if (person.contactType1) {
-        contactType1 = person.contactType1.name;
-      }
-      let contactType2 = null;
-      if (person.contactType2) {
-        contactType2 = person.contactType2.name;
-      }
-      const peopleData = {
-        
-        id: person.id,
-        name: person.name,
-        lastName: person.lastName,
-        birthdate: person.birthdate,
-        documentType: person.documentType.name,
-        document: person.document,
-        country: person.country.name,
-        gender: person.gender.name,
-        contactType1,
-        contact1: person.contact1,
-        contactType2,
-        contact2: person.contact2,
-      }
-      
-     
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = peopleData;
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-
-    return baseService.returnData;
   }
 
   return {
     doList,
     create,
-    modifyPerson,
+    modify,
     findById
   };
 };
