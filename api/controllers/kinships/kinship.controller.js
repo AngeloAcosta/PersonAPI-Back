@@ -1,6 +1,6 @@
-"use strict";
-const setupBaseController = require("../base.controller");
-const setupDBService = require("../../../services");
+'use strict';
+const setupBaseController = require('../base.controller');
+const setupDBService = require('../../../services');
 
 let baseController = new setupBaseController();
 const dbService = setupDBService();
@@ -24,9 +24,9 @@ const get = async (request, response) => {
     );
   } catch (err) {
     responseCode = 500;
-    console.error("Error getting all kinship: ", err);
+    console.error('Error getting all kinship: ', err);
     responseData = baseController.getErrorResponse(
-      "Error getting all kindships."
+      'Error getting all kindships.'
     );
   }
 
@@ -52,9 +52,9 @@ const post = async (request, response) => {
       newKinshipData.message
     );
   } catch (err) {
-    console.error("Error creating a new kinship: ", err);
+    console.error('Error creating a new kinship: ', err);
     responseData = baseController.getErrorResponse(
-      "Error creating a new kinship"
+      'Error creating a new kinship'
     );
   }
 

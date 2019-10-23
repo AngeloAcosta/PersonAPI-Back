@@ -16,18 +16,18 @@ const get = async (request, response) => {
 
     responseCode = kinshipsData.responseCode;
     responseData = baseController.getSuccessResponse(
-        kinshipsData.data, kinshipsData.message
+      kinshipsData.data,
+      kinshipsData.message
     );
-
   } catch (err) {
     responseCode = 500;
     console.error('Error getting all kinships: ', err);
-    responseData = baseController.getErrorResponse('Error getting all kindships.');
+    responseData = baseController.getErrorResponse(
+      'Error getting all kindships.'
+    );
   }
 
-  return response
-    .status(responseCode)
-    .json(responseData);
+  return response.status(responseCode).json(responseData);
 };
 
 module.exports = {
