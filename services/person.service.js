@@ -124,6 +124,7 @@ module.exports = function setupPersonService(dependencies) {
         offset: requestQuery.offset,
         order: [[...qOrderBy, qOrderType]],
         where: {
+          isGhost: false,
           [Op.or]: [
             { name: qQueryWhereClause },
             { lastName: qQueryWhereClause },
@@ -145,7 +146,7 @@ module.exports = function setupPersonService(dependencies) {
     try {
       // Check if person exists
       const personExists = await personModel.findOne({ where: { id } });
-      if (!personExists) {
+      if (!personExists || personExists.isGhost) {
         return baseService.getServiceResponse(404, 'Not found', {});
       }
       // Check if document exists
@@ -252,7 +253,7 @@ module.exports = function setupPersonService(dependencies) {
         ],
         where: { id }
       });
-      if (person) {
+      if (person && !person.isGhost) {
         // If a person was found, return 200
         return baseService.getServiceResponse(200, "Success", await getCompletePersonModel(person))
       } else {
