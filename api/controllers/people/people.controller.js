@@ -1,7 +1,7 @@
 'use strict';
 
 const setupBaseController = require('./../base.controller');
-const setupDBService = require('./../../../services');
+const setupServices = require('./../../../services');
 
 let baseController = new setupBaseController();
 
@@ -15,7 +15,7 @@ const get = async (request, response) => {
     let query = request.query.query || '';
     let orderBy = parseInt(request.query.orderBy) || 1;
     let orderType = parseInt(request.query.orderType) || 1;
-    let dbService = await setupDBService();
+    let dbService = await setupServices();
     let peopleData = await dbService.personService.doList({
       limit,
       offset,
