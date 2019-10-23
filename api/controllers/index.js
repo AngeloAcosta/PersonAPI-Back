@@ -11,6 +11,5 @@ router.use('/genders', require('./genders'));
 router.use('/kinships', require('./kinships'));
 router.use('/people', require('./people'));
 router.use('/users', require('./users'));
-router.use('/kinships',require('./kinships'));
 
 module.exports = router;
