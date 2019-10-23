@@ -567,6 +567,24 @@ module.exports = function setupValidationService(models) {
         return kinshipP(personId, relativeId, kinshipType);
     }
   }
+  function modifyKinships(personId, relativeId, kinshipType) {
+    switch (kinshipType) {
+      case 'GFF':
+        return kinshipGFF(personId, relativeId, 'F');
+      case 'GFM':
+        return kinshipGFM(personId, relativeId, 'F');
+      case 'GMF':
+        return kinshipGMF(personId, relativeId, 'M');
+      case 'GMM':
+        return kinshipGMM(personId, relativeId, 'M');
+      case 'S':
+        return kinshipS(personId, relativeId, 'S');
+      case 'C':
+        return kinshipC(personId, relativeId);
+      default:
+        return kinshipP(personId, relativeId, kinshipType);
+    }
+  }
   function transformKinship(kinshipTypeT) {
     switch (kinshipTypeT) {
       case 'GFF':
@@ -585,6 +603,7 @@ module.exports = function setupValidationService(models) {
   return {
     isValidPerson,
     kinshipValidations,
-    createKinships
+    createKinships,
+    modifyKinships
   };
 };
