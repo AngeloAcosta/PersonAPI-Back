@@ -29,7 +29,7 @@ module.exports = function setupPersonService(dependencies) {
       contact1: model.contact1,
       contactType2Id: model.contactType2 && model.contactType2.id,
       contactType2: model.contactType2 && model.contactType2.name,
-      contact2: model.contact1,
+      contact2: model.contact2,
       countryId: model.country.id,
       country: model.country.name,
       documentTypeId: model.documentType.id,
