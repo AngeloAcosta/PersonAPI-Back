@@ -470,22 +470,22 @@ module.exports = function setupValidationService(models) {
     }
     return errors;
   }
-  function kinshipGFM(personId, relativeId, kinshipType) {
+  function kinshipGFM(personId, relativeId) {
     const mFather = validatoGFatherM(personId, relativeId);
     if (!mFather) {
       return false;
     }
     return true;
   }
-  function kinshipGMM(personId, relativeId, kinshipType) {
-    const mFather = validatoGMotherM(personId, relativeId, kinshipType);
+  function kinshipGMM(personId, relativeId) {
+    const mFather = validatoGMotherM(personId, relativeId);
     if (!mFather) {
       return false;
     }
     return true;
   }
-  function kinshipGFF(personId, relativeId, kinshipType) {
-    const mFather = validatoGFatherF(personId, relativeId, kinshipType);
+  function kinshipGFF(personId, relativeId) {
+    const mFather = validatoGFatherF(personId, relativeId);
     if (!mFather) {
       return false;
     }
@@ -557,7 +557,7 @@ module.exports = function setupValidationService(models) {
       kinshipType: constants.coupleKinshipType
     });
   }
-  function kinshipGrandParents(personId, relativeId, kinshipType) {
+  function createKinships(personId, relativeId, kinshipType) {
     switch (kinshipType) {
       case 'GFF':
         return kinshipGFF(personId, relativeId, 'F');
@@ -593,6 +593,6 @@ module.exports = function setupValidationService(models) {
   return {
     isValidPerson,
     kinshipValidations,
-    kinshipGrandParents
+    createKinships
   };
 };

@@ -60,50 +60,6 @@ const post = async (request, response) => {
 
   return response.status(responseCode).json(responseData);
 };
-/*
-const update = async (request, response) => {
-  if (!request.params.id) {
-    return response
-      .status(400)
-      .json(baseController.getErrorResponse('Parameter is missing'));
-  }
-
-  const kindshipId = request.params.id;
-  let kindshipData = {};
-
-  if (request.body.name) {
-    kindshipData.name = request.body.name;
-  }
-
-  if (request.body.lastName) {
-    kindshipData.lastName = request.body.lastName;
-  }
-
-
-  let responseCode;
-  let responseData;
-
-  try {
-    const updatedData = await dbService
-      .userService
-      .update(userId, userData);
-
-    responseCode = updatedData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      updatedData.data,
-      updatedData.message
-    );
-  } catch (err) {
-    responseCode = 500;
-    console.error('Error updating user information: ', err);
-    responseData = baseController.getErrorResponse('Error updating user information');
-  }
-
-  return response
-    .status(responseCode)
-    .json(responseData);
-};
-*/
 
 module.exports = {
   get,
