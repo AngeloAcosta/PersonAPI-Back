@@ -23,8 +23,8 @@ module.exports = function setupCountryService() {
 
   async function doListTypes() {
     try {
-      const kinships = getKinshipTypes();
-      return baseService.getServiceResponse(200, "Success", kinships);
+      const kinshipTypes = getKinshipTypes();
+      return baseService.getServiceResponse(200, "Success", kinshipTypes);
     } catch (err) {
       console.log('Error: ', err);
       return baseService.getServiceResponse(500, err, {});
