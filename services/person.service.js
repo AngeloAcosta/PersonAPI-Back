@@ -163,7 +163,7 @@ module.exports = function setupPersonService(dependencies) {
     });
     return siblingKinships.map(sK => (sK.person));
   }
-  
+
   function getSimplePersonModel(model) {
     return {
       id: model.id,
