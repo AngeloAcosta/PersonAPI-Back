@@ -8,7 +8,6 @@ const setupPersonService = require('./person.service.js');
 module.exports = function setupKinshipService(models) {
   const personModel = models.personModel;
   const kinshipModel = models.kinshipModel;
-  const validationService = models.validationService;
   let baseService = new setupBaseService();
   let personService = new setupPersonService(models);
 
@@ -17,18 +16,30 @@ module.exports = function setupKinshipService(models) {
   }
 
   function getOrderField(orderBy){
-    let qOrderBy = ['name'];
-    if(orderBy === 2){
-      qOrderBy = ['kinships','kinshipType'];
-    } 
+    let qOrderBy;
+    switch (orderBy) {
+      case 1:
+        qOrderBy = ['name'];
+        break;
+      default:
+        qOrderBy = 'name';
+        break;
+    }
     return qOrderBy;
   }
-
-
+  
   function getOrderType(orderType) {
-    let qOrderType = 'ASC';
-    if (orderType === 2) {
-      qOrderType = 'DESC';
+    let qOrderType;
+    switch (orderType) {
+      case 1:
+        qOrderType = 'ASC';
+        break;
+      case 2:
+        qOrderType = 'DESC';
+        break;
+      default:
+        qOrderType = 'ASC';
+        break;
     }
     return qOrderType;
   }
@@ -45,8 +56,8 @@ module.exports = function setupKinshipService(models) {
         offset: requestQuery.offset,
         where: {
           [Op.or]: [
-            {'$name$': qQueryWhereClause },
-            {'$lastName$': qQueryWhereClause}
+            { name: qQueryWhereClause },
+            { lastName: qQueryWhereClause}
           ]
         },
         order: [[...qOrderBy, qOrderType]]
