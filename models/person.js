@@ -8,19 +8,11 @@ module.exports = function setupPersonModel(config) {
   const person = sequelize.define('person', {
     name: {
       type: Sequelize.STRING(25),
-      allowNull: true,
-      validate: {
-        is: ["^[A-ZÑa-zñ.s_-]+$"], //Allows only leters
-        min: 1
-      }
+      allowNull: true
     },
     lastName: {
       type: Sequelize.STRING(25),
-      allowNull: true,
-      validate: {
-        is: ["^[A-ZÑa-zñ'.s_-]+$"], // Allows only leters and '
-        min: 2
-      }
+      allowNull: true
     },
     birthdate: {
       type: Sequelize.DATEONLY,
