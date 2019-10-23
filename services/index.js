@@ -9,7 +9,7 @@ const setupPersonService = require('./person.service');
 const setupUserService = require('./user.service');
 const setupValidationService = require('./validation.service');
 
-module.exports = async function () {
+module.exports = async function() {
   const dbInstance = await setupDatabase();
 
   const validationService = setupValidationService({
@@ -17,9 +17,13 @@ module.exports = async function () {
     personModel: dbInstance.personModel
   });
   const authenticationService = setupAuthenticationService();
-  const contactTypeService = setupContactTypeService(dbInstance.contactTypeModel);
+  const contactTypeService = setupContactTypeService(
+    dbInstance.contactTypeModel
+  );
   // TODO: Country service
-  const documentTypeService = setupDocumentTypeService(dbInstance.documentTypeModel);
+  const documentTypeService = setupDocumentTypeService(
+    dbInstance.documentTypeModel
+  );
   // TODO: Gender service
   const personService = setupPersonService({
     validationService,
@@ -35,7 +39,6 @@ module.exports = async function () {
     kinshipModel: dbInstance.kinshipModel,
     validationService
   });
-
 
   return {
     authenticationService,

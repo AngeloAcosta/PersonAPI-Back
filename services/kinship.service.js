@@ -41,7 +41,7 @@ module.exports = function setupKinshipService(models) {
       } else {
         baseService.returnData.responseCode = 400;
         baseService.returnData.message =
-          'These people don\'t exists on the database.';
+          "These people don't exists on the database.";
         baseService.returnData.data = [];
       }
     } catch (err) {
