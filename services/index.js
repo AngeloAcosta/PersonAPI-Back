@@ -14,6 +14,7 @@ module.exports = async function() {
     countryModel: dbInstance.countryModel,
     documentTypeModel: dbInstance.documentTypeModel,
     genderModel: dbInstance.genderModel,
+    kinshipModel: dbInstance.kinshipModel,
     personModel: dbInstance.personModel
   });
   const userService = setupUserService(dbInstance.userModel);
