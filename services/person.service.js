@@ -14,34 +14,7 @@ module.exports = function setupPersonService(dependencies) {
   const validationService = dependencies.validationService;
 
   //#region Helpers
-  function getDoListModel(model) {
-    return model.map(person => {
-      let contactType1 = null;
-      if (person.contactType1) {
-        contactType1 = person.contactType1.name;
-      }
-      let contactType2 = null;
-      if (person.contactType2) {
-        contactType2 = person.contactType2.name;
-      }
-      return {
-        id: person.id,
-        name: person.name,
-        lastName: person.lastName,
-        birthdate: person.birthdate,
-        documentType: person.documentType.name,
-        document: person.document,
-        gender: person.gender.name,
-        country: person.country.name,
-        contactType1,
-        contact1: person.contact1,
-        contactType2,
-        contact2: person.contact2,
-      };
-    });
-  }
-
-  async function getInspectModel(model) {
+  async function getCompletePersonModel(model) {
     const genders = (await genderModel.findAll()).map(g => ({ id: g.id, name: g.name }));
     const countries = (await countryModel.findAll()).map(c => ({ id: c.id, name: c.name }));
     const documentTypes = (await documentTypeModel.findAll()).map(dT => ({ id: dT.id, name: dT.name }));
@@ -104,6 +77,33 @@ module.exports = function setupPersonService(dependencies) {
       })
     };
   }
+
+  function getSimplePersonModel(model) {
+    return model.map(person => {
+      let contactType1 = null;
+      if (person.contactType1) {
+        contactType1 = person.contactType1.name;
+      }
+      let contactType2 = null;
+      if (person.contactType2) {
+        contactType2 = person.contactType2.name;
+      }
+      return {
+        id: person.id,
+        name: person.name,
+        lastName: person.lastName,
+        birthdate: person.birthdate,
+        documentType: person.documentType.name,
+        document: person.document,
+        gender: person.gender.name,
+        country: person.country.name,
+        contactType1,
+        contact1: person.contact1,
+        contactType2,
+        contact2: person.contact2,
+      };
+    });
+  }
   //#endregion
 
   async function doList(requestQuery) {
@@ -134,7 +134,7 @@ module.exports = function setupPersonService(dependencies) {
         }
       });
       // Return the data
-      return baseService.getServiceResponse(200, "Success", getDoListModel(people))
+      return baseService.getServiceResponse(200, "Success", getSimplePersonModel(people))
     } catch (err) {
       console.log('Error: ', err);
       return baseService.getServiceResponse(500, err, {})
@@ -184,7 +184,7 @@ module.exports = function setupPersonService(dependencies) {
           where: { id }
         });
         // And return 200
-        return baseService.getServiceResponse(200, "Person modified", await getInspectModel(modifiedPerson));
+        return baseService.getServiceResponse(200, "Person modified", await getCompletePersonModel(modifiedPerson));
       }
     } catch (err) {
       console.log('Error: ', err);
@@ -231,7 +231,7 @@ module.exports = function setupPersonService(dependencies) {
           where: { id: createdPerson.id }
         });
         // And return 200
-        return baseService.getServiceResponse(200, "Person created", await getInspectModel(createdPerson));
+        return baseService.getServiceResponse(200, "Person created", await getCompletePersonModel(createdPerson));
       }
     } catch (err) {
       console.log('Error: ', err);
@@ -254,7 +254,7 @@ module.exports = function setupPersonService(dependencies) {
       });
       if (person) {
         // If a person was found, return 200
-        return baseService.getServiceResponse(200, "Success", await getInspectModel(person))
+        return baseService.getServiceResponse(200, "Success", await getCompletePersonModel(person))
       } else {
         // Else, return 404
         return baseService.getServiceResponse(404, "Not found", {})
