@@ -6,43 +6,23 @@ module.exports = function setupAuthenticationService() {
   const baseService = new setupBaseService();
 
   async function login(data) {
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.data = {};
-
-    return baseService.returnData;
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
   async function checkLogin(email, password) {
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.data = {};
-
-    return baseService.returnData;
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
   async function changePassword(password) {
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.data = {};
-
-    return baseService.returnData;
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
   async function resetPassword(email) {
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.data = {};
-
-    return baseService.returnData;
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
   async function logout() {
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.responseCode = 200;
-    baseService.returnData.data = {};
-
-    return baseService.returnData;
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
   return {
