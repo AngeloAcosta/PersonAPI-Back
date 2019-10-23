@@ -5,34 +5,48 @@ const setupBaseService = require('./base.service');
 const Op = Sequelize.Op;
 
 module.exports = function setupPersonService(dependencies) {
-  const baseService = new setupBaseService();
+  let baseService = new setupBaseService();
   const contactTypeModel = dependencies.contactTypeModel;
   const countryModel = dependencies.countryModel;
   const documentTypeModel = dependencies.documentTypeModel;
   const genderModel = dependencies.genderModel;
   const personModel = dependencies.personModel;
   const validationService = dependencies.validationService;
-
   //#region Helpers
   function getOrderField(orderBy) {
-    let qOrderBy = ['name'];
-    if (orderBy === 2) {
-      qOrderBy = ['document']
-    } else if (orderBy === 3) {
-      qOrderBy = ['documentType', 'name']
-    } else if (orderBy === 4) {
-      qOrderBy = ['country', 'name']
+    let qOrderBy;
+    switch (orderBy) {
+      case 1:
+        qOrderBy = ['name'];
+        break;
+      case 2:
+        qOrderBy = ['document'];
+        break;
+      case 3:
+        qOrderBy = ['documentType', 'name'];
+        break;
+      case 4:
+        qOrderBy = ['country', 'name'];
+        break;
+      default:
+        qOrderBy = 'name';
+        break;
     }
     return qOrderBy;
   }
 
   function getOrderType(orderType) {
-    let qOrderType = "ASC";
-    if (orderType === 2) {
-      qOrderType = 'DESC';
-    }
-    else if (orderType === 1) {
-      qOrderType = 'ASC';
+    let qOrderType;
+    switch (orderType) {
+      case 1:
+        qOrderType = 'ASC';
+        break;
+      case 2:
+        qOrderType = 'DESC';
+        break;
+      default:
+        qOrderType = 'ASC';
+        break;
     }
     return qOrderType;
   }
@@ -86,7 +100,6 @@ module.exports = function setupPersonService(dependencies) {
         offset: requestQuery.offset,
         order: [[...qOrderBy, qOrderType]],
         where: {
-          isGhost: false,
           [Op.or]: [
             { name: qQueryWhereClause },
             { lastName: qQueryWhereClause },
@@ -118,17 +131,27 @@ module.exports = function setupPersonService(dependencies) {
       }
       // Validate errors
       const errors = [];
-      validationService.validateBirthdate(person.birthdate, errors);
-      validationService.validateCountry(person.countryId, errors);
-      validationService.validateDocument(person.documentTypeId, person.document, errors);
-      validationService.validateLastName(person.lastName, errors);
-      validationService.validateName(person.name, errors);
+      if (person.birthdate) {
+        validationService.validateBirthdate(person.birthdate, errors);  
+      }
       if (person.contactType1Id) {
         validationService.validateContact(person.contactType1Id, person.contact1, errors);
       }
       if (person.contactType2Id) {
         validationService.validateContact(person.contactType2Id, person.contact2, errors);
       }
+      if (person.countryId) {
+        validationService.validateCountry(person.countryId, errors);
+      }
+      if (person.documentTypeId) {
+        validationService.validateDocument(person.documentTypeId, person.document, errors);
+      }
+      if (person.lastName) {
+        validationService.validateLastName(person.lastName, errors);
+      }
+      if (person.name) {
+        validationService.validateName(person.name, errors);
+      }      
       if (errors.length > 0) {
         // If some errors were found, return 400
         return baseService.getServiceResponse(400, errors.join('\n'), {})
@@ -149,9 +172,10 @@ module.exports = function setupPersonService(dependencies) {
         // And return 200
         return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
       }
+
     } catch (err) {
       console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {})
+      return baseService.getServiceResponse(500, err, {});
     }
   }
 
@@ -198,7 +222,7 @@ module.exports = function setupPersonService(dependencies) {
       }
     } catch (err) {
       console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {})
+      return baseService.getServiceResponse(500, err, {});
     }
   }
 
@@ -222,6 +246,7 @@ module.exports = function setupPersonService(dependencies) {
         // Else, return 404
         return baseService.getServiceResponse(404, "Not found", {});
       }
+
     } catch (err) {
       console.log('Error: ', err);
       return baseService.getServiceResponse(500, err, {});
