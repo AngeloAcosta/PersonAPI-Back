@@ -134,7 +134,7 @@ async function seedPeople(model) {
     people.push({
       name: faker.name.firstName(),
       lastName: faker.name.lastName(),
-      birthdate: faker.date.between('1900-01-01','2000-01-01'),
+      birthdate: faker.date.past(),
       document: faker.random.alphaNumeric(8).toUpperCase(),
       documentTypeId: faker.random.arrayElement(documentTypeIds),
       genderId: ((index % 2 === 0) ? 1 : 2),
