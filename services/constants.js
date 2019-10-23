@@ -14,13 +14,9 @@ module.exports = {
     id: 'M',
     name: 'Mother'
   },
-  brotherKinshipType: {
-    id: 'B',
-    name: 'Brother'
-  },
-  sisterKinshipType: {
+  siblingKinshipType: {
     id: 'S',
-    name: 'Sister'
+    name: 'Sibling'
   },
   paternalGrandfatherKinshipType: {
     id: 'PGF',

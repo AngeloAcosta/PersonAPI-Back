@@ -17,12 +17,12 @@ module.exports = function setupPersonService(models) {
   let baseService = new setupBaseService();
   const personValidator = new personValidation();
   //#region Helpers
-  async function getBrothers() {
-    return [];
-  }
-
   async function getCouple(personId) {
-    return null;
+    const coupleKinship = await kinshipModel.findOne({
+      include: [{ as: 'relative', model: personModel }],
+      where: { personId, kinshipType: constants.coupleKinshipType.id }
+    });
+    return coupleKinship && coupleKinship.relative;
   }
 
   function getDoListModel(people) {
@@ -134,18 +134,11 @@ module.exports = function setupPersonService(models) {
       if (mother && !mother.isGhost) {
         kinships.push(getSimpleKinshipModel(person, mother, constants.motherKinshipType));
       }
-      // Get and attach brothers
-      const brothers = await getBrothers();
-      brothers.forEach(b => {
-        if (b && !b.isGhost) {
-          kinships.push(getSimpleKinshipModel(person, b, constants.brotherKinshipType));
-        }
-      });
-      // Get and attach sisters
-      const sisters = await getSisters();
-      sisters.forEach(s => {
+      // Get and attach siblings
+      const siblings = await getSiblings(person.id,father.id);
+      siblings.forEach(s => {
         if (s && !s.isGhost) {
-          kinships.push(getSimpleKinshipModel(person, s, constants.sisterKinshipType));
+          kinships.push(getSimpleKinshipModel(person, s, constants.siblingKinshipType));
         }
       });
       // Get and attach paternal grandfather
@@ -185,12 +178,21 @@ module.exports = function setupPersonService(models) {
     };
   }
 
-  async function getSisters() {
-    return [];
+  async function getSiblings (id, fatherId) {
+    const siblingKinships = await kinshipModel.findAll({
+      include: [{ as: 'person', model: personModel }],   
+      where: {
+        personId : { [Op.ne] : id
+        },
+        relativeId : fatherId,
+        kinshipType: constants.fatherKinshipType.id
+      }
+    });
+    return siblingKinships.map(sK => ( sK.person ));
   }
-  //#endregion
+  // #endregion
 
-  async function doList(requestQuery) {
+  async function doList (requestQuery) {
     try {
       let qOrderBy = getOrderField(requestQuery.orderBy);
       let qOrderType = getOrderType(requestQuery.orderType);
@@ -462,6 +464,7 @@ module.exports = function setupPersonService(models) {
     doListKinships,
     create,
     modifyPerson,
-    findById
+    findById,
+    getPersonKinships // TODO: Move this to a shared service file
   };
 };
