@@ -4,6 +4,7 @@ const setupDatabase = require('./../models');
 const setupAuthenticationService = require('./authentication.service');
 const setupKinshipService = require('./kinship.service');
 const setupContactTypeService = require('./contact.type.service');
+const setupCountryService = require('./country.service');
 const setupDocumentTypeService = require('./document.type.service');
 const setupPersonService = require('./person.service');
 const setupUserService = require('./user.service');
@@ -17,13 +18,9 @@ module.exports = async function() {
     personModel: dbInstance.personModel
   });
   const authenticationService = setupAuthenticationService();
-  const contactTypeService = setupContactTypeService(
-    dbInstance.contactTypeModel
-  );
-  // TODO: Country service
-  const documentTypeService = setupDocumentTypeService(
-    dbInstance.documentTypeModel
-  );
+  const contactTypeService = setupContactTypeService(dbInstance.contactTypeModel);
+  const countryService = setupCountryService(dbInstance.countryModel);
+  const documentTypeService = setupDocumentTypeService(dbInstance.documentTypeModel);
   // TODO: Gender service
   const personService = setupPersonService({
     validationService,
@@ -43,6 +40,7 @@ module.exports = async function() {
   return {
     authenticationService,
     contactTypeService,
+    countryService,
     documentTypeService,
     personService,
     userService,
