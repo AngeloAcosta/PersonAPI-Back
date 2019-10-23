@@ -62,7 +62,7 @@ module.exports = function setupKinshipService(models) {
         },
         order: [[...qOrderBy, qOrderType]]
       });
-           for (let i = 0; i<personid.length;i++) {
+           for (let i = 0; i < personid.length;i++) {
             let kinships = await personService.getPersonKinships(personid[i]);
             if(kinships.length > 0){
              listKinships = listKinships.concat(kinships);
