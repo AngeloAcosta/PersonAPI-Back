@@ -18,9 +18,6 @@ module.exports = function setupKinshipService(models) {
       const mIsValidRelative = await validationService.isValidPerson(
         relativeId
       );
-      console.log(mIsValidPerson);
-      console.log(mIsValidRelative);
-      console.log(mIsValidPerson && mIsValidRelative);
 
       if (mIsValidPerson && mIsValidRelative) {
         const validationResponse = await validationService.kinshipValidations(
