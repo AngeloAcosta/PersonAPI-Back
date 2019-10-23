@@ -6,25 +6,45 @@ module.exports = function setupAuthenticationService() {
   const baseService = new setupBaseService();
 
   async function login(data) {
-    return baseService.getServiceResponse(200, 'Success', {});
+    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.responseCode = 200;
+    baseService.returnData.data = {};
+
+    return baseService.returnData;
   }
 
   async function checkLogin(email, password) {
-    return baseService.getServiceResponse(200, 'Success', {});
+    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.responseCode = 200;
+    baseService.returnData.data = {};
+
+    return baseService.returnData;
   }
 
   async function changePassword(password) {
-    return baseService.getServiceResponse(200, 'Success', {});
+    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.responseCode = 200;
+    baseService.returnData.data = {};
+
+    return baseService.returnData;
   }
 
   async function resetPassword(email) {
-    return baseService.getServiceResponse(200, 'Success', {});
+    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.responseCode = 200;
+    baseService.returnData.data = {};
+
+    return baseService.returnData;
   }
 
   async function logout() {
-    return baseService.getServiceResponse(200, 'Success', {});
+    baseService.returnData.message = 'Getting data successfully';
+    baseService.returnData.responseCode = 200;
+    baseService.returnData.data = {};
+
+    return baseService.returnData;
   }
-  
+
   return {
     login,
     checkLogin,
@@ -33,5 +53,3 @@ module.exports = function setupAuthenticationService() {
     resetPassword
   };
 };
-
-
