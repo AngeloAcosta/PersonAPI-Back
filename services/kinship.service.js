@@ -3,9 +3,7 @@
 const setupBaseService = require('./base.service');
 const constants = require('./constants');
 
-module.exports = function setupKinshipService(models) {
-  const kinshipModel = models.kinshipModel;
-  const validationService = models.validationService;
+module.exports = function setupKinshipService(validationService) {
   let baseService = new setupBaseService();
 
   //#region Helpers
@@ -22,6 +20,7 @@ module.exports = function setupKinshipService(models) {
     ];
   }
   //#endregion
+
   async function create(kinshipData) {
     try {
       const personId = kinshipData.personId;
@@ -29,9 +28,7 @@ module.exports = function setupKinshipService(models) {
       const kinshipType = kinshipData.kinshipType;
 
       const mIsValidPerson = await validationService.isValidPerson(personId);
-      const mIsValidRelative = await validationService.isValidPerson(
-        relativeId
-      );
+      const mIsValidRelative = await validationService.isValidPerson(relativeId);
 
       if (mIsValidPerson && mIsValidRelative) {
         const validationResponse = await validationService.kinshipValidations(
@@ -40,32 +37,22 @@ module.exports = function setupKinshipService(models) {
           kinshipType
         );
         if (validationResponse.length) {
-          baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
-          baseService.returnData.data = validationResponse;
+          return baseService.getServiceResponse(400, validationResponse, {});
         } else {
           await validationService.createKinships(
             personId,
             relativeId,
             kinshipType
           );
-          baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Inserting Data Successfully';
-          baseService.returnData.data = {};
+          return baseService.getServiceResponse(200, 'Success', {});
         }
       } else {
-        baseService.returnData.responseCode = 400;
-        baseService.returnData.message =
-          "These people don't exists on the database.";
-        baseService.returnData.data = [];
+        return baseService.getServiceResponse(400, 'These people don\'t exists on the database.', {});
       }
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-    return baseService.returnData;
   }
 
   async function doListTypes() {
