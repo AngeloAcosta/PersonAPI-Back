@@ -419,8 +419,16 @@ module.exports = function setupValidationService(models) {
       const ghostM = await createGhost(2);
       await createKinship(personId, ghostF.id, constants.fatherKinshipType.id);
       await createKinship(personId, ghostM.id, constants.motherKinshipType.id);
-      await createKinship(relativeId, ghostF.id, constants.fatherKinshipType.id);
-      await createKinship(relativeId, ghostM.id, constants.motherKinshipType.id);
+      await createKinship(
+        relativeId,
+        ghostF.id,
+        constants.fatherKinshipType.id
+      );
+      await createKinship(
+        relativeId,
+        ghostM.id,
+        constants.motherKinshipType.id
+      );
     } else if (person != null && person2 != null) {
       await createKinship(
         relativeId,
@@ -439,7 +447,11 @@ module.exports = function setupValidationService(models) {
         ghostF.id,
         constants.fatherKinshipType.id
       );
-      await createKinship(relativeId, ghostF.id, constants.fatherKinshipType.id);
+      await createKinship(
+        relativeId,
+        ghostF.id,
+        constants.fatherKinshipType.id
+      );
       await createKinship(relativeId, person2.relativeId, person2.kinshipType);
     } else {
       const ghostM = await createGhost(2);
@@ -448,7 +460,11 @@ module.exports = function setupValidationService(models) {
         ghostM.id,
         constants.motherKinshipType.id
       );
-      await createKinship(relativeId, ghostM.id, constants.motherKinshipType.id);
+      await createKinship(
+        relativeId,
+        ghostM.id,
+        constants.motherKinshipType.id
+      );
       await createKinship(
         relativeId,
         person2.relativeId,
@@ -694,4 +710,4 @@ module.exports = function setupValidationService(models) {
     validateLastName,
     validateName
   };
-}
+};
