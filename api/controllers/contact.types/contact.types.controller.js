@@ -5,28 +5,28 @@ const setupServices = require('./../../../services');
 
 let baseController = new setupBaseController();
 
-const getTypes = async (request, response) => {
+const get = async (request, response) => {
   let responseCode;
   let responseData;
 
   try {
     let dbService = await setupServices();
-    let kinshipsData = await dbService.kinshipService.doListTypes();
+    let contactTypesData = await dbService.contactTypeService.doList();
 
-    responseCode = kinshipsData.responseCode;
+    responseCode = contactTypesData.responseCode;
     responseData = baseController.getSuccessResponse(
-      kinshipsData.data,
-      kinshipsData.message
+        contactTypesData.data,
+        contactTypesData.message
     );
   } catch (err) {
     responseCode = 500;
-    console.error('Error getting all kinship types: ', err);
-    responseData = baseController.getErrorResponse('Error getting all kinship types.');
+    console.error('Error getting all contact types: ', err);
+    responseData = baseController.getErrorResponse('Error getting all contact types.');
   }
 
   return response.status(responseCode).json(responseData);
 };
 
 module.exports = {
-  getTypes
+  get
 };

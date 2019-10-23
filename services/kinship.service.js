@@ -1,91 +1,85 @@
 'use strict';
 
 const setupBaseService = require('./base.service');
-const setupPersonService = require('./person.service');
+const constants = require('./constants');
 
 module.exports = function setupKinshipService(models) {
-
   const kinshipModel = models.kinshipModel;
   const validationService = models.validationService;
   let baseService = new setupBaseService();
 
+  //#region Helpers
+  function getKinshipTypes() {
+    return [
+      constants.coupleKinshipType,
+      constants.fatherKinshipType,
+      constants.motherKinshipType,
+      constants.siblingKinshipType,
+      constants.paternalGrandfatherKinshipType,
+      constants.paternalGrandmotherKinshipType,
+      constants.maternalGrandfatherKinshipType,
+      constants.maternalGrandmotherKinshipType
+    ];
+  }
+  //#endregion
   async function create(kinshipData) {
-    try{
-     // let dbService = await setupDBService();
-      const personId = kinshipData.personId
-      const relativeId = kinshipData.relativeId
-      const kinshipType = kinshipData.kinshipType
-      const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
-     
-      if (validationResult) {
-        await kinshipModel.create(kinshipData);
-        baseService.returnData.responseCode = 200;
-        baseService.returnData.message = 'Inserting Data Successfully';
-        baseService.returnData.data = {};
+    try {
+      const personId = kinshipData.personId;
+      const relativeId = kinshipData.relativeId;
+      const kinshipType = kinshipData.kinshipType;
+
+      const mIsValidPerson = await validationService.isValidPerson(personId);
+      const mIsValidRelative = await validationService.isValidPerson(
+        relativeId
+      );
+
+      if (mIsValidPerson && mIsValidRelative) {
+        const validationResponse = await validationService.kinshipValidations(
+          personId,
+          relativeId,
+          kinshipType
+        );
+        if (validationResponse.length) {
+          baseService.returnData.responseCode = 400;
+          baseService.returnData.message = 'Errors from data validation';
+          baseService.returnData.data = validationResponse;
+        } else {
+          await validationService.createKinships(
+            personId,
+            relativeId,
+            kinshipType
+          );
+          baseService.returnData.responseCode = 200;
+          baseService.returnData.message = 'Inserting Data Successfully';
+          baseService.returnData.data = {};
+        }
       } else {
         baseService.returnData.responseCode = 400;
-        baseService.returnData.message = 'Error adding kinship';
-        baseService.returnData.data = {};
-      }
-        
-    } catch (err) {
-        console.log('Error: ', err);
-        baseService.returnData.responseCode = 500;
-        baseService.returnData.message = '' + err;
+        baseService.returnData.message =
+          "These people don't exists on the database.";
         baseService.returnData.data = [];
       }
-   /* baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = {};*/
-
-    return baseService.returnData;
-  }
- 
-  async function doList() {
-    try {
-      const kinships = await kinshipModel.findAll();
-
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = kinships;
     } catch (err) {
       console.log('Error: ', err);
       baseService.returnData.responseCode = 500;
       baseService.returnData.message = '' + err;
       baseService.returnData.data = [];
     }
-
     return baseService.returnData;
   }
 
-  async function findById(id) {
+  async function doListTypes() {
     try {
-        console.log(id);
-        
-      const kinship = await kinshipModel.findOne({
-        where:{
-          id
-        }
-      });
-
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = kinship;
+      const kinshipTypes = getKinshipTypes();
+      return baseService.getServiceResponse(200, 'Success', kinshipTypes);
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-
-    return baseService.returnData;
   }
-  
 
   return {
-    doList,
-    findById,
+    doListTypes,
     create
   };
-
 };
