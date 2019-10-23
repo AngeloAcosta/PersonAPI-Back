@@ -15,16 +15,17 @@ module.exports = function setupKinshipService(models) {
     
   }
 
-  function getOrderFunction(listKinships){
-    let qOrderBy = 1;
-    if(qOrderBy = 1){
-      getOrderPersonName(listKinships);
-    }
-  }
-  function getOrderPersonName(listKinships){
-    return listKinships.sort(((a, b) => (a.personName > b.personName) ? 1 : -1));
-   }
-  
+  /*
+  function ordenarArreglo(arreglo,param1,param2){
+	if(param){
+		if(param = ASC)
+			return arreglo.sort((a,b)=>a.param2 - b.param2 >= 1 )
+		else 
+			return arreglo.sort((a,b)=>a.param2 - b.param2 <= -1 )	
+}
+}
+  */
+
   async function doList(requestQuery) {
    let listKinships =[]
     try {
