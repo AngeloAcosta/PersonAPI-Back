@@ -3,12 +3,14 @@
 const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
 const Op = Sequelize.Op;
+const setupPersonService = require('./person.service.js');
 
 module.exports = function setupKinshipService(models) {
   const personModel = models.personModel;
   const kinshipModel = models.kinshipModel;
   const validationService = models.validationService;
   let baseService = new setupBaseService();
+  let personService = new setupPersonService(models);
 
   async function create(kinshipData) {
     try{
@@ -43,11 +45,11 @@ module.exports = function setupKinshipService(models) {
   }
 
   function getOrderField(orderBy){
-    let qOrderBy = ['person','name'];
+    let qOrderBy = ['name'];
     if(orderBy === 2){
-      qOrderBy = ['kinshipType'];
+      qOrderBy = ['kinships','kinshipType'];
     } else if (orderBy === 3){
-      qOrderBy = ['person','name'];
+      qOrderBy = ['name'];
     }
     return qOrderBy;
   }
@@ -60,60 +62,35 @@ module.exports = function setupKinshipService(models) {
     }
     return qOrderType;
   }
-
   
-  /*function getDoListModel(kinships) {
-    return kinships.map(kinship => {
-      const person = {
-        name: '$person.name$',
-        lastName: '',
-        document: ''
-      };
-      const relative = {
-        name: '',
-        lastName: '',
-        document: ''
-      };
-      const kinshipType = '';
-
-      return {
-        person,
-        relative,
-        kinshipType
-      }
-    });
-  }*/
-
-  async function doList(requestQuery) {
+  async function doList() {
+   let listKinships =[]
     try {
-      let qOrderBy = getOrderField(requestQuery.orderBy);
-      let qOrderType = getOrderType(requestQuery.orderType);
-      const qQueryWhereClause = { [Op.like]: `%${requestQuery.query}%` };
-      const levelTwo = await kinshipModel.findAll({
-        attributes: ['kinshipType'],
-        include:[
+      const personid = await personModel.findAll({
+        include: [
           {
             as: 'person',
             model: personModel
           },
           {
             as: 'relative',
-            model: personModel 
+            model: personModel
           }
-        ],
-        limit: requestQuery.limit,
-        offset: requestQuery.offset,
-        order: [[...qOrderBy,qOrderType]],
-        where: {
-        [Op.or]:[ {'$person.name$': qQueryWhereClause },{ '$person.lastName$': qQueryWhereClause}]
-        }
-      })
+        ]
+       });
+           for (let i = 0; i<personid.length;i++) {
+            let kinship = await personService.getPersonKinships(personid[i]);
+            
+            listKinships.push(kinship);
+            
+          }
+           
         // Mold the response
       //const levelTwo = getDoListModel(levelTwo);
 
       baseService.returnData.responseCode = 200;
       baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = levelTwo;
+      baseService.returnData.data = listKinships;
     } catch (err) {
       console.log('Error: ', err);
       baseService.returnData.responseCode = 500;

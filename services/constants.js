@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-module.exports = {
-    fatherKinshipType: 'F',
-    motherKinshipType: 'M',
-    siblingKinshipType: 'S',
-    grandmothermotherkinshipTyp: 'GMM',
-    grandfathermotherkinshipTyp: 'GFM',
-    grandmotherfatherkinshipTyp: 'GMF',
-    grandfatherfatherkinshipTyp: 'GFF',
-    coupleKinshipType: 'C'
-}
-=======
 'use strict';
 
 module.exports = {
@@ -47,4 +35,3 @@ module.exports = {
     name: 'Maternal grandmother'
   }
 }
->>>>>>> inspect-persons-kinships
