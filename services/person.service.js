@@ -5,19 +5,8 @@ const setupBaseService = require('./base.service');
 const constants = require('./constants');
 
 const Op = Sequelize.Op;
-<<<<<<< HEAD
-//APRENDETE TU CONTRASEÑA tu flaca es trans
-module.exports = function setupPersonService(models) {
-  const contactTypeModel = models.contactTypeModel;
-  const countryModel = models.countryModel;
-  const documentTypeModel = models.documentTypeModel;
-  const genderModel = models.genderModel;
-  const kinshipModel = models.kinshipModel;
-  const personModel = models.personModel;
-=======
 
 module.exports = function setupPersonService(dependencies) {
->>>>>>> develop
   let baseService = new setupBaseService();
   const contactTypeModel = dependencies.contactTypeModel;
   const countryModel = dependencies.countryModel;

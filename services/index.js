@@ -6,22 +6,10 @@ const setupKinshipService = require('./kinship.service');
 const setupPersonService = require('./person.service');
 const setupUserService = require('./user.service');
 const setupValidationService = require('./validation.service');
-<<<<<<< HEAD
-const environment = require('./../environment/development.json');
-=======
->>>>>>> develop
 
 module.exports = async function () {
   const dbInstance = await setupDatabase();
-<<<<<<< HEAD
-
-  const validationService = setupValidationService({
-    kinshipModel: dbInstance.kinshipModel,
-    personModel: dbInstance.personModel
-  })
-=======
   const validationService = setupValidationService();
->>>>>>> develop
   const authenticationService = setupAuthenticationService();
   // TODO: Country service
   // TODO: Contact service
