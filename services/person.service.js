@@ -135,7 +135,7 @@ module.exports = function setupPersonService(models) {
         kinships.push(getSimpleKinshipModel(person, mother, constants.motherKinshipType));
       }
       // Get and attach siblings
-      const siblings = await getSiblings(person.id,father.id);
+      const siblings = await getSiblings(person.id, father.id);
       siblings.forEach(s => {
         if (s && !s.isGhost) {
           kinships.push(getSimpleKinshipModel(person, s, constants.siblingKinshipType));
@@ -178,21 +178,22 @@ module.exports = function setupPersonService(models) {
     };
   }
 
-  async function getSiblings (id, fatherId) {
+  async function getSiblings(id, fatherId) {
     const siblingKinships = await kinshipModel.findAll({
-      include: [{ as: 'person', model: personModel }],   
+      include: [{ as: 'person', model: personModel }],
       where: {
-        personId : { [Op.ne] : id
+        personId: {
+          [Op.ne]: id
         },
-        relativeId : fatherId,
+        relativeId: fatherId,
         kinshipType: constants.fatherKinshipType.id
       }
     });
-    return siblingKinships.map(sK => ( sK.person ));
+    return siblingKinships.map(sK => (sK.person));
   }
   // #endregion
 
-  async function doList (requestQuery) {
+  async function doList(requestQuery) {
     try {
       let qOrderBy = getOrderField(requestQuery.orderBy);
       let qOrderType = getOrderType(requestQuery.orderType);
