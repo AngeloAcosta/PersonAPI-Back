@@ -10,6 +10,10 @@ module.exports = async function () {
   const dbInstance = await setupDatabase();
   const validationService = setupValidationService();
   const authenticationService = setupAuthenticationService();
+  // TODO: Country service
+  // TODO: Contact service
+  // TODO: Document service
+  // TODO: Gender service
   const personService = setupPersonService({
     validationService,
     contactTypeModel: dbInstance.contactTypeModel,
