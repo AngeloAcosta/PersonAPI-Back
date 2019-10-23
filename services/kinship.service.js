@@ -47,7 +47,7 @@ module.exports = function setupKinshipService(validationService) {
           return baseService.getServiceResponse(200, 'Success', {});
         }
       } else {
-        return baseService.getServiceResponse(400, 'These people don\'t exists on the database.', {});
+        return baseService.getServiceResponse(400, 'These people don\'t exist on the database.', {});
       }
     } catch (err) {
       console.log('Error: ', err);

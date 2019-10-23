@@ -100,9 +100,9 @@ module.exports = function setupValidationService(models) {
       kinshipType === constants.siblingKinshipType.id;
     return result;
   }
-  async function isValidPerson(personId) {
-    const person = await personModel.findOne({ where: { id: personId } });
-    return person !== null;
+  async function isValidPerson(id) {
+    const person = await personModel.findOne({ where: { id } });
+    return person && !person.isGhost;
   }
   async function kinshipAlreadyExists(personId, relativeId, kinshipType) {
     const kinship = await kinshipModel.findOne({
@@ -536,7 +536,7 @@ module.exports = function setupValidationService(models) {
       kinshipType
     );
     const mIsInTheSameTree = await isInTheSameTree(personId, relativeId);
-    const mAlreadyHasCouple = await alreadyHasCouple(personId, relativeId);
+    const mAlreadyHasCouple = await alreadyHasCouple(personId, relativeId); // Include this in kinshipAlreadyExists
     const mIsValidGenderForKinshipType = await isValidGenderForKinshipType(
       personId,
       relativeId,
