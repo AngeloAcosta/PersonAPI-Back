@@ -13,35 +13,7 @@ module.exports = function setupKinshipService(models) {
   let personService = new setupPersonService(models);
 
   async function create(kinshipData) {
-    try{
-     // let dbService = await setupDBService();
-      const personId = kinshipData.personId
-      const relativeId = kinshipData.relativeId
-      const kinshipType = kinshipData.kinshipType
-      const validationResult = await validationService.validateKinshipCreation(personId, relativeId, kinshipType);
-      console.log("JAJAJAJAJAJAJAJAJA", validationResult);
     
-      if (validationResult) {
-        await validationService.kinshipGrandParents(kinshipData);
-        baseService.returnData.responseCode = 200;
-        baseService.returnData.message = 'Inserting Data Successfully';
-        baseService.returnData.data = {};
-      } else {
-        baseService.returnData.responseCode = 400;
-        baseService.returnData.message = 'Error adding kinship';
-        baseService.returnData.data = [];
-      }
-    } catch (err) {
-        console.log('Error: ', err);
-        baseService.returnData.responseCode = 500;
-        baseService.returnData.message = '' + err;
-        baseService.returnData.data = [];
-      }
-   /* baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = {};*/
-
-    return baseService.returnData;
   }
 
   function getOrderField(orderBy){
