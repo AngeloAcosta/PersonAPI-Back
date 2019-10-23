@@ -10,30 +10,40 @@ module.exports = function setupKinshipService(models) {
 
   async function create(kinshipData) {
     try {
-      // let dbService = await setupDBService();
       const personId = kinshipData.personId;
       const relativeId = kinshipData.relativeId;
       const kinshipType = kinshipData.kinshipType;
 
-      const validationResult = await validationService.validateKinshipCreation(
-        personId,
-        relativeId,
-        kinshipType
-      );
+      const mIsValidPerson = await validationService.isValidPerson(personId);
+      const mIsValidRelative = await validationService.isValidPerson(relativeId);
+      console.log(mIsValidPerson);
+      console.log(mIsValidRelative);
+      console.log(mIsValidPerson && mIsValidRelative);
 
-      if (validationResult) {
-        await validationService.kinshipGrandParents(
+      if (mIsValidPerson && mIsValidRelative) {
+        const validationResponse = await validationService.kinshipValidations(
           personId,
           relativeId,
           kinshipType
         );
-
-        baseService.returnData.responseCode = 200;
-        baseService.returnData.message = 'Inserting Data Successfully';
-        baseService.returnData.data = {};
+        if (validationResponse.length) {
+          baseService.returnData.responseCode = 400;
+          baseService.returnData.message = 'Errors from data validation';
+          baseService.returnData.data = validationResponse;
+        } else {
+          await validationService.createKinships(
+            personId,
+            relativeId,
+            kinshipType
+          );
+          baseService.returnData.responseCode = 200;
+          baseService.returnData.message = 'Inserting Data Successfully';
+          baseService.returnData.data = {};
+        }
       } else {
         baseService.returnData.responseCode = 400;
-        baseService.returnData.message = 'Error adding kinship';
+        baseService.returnData.message =
+          'These people dont exists on the database.';
         baseService.returnData.data = [];
       }
     } catch (err) {
@@ -42,10 +52,6 @@ module.exports = function setupKinshipService(models) {
       baseService.returnData.message = '' + err;
       baseService.returnData.data = [];
     }
-    /* baseService.returnData.responseCode = 200;
-    baseService.returnData.message = 'Getting data successfully';
-    baseService.returnData.data = {};*/
-
     return baseService.returnData;
   }
 

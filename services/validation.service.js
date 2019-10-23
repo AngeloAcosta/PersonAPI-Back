@@ -50,6 +50,15 @@ module.exports = function setupValidationService(models) {
     const Person = await personModel.findOne({ where: { id: relativeId } });
     return Person.genderId === 1;
   }
+
+  async function verifyGenderDad(relativeId) {
+    let error = [];
+    const Person = await personModel.findOne({ where: { id: relativeId } });
+    if (Person.genderId === 1) {
+      errors.push('Incorrect gender father');
+    }
+    return error;
+  }
   async function verifyGenderMother(relativeId) {
     const Person = await personModel.findOne({ where: { id: relativeId } });
     return Person.genderId === 2;
@@ -66,7 +75,7 @@ module.exports = function setupValidationService(models) {
       case 'F':
         return await verifyGenderFather(relativeId);
       case 'C':
-        return await isValidCouple(personId, relativeId);
+        return await verifyGenderCouple(personId, relativeId);
       default:
         return 'DEFAULT VALID GENDER FOR KINSHIP TYPE';
     }
@@ -199,6 +208,10 @@ module.exports = function setupValidationService(models) {
           relativeId: relativeId,
           kinshipType: constants.motherKinshipType
         });
+      } else {
+        if (sameFather.relativeId != relativeId) {
+          return false;
+        }
       }
     }
   }
@@ -386,12 +399,8 @@ module.exports = function setupValidationService(models) {
     });
     return ghost;
   }
-  async function isValidCouple(personId, relativeId) {
-    const mGenderCouple = await genderCouple(personId, relativeId);
-    const mAlreadyHasCouple = await alreadyHasCouple(personId, relativeId);
-    return mGenderCouple && mAlreadyHasCouple;
-  }
-  async function genderCouple(personId, relativeId) {
+
+  async function verifyGenderCouple(personId, relativeId) {
     const person1 = await personModel.findOne({ where: { id: personId } });
     const person2 = await personModel.findOne({ where: { id: relativeId } });
     return person1.genderId != person2.genderId;
@@ -428,9 +437,9 @@ module.exports = function setupValidationService(models) {
       kinship4 == null
     );
   }
-  async function kinshipSecondLevel(personId, relativeId, kinshipType) {
-    const mIsValidPerson = await isValidPerson(personId);
-    const mIsValidRelative = await isValidPerson(relativeId);
+
+  async function kinshipValidations(personId, relativeId, kinshipType) {
+    let errors = [];
     const mIsValidKinshipType = isValidKinshipType(kinshipType);
     const mKinshipAlreadyExists = await kinshipAlreadyExists(
       personId,
@@ -438,22 +447,28 @@ module.exports = function setupValidationService(models) {
       kinshipType
     );
     const mIsInTheSameTree = await isInTheSameTree(personId, relativeId);
-    const mIsValidForKinshipType = await isValidGenderForKinshipType(
+    const mAlreadyHasCouple = await alreadyHasCouple(personId, relativeId);
+    const mIsValidGenderForKinshipType = await isValidGenderForKinshipType(
       personId,
       relativeId,
       kinshipType
     );
-    if (
-      !mIsInTheSameTree &&
-      mIsValidPerson &&
-      mIsValidRelative &&
-      mIsValidKinshipType &&
-      mIsValidForKinshipType &&
-      !mKinshipAlreadyExists
-    ) {
-      return true;
+    if (!mIsValidKinshipType) {
+      errors.push('Kinship Type is not valid');
     }
-    return false;
+    if (mKinshipAlreadyExists) {
+      errors.push('Kinship already exists');
+    }
+    if (mIsInTheSameTree) {
+      errors.push('These people share the same tree');
+    }
+    if (!mIsValidGenderForKinshipType) {
+      errors.push('Gender is not valid');
+    }
+    if (!mAlreadyHasCouple) {
+      errors.push('Already have couple');
+    }
+    return errors;
   }
   function kinshipGFM(personId, relativeId, kinshipType) {
     const mFather = validatoGFatherM(personId, relativeId);
@@ -491,7 +506,7 @@ module.exports = function setupValidationService(models) {
     return true;
   }
 
-  async function createKinships(personId, relativeId, kinshipType) {
+  async function kinshipP(personId, relativeId, kinshipType) {
     const relative = await kinshipModel.findOne({
       where: {
         personId: personId,
@@ -557,7 +572,7 @@ module.exports = function setupValidationService(models) {
       case 'C':
         return kinshipC(personId, relativeId);
       default:
-        return createKinships(personId, relativeId, kinshipType);
+        return kinshipP(personId, relativeId, kinshipType);
     }
   }
   function transformKinship(kinshipTypeT) {
@@ -574,20 +589,10 @@ module.exports = function setupValidationService(models) {
         return kinshipTypeT;
     }
   }
-  async function validateKinshipCreation(personId, relativeId, kinshipType) {
-    const validation = await kinshipSecondLevel(
-      personId,
-      relativeId,
-      kinshipType
-    );
-    if (validation) {
-      return true;
-    }
-    return false;
-  }
+
   return {
-    validateKinshipCreation,
-    searchSpace,
+    isValidPerson,
+    kinshipValidations,
     kinshipGrandParents
   };
 };
