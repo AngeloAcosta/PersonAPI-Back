@@ -15,52 +15,29 @@ module.exports = function setupKinshipService(models) {
     
   }
 
-  function getOrderField(orderBy){
-    let qOrderBy;
-    switch (orderBy) {
-      case 1:
-        qOrderBy = ['name'];
-        break;
-      default:
-        qOrderBy = 'name';
-        break;
+  function getOrderFunction(listKinships){
+    let qOrderBy = 1;
+    if(qOrderBy = 1){
+      getOrderPersonName(listKinships);
     }
-    return qOrderBy;
   }
-  
-  function getOrderType(orderType) {
-    let qOrderType;
-    switch (orderType) {
-      case 1:
-        qOrderType = 'ASC';
-        break;
-      case 2:
-        qOrderType = 'DESC';
-        break;
-      default:
-        qOrderType = 'ASC';
-        break;
-    }
-    return qOrderType;
-  }
+  function getOrderPersonName(listKinships){
+    return listKinships.sort(((a, b) => (a.personName > b.personName) ? 1 : -1));
+   }
   
   async function doList(requestQuery) {
    let listKinships =[]
     try {
-      let qOrderBy = getOrderField(requestQuery.orderBy);
-      let qOrderType = getOrderType(requestQuery.orderType);
+
       const qQueryWhereClause = { [Op.like]: `%${requestQuery.query}%` };
 
       const personid = await personModel.findAll({
-        limit: requestQuery.limit,
-        offset: requestQuery.offset,
         where: {
           [Op.or]: [
             { name: qQueryWhereClause },
             { lastName: qQueryWhereClause}
           ]
-        },
-        order: [[...qOrderBy, qOrderType]]
+        }
       });
            for (let i = 0; i < personid.length;i++) {
             let kinships = await personService.getPersonKinships(personid[i]);
