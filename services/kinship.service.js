@@ -12,11 +12,6 @@ module.exports = function setupKinshipService(models) {
   let baseService = new setupBaseService();
   let personService = new setupPersonService(models);
 
-
-  async function create(kinshipData) {
-    
-  }
-
   async function doList(requestQuery) {
    let listKinships =[]
     try {
@@ -72,7 +67,6 @@ module.exports = function setupKinshipService(models) {
 
   return {
     doList,
-    create,
     doListTypes
   };
 
