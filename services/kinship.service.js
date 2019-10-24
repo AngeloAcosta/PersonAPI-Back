@@ -4,12 +4,14 @@ const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
 const Op = Sequelize.Op;
 const setupPersonService = require('./person.service.js');
+const constants = require('./constants');
 
 module.exports = function setupKinshipService(models) {
   const personModel = models.personModel;
   const kinshipModel = models.kinshipModel;
   let baseService = new setupBaseService();
   let personService = new setupPersonService(models);
+
 
   async function create(kinshipData) {
     
@@ -83,18 +85,6 @@ module.exports = function setupKinshipService(models) {
     return baseService.returnData;
   }
 
-  return {
-    doList,
-    findById,
-    create
-  };
-};
-const setupBaseService = require('./base.service');
-const constants = require('./constants');
-
-module.exports = function setupCountryService() {
-  let baseService = new setupBaseService();
-
   //#region Helpers
   function getKinshipTypes() {
     return [
@@ -121,6 +111,10 @@ module.exports = function setupCountryService() {
   }
 
   return {
+    doList,
+    findById,
+    create,
     doListTypes
   };
+
 }
