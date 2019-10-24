@@ -8,7 +8,6 @@ const constants = require('./constants');
 
 module.exports = function setupKinshipService(models) {
   const personModel = models.personModel;
-  const kinshipModel = models.kinshipModel;
   let baseService = new setupBaseService();
   let personService = new setupPersonService(models);
 
