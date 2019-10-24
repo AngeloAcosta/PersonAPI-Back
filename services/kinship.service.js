@@ -7,7 +7,7 @@ module.exports = function setupKinshipService(dependencies) {
   let baseService = new setupBaseService();
   const kinshipModel = dependencies.kinshipModel;
   const personModel = dependencies.personModel;
-  const validationService = dependencies.validationService;
+  const sharedService = dependencies.sharedService;
 
   //#region Helpers
   async function createKinship(kinship) {
@@ -260,17 +260,17 @@ module.exports = function setupKinshipService(dependencies) {
     try {
       let errors = [];
       // Validate kinship data
-      await validationService.validateKinshipData(kinship, errors);
+      await sharedService.validateKinshipData(kinship, errors);
       if (errors.length > 0) {
         return baseService.getServiceResponse(400, errors.join('\n'), {});
       }
       // Validate kinship gender
-      await validationService.validateKinshipGender(kinship, errors);
+      await sharedService.validateKinshipGender(kinship, errors);
       if (errors.length > 0) {
         return baseService.getServiceResponse(400, errors.join('\n'), {});
       }
       // Validate family tree
-      await validationService.validateFamilyTree(kinship, errors);
+      await sharedService.validateFamilyTree(kinship, errors);
       if (errors.length > 0) {
         return baseService.getServiceResponse(400, errors.join('\n'), {});
       }
