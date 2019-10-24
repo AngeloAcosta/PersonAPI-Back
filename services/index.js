@@ -22,7 +22,11 @@ module.exports = async function () {
   const countryService = setupCountryService(dbInstance.countryModel);
   const documentTypeService = setupDocumentTypeService(dbInstance.documentTypeModel);
   const genderService = setupGenderService(dbInstance.genderModel);
-  const kinshipService = setupKinshipService(validationService);
+  const kinshipService = setupKinshipService({
+    kinshipModel: dbInstance.kinshipModel,
+    personModel: dbInstance.personModel,
+    validationService
+  });
   const personService = setupPersonService({
     validationService,
     contactTypeModel: dbInstance.contactTypeModel,

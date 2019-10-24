@@ -183,7 +183,9 @@ module.exports = function setupPersonService(dependencies) {
       gender: model.gender.name,
       genderId: model.gender.id,
       lastName: model.lastName,
-      name: model.name
+      name: model.name,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt
     };
   }
   //#endregion

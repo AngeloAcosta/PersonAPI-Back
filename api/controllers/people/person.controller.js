@@ -79,9 +79,7 @@ const post = async (request, response) => {
   } catch (err) {
     responseCode = 500;
     console.error('The person wasn\´t registered ' + err);
-    responseData = baseController.getErrorResponse(
-      'The person wasn\´t registered.'
-    );
+    responseData = baseController.getErrorResponse('The person wasn\´t registered.');
   }
 
   return response.status(responseCode).json(responseData);
@@ -115,9 +113,7 @@ const put = async (request, response) => {
   } catch (err) {
     responseCode = 500;
     console.error('The person wasn\´t modified ' + err);
-    responseData = baseController.getErrorResponse(
-      'The person wasn\´t modified.'
-    );
+    responseData = baseController.getErrorResponse('The person wasn\´t modified.');
   }
 
   return response.status(responseCode).json(responseData);
