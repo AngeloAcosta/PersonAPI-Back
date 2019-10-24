@@ -27,6 +27,33 @@ const getTypes = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
+const get = async (request, response) => {
+  let responseCode;
+  let responseData;
+
+  try {
+    let dbService = await setupServices();
+    let query = request.query.query || '';
+
+    let kinshipsData = await dbService.kinshipService.doList({ query });
+
+    responseCode = kinshipsData.responseCode;
+    responseData = baseController.getSuccessResponse(
+        kinshipsData.data, kinshipsData.message
+    );
+
+  } catch (err) {
+    responseCode = 500;
+    console.error('Error getting all kinships: ', err);
+    responseData = baseController.getErrorResponse('Error getting all kindships.');
+  }
+
+  return response
+    .status(responseCode)
+    .json(responseData);
+};
+
 module.exports = {
-  getTypes
+  getTypes,
+  get
 };
