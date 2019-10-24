@@ -9,7 +9,9 @@ const router = express.Router();
 router.get('/', peopleController.get);
 router.post('/', personController.post);
 router.get('/:id', personController.get);
-router.get('/:id/kinships', personController.getKinships);
 router.put('/:id', personController.put);
+router.get('/:id/kinships', personController.getKinships);
+router.post('/:id/kinships', personController.postKinships);
+router.post('/:id/kinships/test', personController.postKinshipsTest);
 
 module.exports = router;

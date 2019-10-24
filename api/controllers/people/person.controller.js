@@ -85,6 +85,58 @@ const post = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
+const postKinships = async (request, response) => {
+  let responseCode = 500;
+  let responseData;
+
+  try {
+    let kinship = {
+      personId: request.params.id,
+      relativeId: request.body.relativeId,
+      kinshipType: request.body.kinshipType
+    };
+    let dbService = await setupServices();
+    let kinshipData = await dbService.personService.createKinship(kinship);
+
+    responseCode = kinshipData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      kinshipData.data,
+      kinshipData.message
+    );
+  } catch (err) {
+    console.error('Error creating a new kinship: ', err);
+    responseData = baseController.getErrorResponse('Error creating a new kinship');
+  }
+
+  return response.status(responseCode).json(responseData);
+};
+
+const postKinshipsTest = async (request, response) => {
+  let responseCode = 500;
+  let responseData;
+
+  try {
+    let kinship = {
+      personId: request.params.id,
+      relativeId: request.body.relativeId,
+      kinshipType: request.body.kinshipType
+    };
+    let dbService = await setupServices();
+    let kinshipData = await dbService.personService.createKinshipTest(kinship);
+
+    responseCode = kinshipData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      kinshipData.data,
+      kinshipData.message
+    );
+  } catch (err) {
+    console.error('Error testing new kinship: ', err);
+    responseData = baseController.getErrorResponse('Error testing new kinship');
+  }
+
+  return response.status(responseCode).json(responseData);
+};
+
 const put = async (request, response) => {
   let responseCode;
   let responseData;
@@ -123,5 +175,7 @@ module.exports = {
   get,
   getKinships,
   post,
+  postKinships,
+  postKinshipsTest,
   put
 };
