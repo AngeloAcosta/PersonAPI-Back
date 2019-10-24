@@ -37,7 +37,7 @@ module.exports = function setupKinshipService(models) {
              listKinships = listKinships.concat(kinships);
             }                 
           }    
-          return baseService.getServiceResponse(200, "Person created", listKinships);
+          return baseService.getServiceResponse(200, "List Kinships", listKinships);
     } catch (err) {
       console.log('Error: ', err);
       return baseService.getServiceResponse(500, err, {});
