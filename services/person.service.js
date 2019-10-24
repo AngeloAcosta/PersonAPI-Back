@@ -798,14 +798,10 @@ module.exports = function setupPersonService(dependencies) {
       // Get kinships
       const personData = await sharedService.getPersonKinships(person);
       // Return the data
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Success';
-      baseService.returnData.data = personData;
+      return baseService.getServiceResponse(200, 'Success', personData);
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
 
     return baseService.returnData;

@@ -26,9 +26,7 @@ const get = async (request, response) => {
     responseData = baseController.getErrorResponse('Error getting all kindships.');
   }
 
-  return response
-    .status(responseCode)
-    .json(responseData);
+  return response.status(responseCode).json(responseData);
 };
 
 const getTypes = async (request, response) => {
