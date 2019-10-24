@@ -79,9 +79,84 @@ const post = async (request, response) => {
   } catch (err) {
     responseCode = 500;
     console.error('The person wasn\´t registered ' + err);
-    responseData = baseController.getErrorResponse(
-      'The person wasn\´t registered.'
+    responseData = baseController.getErrorResponse('The person wasn\´t registered.');
+  }
+
+  return response.status(responseCode).json(responseData);
+};
+
+const postKinships = async (request, response) => {
+  let responseCode = 500;
+  let responseData;
+
+  try {
+    let kinship = {
+      personId: request.params.id,
+      relativeId: request.body.relativeId,
+      kinshipType: request.body.kinshipType
+    };
+    let dbService = await setupServices();
+    let kinshipData = await dbService.personService.createKinship(kinship);
+
+    responseCode = kinshipData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      kinshipData.data,
+      kinshipData.message
     );
+  } catch (err) {
+    console.error('Error creating a new kinship: ', err);
+    responseData = baseController.getErrorResponse('Error creating a new kinship');
+  }
+
+  return response.status(responseCode).json(responseData);
+};
+const putKinships = async (request, response) => {
+  let responseCode = 500;
+  let responseData;
+
+  try {
+    let kinship = {
+      personId: request.params.id,
+      relativeId: request.body.relativeId,
+      kinshipType: request.body.kinshipType
+    };
+    let dbService = await setupServices();
+    let kinshipData = await dbService.personService.modifyKinship(kinship);
+
+    responseCode = kinshipData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      kinshipData.data,
+      kinshipData.message
+    );
+  } catch (err) {
+    console.error('Error updating kinship: ', err);
+    responseData = baseController.getErrorResponse('Error updating kinship');
+  }
+
+  return response.status(responseCode).json(responseData);
+};
+
+const postKinshipsTest = async (request, response) => {
+  let responseCode = 500;
+  let responseData;
+
+  try {
+    let kinship = {
+      personId: request.params.id,
+      relativeId: request.body.relativeId,
+      kinshipType: request.body.kinshipType
+    };
+    let dbService = await setupServices();
+    let kinshipData = await dbService.personService.createKinshipTest(kinship);
+
+    responseCode = kinshipData.responseCode;
+    responseData = baseController.getSuccessResponse(
+      kinshipData.data,
+      kinshipData.message
+    );
+  } catch (err) {
+    console.error('Error testing new kinship: ', err);
+    responseData = baseController.getErrorResponse('Error testing new kinship');
   }
 
   return response.status(responseCode).json(responseData);
@@ -115,9 +190,7 @@ const put = async (request, response) => {
   } catch (err) {
     responseCode = 500;
     console.error('The person wasn\´t modified ' + err);
-    responseData = baseController.getErrorResponse(
-      'The person wasn\´t modified.'
-    );
+    responseData = baseController.getErrorResponse('The person wasn\´t modified.');
   }
 
   return response.status(responseCode).json(responseData);
@@ -127,5 +200,8 @@ module.exports = {
   get,
   getKinships,
   post,
+  postKinships,
+  putKinships,
+  postKinshipsTest,
   put
 };

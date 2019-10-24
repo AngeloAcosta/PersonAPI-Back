@@ -1,12 +1,15 @@
 'use strict';
 
+const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
 const constants = require('./constants');
 
-module.exports = function setupKinshipService(models) {
-  const kinshipModel = models.kinshipModel;
-  const validationService = models.validationService;
+const Op = Sequelize.Op;
+
+module.exports = function setupKinshipService(dependencies) {
   let baseService = new setupBaseService();
+  const personModel = dependencies.personModel;
+  const sharedService = dependencies.sharedService;
 
   //#region Helpers
   function getKinshipTypes() {
@@ -22,50 +25,30 @@ module.exports = function setupKinshipService(models) {
     ];
   }
   //#endregion
-  async function create(kinshipData) {
+
+  async function doList(requestQuery) {
     try {
-      const personId = kinshipData.personId;
-      const relativeId = kinshipData.relativeId;
-      const kinshipType = kinshipData.kinshipType;
-
-      const mIsValidPerson = await validationService.isValidPerson(personId);
-      const mIsValidRelative = await validationService.isValidPerson(
-        relativeId
-      );
-
-      if (mIsValidPerson && mIsValidRelative) {
-        const validationResponse = await validationService.kinshipValidations(
-          personId,
-          relativeId,
-          kinshipType
-        );
-        if (validationResponse.length) {
-          baseService.returnData.responseCode = 400;
-          baseService.returnData.message = 'Errors from data validation';
-          baseService.returnData.data = validationResponse;
-        } else {
-          await validationService.createKinships(
-            personId,
-            relativeId,
-            kinshipType
-          );
-          baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Inserting Data Successfully';
-          baseService.returnData.data = {};
+      let listKinships = []
+      const qQueryWhereClause = { [Op.like]: `%${requestQuery.query}%` };
+      const personId = await personModel.findAll({
+        where: {
+          [Op.or]: [
+            { name: qQueryWhereClause },
+            { lastName: qQueryWhereClause }
+          ]
         }
-      } else {
-        baseService.returnData.responseCode = 400;
-        baseService.returnData.message =
-          "These people don't exists on the database.";
-        baseService.returnData.data = [];
+      });
+      for (let i = 0; i < personId.length; i++) {
+        let kinships = await sharedService.getPersonKinships(personId[i]);
+        if (kinships.length > 0) {
+          listKinships = listKinships.concat(kinships);
+        }
       }
+      return baseService.getServiceResponse(200, "List Kinships", listKinships);
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-    return baseService.returnData;
   }
   async function modifyKinship(kinshipData) {
     try {
@@ -122,8 +105,7 @@ module.exports = function setupKinshipService(models) {
   }
 
   return {
-    doListTypes,
-    create,
-    modifyKinship
+    doList,
+    doListTypes
   };
-};
+}
