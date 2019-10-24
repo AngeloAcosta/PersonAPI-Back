@@ -283,6 +283,33 @@ module.exports = function setupKinshipService(dependencies) {
     }
   }
 
+  async function createTest(kinship) {
+    try {
+      let errors = [];
+      // Validate kinship data
+      await sharedService.validateKinshipData(kinship, errors);
+      if (errors.length > 0) {
+        return baseService.getServiceResponse(400, errors.join('\n'), {});
+      }
+      // Validate kinship gender
+      await sharedService.validateKinshipGender(kinship, errors);
+      if (errors.length > 0) {
+        return baseService.getServiceResponse(400, errors.join('\n'), {});
+      }
+      // Validate family tree
+      await sharedService.validateFamilyTree(kinship, errors);
+      if (errors.length > 0) {
+        return baseService.getServiceResponse(400, errors.join('\n'), {});
+      }
+      // If no errors were found, test the kinship creation
+      // TODO
+      return baseService.getServiceResponse(200, 'Success', {});
+    } catch (err) {
+      console.log('Error: ', err);
+      return baseService.getServiceResponse(500, err, {});
+    }
+  }
+
   async function doListTypes() {
     try {
       const kinshipTypes = getKinshipTypes();
@@ -295,6 +322,7 @@ module.exports = function setupKinshipService(dependencies) {
 
   return {
     doListTypes,
-    create
+    create,
+    createTest
   };
 };
