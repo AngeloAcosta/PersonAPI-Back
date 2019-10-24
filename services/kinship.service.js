@@ -37,44 +37,15 @@ module.exports = function setupKinshipService(models) {
              listKinships = listKinships.concat(kinships);
             }                 
           }    
-
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = listKinships;
+          return baseService.getServiceResponse(200, "Person created", listKinships);
     } catch (err) {
       console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+      return baseService.getServiceResponse(500, err, {});
     }
-
-    return baseService.returnData;
   }
 
-  async function findById(id) {
-    try {
-      console.log(id);
 
-      const kinship = await kinshipModel.findOne({
-        where: {
-          id
-        }
-      });
-
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Getting data successfully';
-      baseService.returnData.data = kinship;
-    } catch (err) {
-      console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
-    }
-
-    return baseService.returnData;
-  }
-
-  //#region Helpers
+   //#region Helpers
   function getKinshipTypes() {
     return [
       constants.coupleKinshipType,
@@ -101,7 +72,6 @@ module.exports = function setupKinshipService(models) {
 
   return {
     doList,
-    findById,
     create,
     doListTypes
   };
