@@ -1,12 +1,27 @@
 'use strict';
 
 const setupBaseService = require('./base.service');
+const constants = require('./constants');
 
 module.exports = function setupKinshipService(models) {
   const kinshipModel = models.kinshipModel;
   const validationService = models.validationService;
   let baseService = new setupBaseService();
 
+  //#region Helpers
+  function getKinshipTypes() {
+    return [
+      constants.coupleKinshipType,
+      constants.fatherKinshipType,
+      constants.motherKinshipType,
+      constants.siblingKinshipType,
+      constants.paternalGrandfatherKinshipType,
+      constants.paternalGrandmotherKinshipType,
+      constants.maternalGrandfatherKinshipType,
+      constants.maternalGrandmotherKinshipType
+    ];
+  }
+  //#endregion
   async function create(kinshipData) {
     try {
       const personId = kinshipData.personId;
@@ -57,7 +72,6 @@ module.exports = function setupKinshipService(models) {
       const personId = kinshipData.personId;
       const relativeId = kinshipData.relativeId;
       const kinshipType = kinshipData.kinshipType;
-
       const mIsValidPerson = await validationService.isValidPerson(personId);
       const mIsValidRelative = await validationService.isValidPerson(
         relativeId
@@ -74,13 +88,13 @@ module.exports = function setupKinshipService(models) {
           baseService.returnData.message = 'Errors from data validation';
           baseService.returnData.data = validationResponse;
         } else {
-          await validationService.createKinships(
+          await validationService.modifyKinships(
             personId,
             relativeId,
             kinshipType
           );
           baseService.returnData.responseCode = 200;
-          baseService.returnData.message = 'Inserting Data Successfully';
+          baseService.returnData.message = 'Updating Successfully';
           baseService.returnData.data = {};
         }
       } else {
@@ -97,7 +111,18 @@ module.exports = function setupKinshipService(models) {
     }
     return baseService.returnData;
   }
+  async function doListTypes() {
+    try {
+      const kinshipTypes = getKinshipTypes();
+      return baseService.getServiceResponse(200, 'Success', kinshipTypes);
+    } catch (err) {
+      console.log('Error: ', err);
+      return baseService.getServiceResponse(500, err, {});
+    }
+  }
+
   return {
+    doListTypes,
     create,
     modifyKinship
   };

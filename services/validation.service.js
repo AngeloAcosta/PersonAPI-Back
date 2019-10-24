@@ -649,15 +649,15 @@ module.exports = function setupValidationService(models) {
   function createKinships(personId, relativeId, kinshipType) {
     switch (kinshipType) {
       case constants.paternalGrandfatherKinshipType.id:
-        return kinshipGFF(personId, relativeId, 'F');
+        return kinshipGFF(personId, relativeId);
       case constants.maternalGrandfatherKinshipType.id:
-        return kinshipGFM(personId, relativeId, 'F');
+        return kinshipGFM(personId, relativeId);
       case constants.paternalGrandmotherKinshipType.id:
-        return kinshipGMF(personId, relativeId, 'M');
+        return kinshipGMF(personId, relativeId);
       case constants.maternalGrandmotherKinshipType.id:
-        return kinshipGMM(personId, relativeId, 'M');
+        return kinshipGMM(personId, relativeId);
       case constants.siblingKinshipType.id:
-        return kinshipS(personId, relativeId, 'S');
+        return kinshipS(personId, relativeId);
       case constants.coupleKinshipType.id:
         return kinshipC(personId, relativeId);
       default:
@@ -666,21 +666,29 @@ module.exports = function setupValidationService(models) {
   }
   function modifyKinships(personId, relativeId, kinshipType) {
     switch (kinshipType) {
-      case 'GFF':
-        return kinshipGFF(personId, relativeId, 'F');
-      case 'GFM':
-        return kinshipGFM(personId, relativeId, 'F');
-      case 'GMF':
-        return kinshipGMF(personId, relativeId, 'M');
-      case 'GMM':
-        return kinshipGMM(personId, relativeId, 'M');
-      case 'S':
-        return kinshipS(personId, relativeId, 'S');
-      case 'C':
-        return kinshipC(personId, relativeId);
+      case constants.paternalGrandfatherKinshipType.id:
+        return modifyKinshipPGF(personId, relativeId, kinshipType);
+      case constants.maternalGrandfatherKinshipType.id:
+        return kinshipGFM(personId, relativeId, kinshipType);
+      case constants.paternalGrandmotherKinshipType.id:
+        return kinshipGMF(personId, relativeId, kinshipType);
+      case constants.maternalGrandmotherKinshipType.id:
+        return kinshipGMM(personId, relativeId, kinshipType);
+      case constants.siblingKinshipType.id:
+        return kinshipS(personId, relativeId, kinshipType);
+      case constants.coupleKinshipType.id:
+        return kinshipC(personId, relativeId, kinshipType);
       default:
         return kinshipP(personId, relativeId, kinshipType);
     }
+  }
+
+  function modifyKinshipPGF(personId, relativeId) {
+    await kinshipModel.update(
+      { personId: relativeId },
+      { where: { personId: personId } }
+    );
+
   }
   function transformKinship(kinshipTypeT) {
     switch (kinshipTypeT) {
