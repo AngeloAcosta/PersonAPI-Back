@@ -28,7 +28,7 @@ module.exports = function setupKinshipService(dependencies) {
 
   async function doList(requestQuery) {
     try {
-      const listKinships = []
+      let listKinships = []
       const qQueryWhereClause = { [Op.like]: `%${requestQuery.query}%` };
       const personId = await personModel.findAll({
         where: {
