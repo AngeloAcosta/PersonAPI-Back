@@ -2,6 +2,7 @@
 
 const setupBaseController = require('./../base.controller');
 const setupServices = require('./../../../services');
+
 let baseController = new setupBaseController();
 
 const getTypes = async (request, response) => {
