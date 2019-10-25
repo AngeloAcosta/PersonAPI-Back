@@ -1,8 +1,8 @@
 'use strict';
 
 const Sequelize = require('sequelize');
-const setupBaseService = require('./base.service');
 const constants = require('./constants');
+const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
 
@@ -14,41 +14,42 @@ module.exports = function setupPersonService(dependencies) {
   const genderModel = dependencies.genderModel;
   const kinshipModel = dependencies.kinshipModel;
   const personModel = dependencies.personModel;
-  const sharedService = dependencies.sharedService;
 
-  //#region Helpers
+  //#region Helpers TODO: Maybe move this to its own service
   async function confirmCreateKinship(kinship) {
-    // Create couple kinship
-    if (kinship.kinshipType === constants.coupleKinshipType.id) {
-      await createCoupleKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create father kinship
-    else if (kinship.kinshipType === constants.fatherKinshipType.id) {
-      await createFatherKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create mother kinship
-    else if (kinship.kinshipType === constants.motherKinshipType.id) {
-      await createMotherKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create sibling kinship
-    else if (kinship.kinshipType === constants.siblingKinshipType.id) {
-      await createSiblingKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create paternal grandfather kinship
-    else if (kinship.kinshipType === constants.paternalGrandfatherKinshipType.id) {
-      await createPaternalGrandfatherKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create paternal grandmother kinship
-    else if (kinship.kinshipType === constants.paternalGrandmotherKinshipType.id) {
-      await createPaternalGrandmotherKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create maternal grandfather kinship
-    else if (kinship.kinshipType === constants.maternalGrandfatherKinshipType.id) {
-      await createMaternalGrandfatherKinship(kinship.personId, kinship.relativeId);
-    }
-    // Create maternal grandmother kinship
-    else if (kinship.kinshipType === constants.maternalGrandmotherKinshipType.id) {
-      await createMaternalGrandmotherKinship(kinship.personId, kinship.relativeId);
+    switch (kinship.kinshipType) {
+      // Create couple kinship
+      case constants.coupleKinshipType.id:
+        await createCoupleKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create father kinship
+      case constants.fatherKinshipType.id:
+        await createFatherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create mother kinship
+      case constants.motherKinshipType.id:
+        await createMotherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create sibling kinship
+      case constants.siblingKinshipType.id:
+        await createSiblingKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create paternal grandfather kinship
+      case constants.paternalGrandfatherKinshipType.id:
+        await createPaternalGrandfatherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create paternal grandmother kinship
+      case constants.paternalGrandmotherKinshipType.id:
+        await createPaternalGrandmotherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create maternal grandfather kinship
+      case constants.maternalGrandfatherKinshipType.id:
+        await createMaternalGrandfatherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Create maternal grandmother kinship
+      case constants.maternalGrandmotherKinshipType.id:
+        await createMaternalGrandmotherKinship(kinship.personId, kinship.relativeId);
+        break;
     }
   }
 
@@ -260,55 +261,17 @@ module.exports = function setupPersonService(dependencies) {
     }
   }
 
-  function getComparingTree(personId, kinships) {
-    const tree = {
-      couple: null,
-      father: null,
-      mother: null,
-      siblings: [],
-      paternalGrandfather: null,
-      paternalGrandmother: null,
-      maternalGrandfather: null,
-      maternalGrandmother: null
-    };
-    // Get and attach couple
-    const coupleKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.coupleKinshipType.id);
-    if (coupleKinship && !coupleKinship.relative.isGhost) {
-      tree.couple = coupleKinship.relative;
-    }
-    // Get (ghost) father
-    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
-    // If there is at least a (ghost) father, then the person has a tree...
-    if (fatherKinship) {
-      // Attach father
-      if (!fatherKinship.relative.isGhost) {
-        tree.father = fatherKinship.relative;
-      }
-      // Get and attach mother
-      const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
-      if (motherKinship && !motherKinship.relative.isGhost) {
-        tree.mother = motherKinship.relative;
-      }
-      // Get and attach siblings
-      tree.siblings = kinships
-        .filter(k => k.personId !== personId && k.relativeId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id)
-        .map(k => (k.person));
-      // Get and attach paternal grandfather
-      const paternalGrandfatherKinship = kinships.find(k => k.personId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
-      if (paternalGrandfatherKinship && !paternalGrandfatherKinship.relative.isGhost) {
-        tree.paternalGrandfather = paternalGrandfatherKinship.relative;
-      }
-      // Get and attach paternal grandmother
-      const paternalGrandmotherKinship = kinships.find(k => k.personId === fatherKinship.relativeId && !k.relative.isGhost && k.kinshipType === constants.motherKinshipType.id);
-      tree.paternalGrandmother = paternalGrandmotherKinship && paternalGrandmotherKinship.relative;
-      // Get and attach maternal grandfather
-      const maternalGrandfatherKinship = kinships.find(k => k.personId === motherKinship.relativeId && !k.relative.isGhost && k.kinshipType === constants.fatherKinshipType.id);
-      tree.maternalGrandfather = maternalGrandfatherKinship && maternalGrandfatherKinship.relative;
-      // Get and attach maternal grandmother
-      const maternalGrandmotherKinship = kinships.find(k => k.personId === motherKinship.relativeId && !k.relative.isGhost && k.kinshipType === constants.motherKinshipType.id);
-      tree.maternalGrandmother = maternalGrandmotherKinship && maternalGrandmotherKinship.relative;
-    }
-    return tree;
+  function getKinshipTypeIds() {
+    return [
+      constants.coupleKinshipType.id,
+      constants.fatherKinshipType.id,
+      constants.motherKinshipType.id,
+      constants.siblingKinshipType.id,
+      constants.paternalGrandfatherKinshipType.id,
+      constants.paternalGrandmotherKinshipType.id,
+      constants.maternalGrandfatherKinshipType.id,
+      constants.maternalGrandmotherKinshipType.id
+    ];
   }
 
   function getOrderField(orderBy) {
@@ -375,162 +338,52 @@ module.exports = function setupPersonService(dependencies) {
       gender: model.gender.name,
       genderId: model.gender.id,
       lastName: model.lastName,
-      name: model.name,
-      createdAt: model.createdAt,
-      updatedAt: model.updatedAt
+      name: model.name
     };
   }
 
-  function getTreesComparingResult(currentTree, updatedTree) {
-    const testResults = {
-      added: [],
-      modified: [],
-      deleted: []
-    };
-    // Compare couples
-    if (currentTree.couple) {
-      if (!updatedTree.couple) {
-        // Deleted
-        testResults.deleted.push(`${constants.coupleKinshipType.name} kinship with ${currentTree.couple.name} ${currentTree.couple.lastName} will be deleted`);
-      } else if (currentTree.couple.id !== updatedTree.couple.id) {
-        // Modified
-        testResults.modified.push(`${constants.coupleKinshipType.name} kinship with ${currentTree.couple.name} ${currentTree.couple.lastName} will be modified to ${updatedTree.couple.name} ${updatedTree.couple.lastName}`);
-      }
-    } else if (updatedTree.couple) {
-      // Added
-      testResults.added.push(`${constants.coupleKinshipType.name} kinship with ${updatedTree.couple.name} ${updatedTree.couple.lastName} will be added`);
-    }
-    // Compare fathers
-    if (currentTree.father) {
-      if (!updatedTree.father) {
-        // Deleted
-        testResults.deleted.push(`${constants.fatherKinshipType.name} kinship with ${currentTree.father.name} ${currentTree.father.lastName} will be deleted`);
-      } else if (currentTree.couple.id !== updatedTree.couple.id) {
-        // Modified
-        testResults.modified.push(`${constants.fatherKinshipType.name} kinship with ${currentTree.father.name} ${currentTree.father.lastName} will be modified to ${updatedTree.father.name} ${updatedTree.father.lastName}`);
-      }
-    } else if (updatedTree.father) {
-      // Added
-      testResults.added.push(`${constants.fatherKinshipType.name} kinship with ${updatedTree.father.name} ${updatedTree.father.lastName} will be added`);
-    }
-    // Compare mothers
-    if (currentTree.mother) {
-      if (!updatedTree.mother) {
-        // Deleted
-        testResults.deleted.push(`${constants.motherKinshipType.name} kinship with ${currentTree.mother.name} ${currentTree.mother.lastName} will be deleted`);
-      } else if (currentTree.couple.id !== updatedTree.couple.id) {
-        // Modified
-        testResults.modified.push(`${constants.motherKinshipType.name} kinship with ${currentTree.mother.name} ${currentTree.mother.lastName} will be modified to ${updatedTree.mother.name} ${updatedTree.mother.lastName}`);
-      }
-    } else if (updatedTree.mother) {
-      // Added
-      testResults.added.push(`${constants.motherKinshipType.name} kinship with ${updatedTree.mother.name} ${updatedTree.mother.lastName} will be added`);
-    }
-    // Compare siblings
-    updatedTree.siblings // Added
-      .filter(s => !currentTree.siblings.includes(s))
-      .forEach(s => testResults.added.push(`${constants.siblingKinshipType.name} kinship with ${s.name} ${s.lastName} will be added`));
-    currentTree.siblings // Deleted
-      .filter(s => !updatedTree.siblings.includes(s))
-      .forEach(s => testResults.deleted.push(`${constants.siblingKinshipType.name} kinship with ${s.name} ${s.lastName} will be deleted`));
-    // Compare paternal grandfathers
-    if (currentTree.paternalGrandfather) {
-      if (!updatedTree.paternalGrandfather) {
-        // Deleted
-        testResults.deleted.push(`${constants.paternalGrandfatherKinshipType.name} kinship with ${currentTree.paternalGrandfather.name} ${currentTree.paternalGrandfather.lastName} will be deleted`);
-      } else if (currentTree.paternalGrandfather.id !== updatedTree.paternalGrandfather.id) {
-        // Modified
-        testResults.modified.push(`${constants.paternalGrandfatherKinshipType.name} kinship with ${currentTree.paternalGrandfather.name} ${currentTree.paternalGrandfather.lastName} will be modified to ${updatedTree.paternalGrandfather.name} ${updatedTree.paternalGrandfather.lastName}`);
-      }
-    } else if (updatedTree.paternalGrandfather) {
-      // Added
-      testResults.added.push(`${constants.paternalGrandfatherKinshipType.name} kinship with ${updatedTree.paternalGrandfather.name} ${updatedTree.paternalGrandfather.lastName} will be added`);
-    }
-    // Compare paternal grandmothers
-    if (currentTree.paternalGrandmother) {
-      if (!updatedTree.paternalGrandmother) {
-        // Deleted
-        testResults.deleted.push(`${constants.paternalGrandmotherKinshipType.name} kinship with ${currentTree.paternalGrandmother.name} ${currentTree.paternalGrandmother.lastName} will be deleted`);
-      } else if (currentTree.paternalGrandmother.id !== updatedTree.paternalGrandmother.id) {
-        // Modified
-        testResults.modified.push(`${constants.paternalGrandmotherKinshipType.name} kinship with ${currentTree.paternalGrandmother.name} ${currentTree.paternalGrandmother.lastName} will be modified to ${updatedTree.paternalGrandmother.name} ${updatedTree.paternalGrandmother.lastName}`);
-      }
-    } else if (updatedTree.paternalGrandmother) {
-      // Added
-      testResults.added.push(`${constants.paternalGrandmotherKinshipType.name} kinship with ${updatedTree.paternalGrandmother.name} ${updatedTree.paternalGrandmother.lastName} will be added`);
-    }
-    // Compare maternal grandfathers
-    if (currentTree.maternalGrandfather) {
-      if (!updatedTree.maternalGrandfather) {
-        // Deleted
-        testResults.deleted.push(`${constants.maternalGrandfatherKinshipType.name} kinship with ${currentTree.maternalGrandfather.name} ${currentTree.maternalGrandfather.lastName} will be deleted`);
-      } else if (currentTree.maternalGrandfather.id !== updatedTree.maternalGrandfather.id) {
-        // Modified
-        testResults.modified.push(`${constants.maternalGrandfatherKinshipType.name} kinship with ${currentTree.maternalGrandfather.name} ${currentTree.maternalGrandfather.lastName} will be modified to ${updatedTree.maternalGrandfather.name} ${updatedTree.maternalGrandfather.lastName}`);
-      }
-    } else if (updatedTree.maternalGrandfather) {
-      // Added
-      testResults.added.push(`${constants.maternalGrandfatherKinshipType.name} kinship with ${updatedTree.maternalGrandfather.name} ${updatedTree.maternalGrandfather.lastName} will be added`);
-    }
-    // Compare maternal grandfathers
-    if (currentTree.maternalGrandmother) {
-      if (!updatedTree.maternalGrandmother) {
-        // Deleted
-        testResults.deleted.push(`${constants.maternalGrandmotherKinshipType.name} kinship with ${currentTree.maternalGrandmother.name} ${currentTree.maternalGrandmother.lastName} will be deleted`);
-      } else if (currentTree.maternalGrandmother.id !== updatedTree.maternalGrandmother.id) {
-        // Modified
-        testResults.modified.push(`${constants.maternalGrandmotherKinshipType.name} kinship with ${currentTree.maternalGrandmother.name} ${currentTree.maternalGrandmother.lastName} will be modified to ${updatedTree.maternalGrandmother.name} ${updatedTree.maternalGrandmother.lastName}`);
-      }
-    } else if (updatedTree.maternalGrandmother) {
-      // Added
-      testResults.added.push(`${constants.maternalGrandmotherKinshipType.name} kinship with ${updatedTree.maternalGrandmother.name} ${updatedTree.maternalGrandmother.lastName} will be added`);
-    }
-    // Return the test results
-    return testResults;
-  }
-
-  async function testCreateCoupleKinship(kinship, kinships) {
+  async function testCreateCoupleKinship(personId, relativeId, kinships) {
     // Get the people
-    const person = await personModel.findOne({ where: { id: kinship.personId } });
-    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    const person = await personModel.findOne({ where: { id: personId } });
+    const relative = await personModel.findOne({ where: { id: relativeId } });
     // Check if there's a couple kinship registered, and if so, update it and its counterpart
-    const coupleKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.coupleKinshipType.id);
+    const coupleKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.coupleKinshipType.id);
     if (coupleKinship) {
-      const coupleKinshipCounterpart = kinships.find(k => k.personId === coupleKinship.relativeId && k.relativeId === kinship.personId && k.kinshipType === constants.coupleKinshipType.id);
+      const coupleKinshipCounterpart = kinships.find(k => k.personId === coupleKinship.relativeId && k.relativeId === personId && k.kinshipType === constants.coupleKinshipType.id);
       coupleKinship.relative = relative;
-      coupleKinship.relativeId = kinship.relativeId;
+      coupleKinship.relativeId = relativeId;
       coupleKinshipCounterpart.person = relative;
-      coupleKinshipCounterpart.personId = kinship.relativeId;
+      coupleKinshipCounterpart.personId = relativeId;
     }
     // Else, register the new couple kinship and its counterpart
     else {
-      kinships.push({ personId: kinship.personId, person, relativeId: kinship.relativeId, relative, kinshipType: constants.coupleKinshipType.id });
-      kinships.push({ personId: kinship.relativeId, person: relative, relativeId: kinship.personId, relative: person, kinshipType: constants.coupleKinshipType.id });
+      kinships.push({ personId, person, relativeId, relative, kinshipType: constants.coupleKinshipType.id });
+      kinships.push({ personId: relativeId, person: relative, relativeId: personId, relative: person, kinshipType: constants.coupleKinshipType.id });
     }
   }
 
-  async function testCreateFatherKinship(kinship, kinships) {
+  async function testCreateFatherKinship(personId, relativeId, kinships) {
     // Get the people
-    const person = await personModel.findOne({ where: { id: kinship.personId } });
-    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    const person = await personModel.findOne({ where: { id: personId } });
+    const relative = await personModel.findOne({ where: { id: relativeId } });
     // Check if there's a father kinship registered
-    const fatherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.fatherKinshipType.id);
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
     // If there's a father kinship, update that kinship and all the other kinships in which they are involved
     if (fatherKinship && fatherKinship.relative.isGhost) {
       fatherKinship.person = person;
-      fatherKinship.personId = kinship.personId;
+      fatherKinship.personId = personId;
       kinships
         .filter(k => k.personId === fatherKinship.relativeId)
-        .forEach(k => k.personId = kinship.relativeId);
+        .forEach(k => k.personId = relativeId);
       kinships
         .filter(k => k.relativeId === fatherKinship.relativeId)
-        .forEach(k => k.relativeId = kinship.relativeId);
+        .forEach(k => k.relativeId = relativeId);
     }
     // Else, a ghost mother has to be created along with the new father kinship
     else {
       const ghostMother = await personModel.create({ genderId: 2, isGhost: true });
-      kinships.push({ personId: kinship.personId, person, relativeId: ghostMother.id, relative: ghostMother, kinshipType: constants.motherKinshipType.id });
-      kinships.push({ personId: kinship.personId, person, relativeId: kinship.relativeId, relative, kinshipType: constants.fatherKinshipType.id });
+      kinships.push({ personId, person, relativeId: ghostMother.id, relative: ghostMother, kinshipType: constants.motherKinshipType.id });
+      kinships.push({ personId, person, relativeId, relative, kinshipType: constants.fatherKinshipType.id });
     }
   }
 
@@ -547,14 +400,15 @@ module.exports = function setupPersonService(dependencies) {
     // Get updated tree using test array
     const updatedTree = getComparingTree(kinship.personId, kinships);
     // Compare trees and return the result
+    console.log(currentTree, updatedTree);
     return getTreesComparingResult(currentTree, updatedTree);
   }
 
-  async function testCreateMaternalGrandfatherKinship(kinship, kinships) {
+  async function testCreateMaternalGrandfatherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate mother id
     let motherId;
     // Check if the person has a registered mother kinship
-    const motherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.motherKinshipType.id);
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
     // If so, then save the id of that mother
     if (motherKinship) {
       motherId = motherKinship.relativeId;
@@ -566,18 +420,18 @@ module.exports = function setupPersonService(dependencies) {
       // Save their id
       motherId = ghostMother.id;
       // Use the testCreateMotherKinship method to register them as a mother, and also make sure to create a ghost father
-      await testCreateMotherKinship({ personId: kinship.personId, relativeId: motherId, kinshipType: constants.motherKinshipType.id }, kinships);
+      await testCreateMotherKinship({ personId, relativeId: motherId, kinshipType: constants.motherKinshipType.id }, kinships);
     }
     // Use the testCreateFatherKinship method to register the new grandfather as the father of the person's mother
     // It also makes sure that a ghost grandmother is created
-    await testCreateFatherKinship({ personId: motherId, relativeId: kinship.relativeId, kinshipType: constants.fatherKinshipType.id }, kinships);
+    await testCreateFatherKinship({ personId: motherId, relativeId, kinshipType: constants.fatherKinshipType.id }, kinships);
   }
 
-  async function testCreateMaternalGrandmotherKinship(kinship, kinships) {
+  async function testCreateMaternalGrandmotherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate mother id
     let motherId;
     // Check if the person has a registered mother kinship
-    const motherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.motherKinshipType.id);
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
     // If so, then save the id of that mother
     if (motherKinship) {
       motherId = motherKinship.relativeId;
@@ -589,43 +443,43 @@ module.exports = function setupPersonService(dependencies) {
       // Save their id
       motherId = ghostMother.id;
       // Use the testCreateMotherKinship method to register them as a mother, and also make sure to create a ghost father
-      await testCreateMotherKinship({ personId: kinship.personId, relativeId: motherId, kinshipType: constants.motherKinshipType.id }, kinships);
+      await testCreateMotherKinship({ personId, relativeId: motherId, kinshipType: constants.motherKinshipType.id }, kinships);
     }
     // Use the testCreateMotherKinship method again to register the new grandmother as the mother of the person's mother
     // It also makes sure that a ghost grandfather is created
-    await testCreateMotherKinship({ personId: motherId, relativeId: kinship.relativeId, kinshipType: constants.motherKinshipType.id }, kinships);
+    await testCreateMotherKinship({ personId: motherId, relativeId, kinshipType: constants.motherKinshipType.id }, kinships);
   }
 
-  async function testCreateMotherKinship(kinship, kinships) {
+  async function testCreateMotherKinship(personId, relativeId, kinships) {
     // Get the people
-    const person = await personModel.findOne({ where: { id: kinship.personId } });
-    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    const person = await personModel.findOne({ where: { id: personId } });
+    const relative = await personModel.findOne({ where: { id: relativeId } });
     // Check if there's a mother kinship registered
-    const motherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.motherKinshipType.id);
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
     // If there's a mother kinship, update that kinship and all the other kinships in which they are involved
     if (motherKinship && motherKinship.relative.isGhost) {
       motherKinship.person = person;
-      motherKinship.personId = kinship.personId;
+      motherKinship.personId = personId;
       kinships
         .filter(k => k.personId === motherKinship.relativeId)
-        .forEach(k => k.personId = kinship.relativeId);
+        .forEach(k => k.personId = relativeId);
       kinships
         .filter(k => k.relativeId === motherKinship.relativeId)
-        .forEach(k => k.relativeId = kinship.relativeId);
+        .forEach(k => k.relativeId = relativeId);
     }
     // Else, a ghost father has to be created along with the new father kinship
     else {
       const ghostFather = await personModel.create({ genderId: 2, isGhost: true });
-      kinships.push({ personId: kinship.personId, person, relativeId: ghostFather.id, relative: ghostFather, kinshipType: constants.fatherKinshipType.id });
-      kinships.push({ personId: kinship.personId, person, relativeId: kinship.relativeId, relative, kinshipType: constants.motherKinshipType.id });
+      kinships.push({ personId, person, relativeId: ghostFather.id, relative: ghostFather, kinshipType: constants.fatherKinshipType.id });
+      kinships.push({ personId, person, relativeId, relative, kinshipType: constants.motherKinshipType.id });
     }
   }
 
-  async function testCreatePaternalGrandfatherKinship(kinship, kinships) {
+  async function testCreatePaternalGrandfatherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate father id
     let fatherId;
     // Check if the person has a registered father kinship
-    const fatherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.fatherKinshipType.id);
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
     // If so, then save the id of that father
     if (fatherKinship) {
       fatherId = fatherKinship.relativeId;
@@ -637,18 +491,18 @@ module.exports = function setupPersonService(dependencies) {
       // Save their id
       fatherId = ghostFather.id;
       // Use the testCreateFatherKinship method to register them as a father, and also make sure to create a ghost mother
-      await testCreateFatherKinship({ personId: kinship.personId, relativeId: fatherId, kinshipType: constants.fatherKinshipType.id }, kinships);
+      await testCreateFatherKinship({ personId, relativeId: fatherId, kinshipType: constants.fatherKinshipType.id }, kinships);
     }
     // Use the testCreateFatherKinship method again to register the new grandfather as the father of the person's father
     // It also makes sure that a ghost grandmother is created
-    await testCreateFatherKinship({ personId: fatherId, relativeId: kinship.relativeId, kinshipType: constants.fatherKinshipType.id }, kinships);
+    await testCreateFatherKinship({ personId: fatherId, relativeId, kinshipType: constants.fatherKinshipType.id }, kinships);
   }
 
-  async function testCreatePaternalGrandmotherKinship(kinship, kinships) {
+  async function testCreatePaternalGrandmotherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate father id
     let fatherId;
     // Check if the person has a registered father kinship
-    const fatherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.fatherKinshipType.id);
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
     // If so, then save the id of that father
     if (fatherKinship) {
       fatherId = fatherKinship.relativeId;
@@ -660,26 +514,26 @@ module.exports = function setupPersonService(dependencies) {
       // Save their id
       fatherId = ghostFather.id;
       // Use the testCreateFatherKinship method to register them as a father, and also make sure to create a ghost mother
-      await testCreateFatherKinship({ personId: kinship.personId, relativeId: fatherId, kinshipType: constants.fatherKinshipType.id }, kinships);
+      await testCreateFatherKinship({ personId, relativeId: fatherId, kinshipType: constants.fatherKinshipType.id }, kinships);
     }
     // Use the testCreateMotherKinship method to register the new grandmother as the mother of the person's father
     // It also makes sure that a ghost grandfather is created
-    await testCreateMotherKinship({ personId: fatherId, relativeId: kinship.relativeId, kinshipType: constants.motherKinshipType.id }, kinships);
+    await testCreateMotherKinship({ personId: fatherId, relativeId, kinshipType: constants.motherKinshipType.id }, kinships);
   }
 
-  async function testCreateSiblingKinship(kinship, kinships) {
+  async function testCreateSiblingKinship(personId, relativeId, kinships) {
     // Get the people
-    const person = await personModel.findOne({ where: { id: kinship.personId } });
-    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    const person = await personModel.findOne({ where: { id: personId } });
+    const relative = await personModel.findOne({ where: { id: relativeId } });
     // Declare temp variables to hold the parents
     let father;
     let mother;
     // Check if there's a father kinship registered
-    const fatherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.fatherKinshipType.id);
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
     // If there's a father kinship, then there's also a mother kinship
     if (fatherKinship) {
       // Get the mother's kinship
-      const motherKinship = kinships.find(k => k.personId === kinship.personId && k.kinshipType === constants.motherKinshipType.id);
+      const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
       // Save both parents
       father = fatherKinship.relative;
       mother = motherKinship.relative;
@@ -693,317 +547,538 @@ module.exports = function setupPersonService(dependencies) {
       father = ghostFather;
       mother = ghostMother;
       // Set both as parents of the person
-      kinships.push({ personId: kinship.personId, person, relativeId: father.id, relative: father, kinshipType: constants.fatherKinshipType.id });
-      kinships.push({ personId: kinship.personId, person, relativeId: mother.id, relative: mother, kinshipType: constants.motherKinshipType.id });
+      kinships.push({ personId, person, relativeId: father.id, relative: father, kinshipType: constants.fatherKinshipType.id });
+      kinships.push({ personId, person, relativeId: mother.id, relative: mother, kinshipType: constants.motherKinshipType.id });
     }
     // Check if the new sibling has parents kinships, by looking only for an existent father kinship
-    const relativeFatherKinship = kinships.find(k => k.personId === kinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
+    const relativeFatherKinship = kinships.find(k => k.personId === relativeId && k.kinshipType === constants.fatherKinshipType.id);
     // If such kinships exist, update them
     if (relativeFatherKinship) {
       relativeFatherKinship.relative = father;
       relativeFatherKinship.relativeId = father.id;
-      const relativeMotherKinship = kinships.find(k => k.personId === kinship.relativeId && k.kinshipType === constants.motherKinshipType.id);
+      const relativeMotherKinship = kinships.find(k => k.personId === relativeId && k.kinshipType === constants.motherKinshipType.id);
       relativeMotherKinship.relative = mother;
       relativeMotherKinship.relativeId = mother.id;
     }
     // Else, create them
     else {
-      kinships.push({ personId: kinship.relativeId, person: relative, relativeId: father.id, relative: father, kinshipType: constants.fatherKinshipType.id });
-      kinships.push({ personId: kinship.relativeId, person: relative, relativeId: mother.id, relative: mother, kinshipType: constants.motherKinshipType.id });
+      kinships.push({ personId: relativeId, person: relative, relativeId: father.id, relative: father, kinshipType: constants.fatherKinshipType.id });
+      kinships.push({ personId: relativeId, person: relative, relativeId: mother.id, relative: mother, kinshipType: constants.motherKinshipType.id });
     }
   }
 
   async function updateTestKinships(kinship, kinships) {
-    // Create couple kinship
-    if (kinship.kinshipType === constants.coupleKinshipType.id) {
-      await testCreateCoupleKinship(kinship, kinships);
+    switch (kinship.kinshipType) {
+      // Create couple kinship
+      case constants.coupleKinshipType.id:
+        await testCreateCoupleKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create father kinship
+      case constants.fatherKinshipType.id:
+        await testCreateFatherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create mother kinship
+      case constants.motherKinshipType.id:
+        await testCreateMotherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create sibling kinship
+      case constants.siblingKinshipType.id:
+        await testCreateSiblingKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create paternal grandfather kinship
+      case constants.paternalGrandfatherKinshipType.id:
+        await testCreatePaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create paternal grandmother kinship
+      case constants.paternalGrandmotherKinshipType.id:
+        await testCreatePaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create maternal grandfather kinship
+      case constants.maternalGrandfatherKinshipType.id:
+        await testCreateMaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Create maternal grandmother kinship
+      case constants.maternalGrandmotherKinshipType.id:
+        await testCreateMaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
     }
-    // Create father kinship
-    else if (kinship.kinshipType === constants.fatherKinshipType.id) {
-      await testCreateFatherKinship(kinship, kinships);
+  }
+  //#endregion
+
+  //#region Tree TODO: Maybe move this to its own service
+  function doSimpleTreeNodeCompare(currentTreeNode, updatedTreeNode, kinshipName, testResults) {
+    if (currentTreeNode) {
+      if (!updatedTreeNode) {
+        // Deleted
+        testResults.deleted.push(getDeletedComparingResult(currentTreeNode, kinshipName));
+      } else if (currentTreeNode.id !== updatedTreeNode.id) {
+        // Modified
+        testResults.modified.push(getModifiedComparingResult(currentTreeNode, updatedTreeNode, kinshipName));
+      }
+    } else if (updatedTreeNode) {
+      // Added
+      testResults.added.push(getAddedComparingResult(updatedTreeNode, kinshipName));
     }
-    // Create mother kinship
-    else if (kinship.kinshipType === constants.motherKinshipType.id) {
-      await testCreateMotherKinship(kinship, kinships);
+  }
+
+  function getAddedComparingResult(relative, kinshipTypeName) {
+    return `${kinshipTypeName} kinship with ${relative.name} ${relative.lastName} will be added`;
+  }
+
+  function getComparingTree(personId, kinships) {
+    const tree = {
+      couple: null,
+      father: null,
+      mother: null,
+      siblings: [],
+      paternalGrandfather: null,
+      paternalGrandmother: null,
+      maternalGrandfather: null,
+      maternalGrandmother: null
+    };
+    // Get and attach couple
+    const coupleKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.coupleKinshipType.id);
+    if (coupleKinship && !coupleKinship.relative.isGhost) {
+      tree.couple = coupleKinship.relative;
     }
-    // Create sibling kinship
-    else if (kinship.kinshipType === constants.siblingKinshipType.id) {
-      await testCreateSiblingKinship(kinship, kinships);
+    // Get (ghost) father
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
+    // If there is at least a (ghost) father, then the person has a tree...
+    if (fatherKinship) {
+      // Attach father
+      if (!fatherKinship.relative.isGhost) {
+        tree.father = fatherKinship.relative;
+      }
+      // Get and attach mother
+      const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
+      if (motherKinship && !motherKinship.relative.isGhost) {
+        tree.mother = motherKinship.relative;
+      }
+      // Get and attach siblings
+      tree.siblings = kinships
+        .filter(k => k.personId !== personId && k.relativeId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id)
+        .map(k => (k.person));
+      // Get and attach paternal grandfather
+      const paternalGrandfatherKinship = kinships.find(k => k.personId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
+      if (paternalGrandfatherKinship && !paternalGrandfatherKinship.relative.isGhost) {
+        tree.paternalGrandfather = paternalGrandfatherKinship.relative;
+      }
+      // Get and attach paternal grandmother
+      const paternalGrandmotherKinship = kinships.find(k => k.personId === fatherKinship.relativeId && k.kinshipType === constants.motherKinshipType.id);
+      if (paternalGrandmotherKinship && !paternalGrandmotherKinship.relative.isGhost) {
+        tree.paternalGrandmother = paternalGrandmotherKinship.relative;
+      }
+      // Get and attach maternal grandfather
+      const maternalGrandfatherKinship = kinships.find(k => k.personId === motherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
+      if (maternalGrandfatherKinship && !maternalGrandfatherKinship.relative.isGhost) {
+        tree.maternalGrandfather = maternalGrandfatherKinship.relative;
+      }
+      // Get and attach maternal grandmother
+      const maternalGrandmotherKinship = kinships.find(k => k.personId === motherKinship.relativeId && k.kinshipType === constants.motherKinshipType.id);
+      if (maternalGrandmotherKinship && !maternalGrandmotherKinship.relative.isGhost) {
+        tree.maternalGrandmother = maternalGrandmotherKinship.relative;
+      }
     }
-    // Create paternal grandfather kinship
-    else if (kinship.kinshipType === constants.paternalGrandfatherKinshipType.id) {
-      await testCreatePaternalGrandfatherKinship(kinship, kinships);
+    return tree;
+  }
+
+  function getDeletedComparingResult(relative, kinshipTypeName) {
+    return `${kinshipTypeName} kinship with ${relative.name} ${relative.lastName} will be deleted`;
+  }
+
+  function getModifiedComparingResult(oldRelative, newRelative, kinshipTypeName) {
+    return `${kinshipTypeName} kinship with ${oldRelative.name} ${oldRelative.lastName} will be modified to ${newRelative.name} ${newRelative.lastName}`;
+  }
+
+  function getTreesComparingResult(currentTree, updatedTree) {
+    const testResults = {
+      added: [],
+      modified: [],
+      deleted: []
+    };
+    // Compare couples
+    doSimpleTreeNodeCompare(currentTree.couple, updatedTree.couple, constants.coupleKinshipType.name, testResults);
+    // Compare fathers
+    doSimpleTreeNodeCompare(currentTree.father, updatedTree.father, constants.fatherKinshipType.name, testResults);
+    // Compare mothers
+    doSimpleTreeNodeCompare(currentTree.mother, updatedTree.mother, constants.motherKinshipType.name, testResults);
+    // Compare siblings
+    updatedTree.siblings // Added
+      .filter(s => !currentTree.siblings.includes(s))
+      .forEach(s => testResults.added.push(getAddedComparingResult(s, constants.siblingKinshipType.name)));
+    currentTree.siblings // Deleted
+      .filter(s => !updatedTree.siblings.includes(s))
+      .forEach(s => testResults.deleted.push(getDeletedComparingResult(s, constants.siblingKinshipType.name)));
+    // Compare paternal grandfathers
+    doSimpleTreeNodeCompare(currentTree.paternalGrandfather, updatedTree.paternalGrandfather, constants.paternalGrandfatherKinshipType.name, testResults);
+    // Compare paternal grandmothers
+    doSimpleTreeNodeCompare(currentTree.paternalGrandmother, updatedTree.paternalGrandmother, constants.paternalGrandmotherKinshipType.name, testResults);
+    // Compare maternal grandfathers
+    doSimpleTreeNodeCompare(currentTree.maternalGrandfather, updatedTree.maternalGrandfather, constants.maternalGrandfatherKinshipType.name, testResults);
+    // Compare maternal grandfathers
+    doSimpleTreeNodeCompare(currentTree.maternalGrandmother, updatedTree.maternalGrandmother, constants.maternalGrandmotherKinshipType.name, testResults);
+    // Return the test results
+    return testResults;
+  }
+  //#endregion
+
+  //#region Validators TODO: Maybe move this to its own service
+  function validateBirthdate(birthdate, errors) {
+    if (!birthdate) {
+      errors.push('The birthdate field is required');
+      return;
     }
-    // Create paternal grandmother kinship
-    else if (kinship.kinshipType === constants.paternalGrandmotherKinshipType.id) {
-      await testCreatePaternalGrandmotherKinship(kinship, kinships);
+
+    const parsedBirthdate = new Date(birthdate);
+    const minDate = new Date('1900/01/01');
+    const maxDate = Date.now();
+
+    if (isNaN(parsedBirthdate)) {
+      errors.push('Invalid birthdate format');
+    } else if (parsedBirthdate < minDate || parsedBirthdate > maxDate) {
+      errors.push('Invalid submitted birthdate');
     }
-    // Create maternal grandfather kinship
-    else if (kinship.kinshipType === constants.maternalGrandfatherKinshipType.id) {
-      await testCreateMaternalGrandfatherKinship(kinship, kinships);
+  }
+
+  function validateContact(contactTypeId, contact, errors) {
+    // Assuming that the contactTypeId is not null
+    const phoneRegex = /^([0-9]){6,9}$/;
+    const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    if (![1, 2].includes(contactTypeId)) {
+      errors.push('Invalid submitted contact type');
+    } else if (contactTypeId === 1 && !phoneRegex.test(contact)) {
+      errors.push('Invalid phone format');
+    } else if (contactTypeId === 2 && !emailRegex.test(contact)) {
+      errors.push('Invalid email format');
     }
-    // Create maternal grandmother kinship
-    else if (kinship.kinshipType === constants.maternalGrandmotherKinshipType.id) {
-      await testCreateMaternalGrandmotherKinship(kinship, kinships);
+  }
+
+  function validateCountry(countryId, errors) {
+    if (!countryId) {
+      errors.push('The country field is required');
+    } else if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(countryId)) {
+      errors.push('Invalid submitted country');
+    }
+  }
+
+  function validateDocument(documentTypeId, document, errors) {
+    const dniRegex = /^[0-9]{1,8}$/;
+    const passportRegex = /^([a-zA-Z0-9]){1,12}$/;
+    const foreignCardRegex = /^([a-zA-Z0-9]){1,12}$/;
+    if (!documentTypeId) {
+      errors.push('The document field is required');
+    } else if (![1, 2, 3].includes(documentTypeId)) {
+      errors.push('Invalid submitted document type');
+    } else if (documentTypeId === 1 && !dniRegex.test(document)) {
+      errors.push('Invalid DNI format');
+    } else if (documentTypeId === 2 && !passportRegex.test(document)) {
+      errors.push('Invalid passport format');
+    } else if (documentTypeId === 3 && !foreignCardRegex.test(document)) {
+      errors.push('Invalid foreign card format');
+    }
+  }
+
+  async function validateExistingRelationship(kinship, existingRelationshipValidator, errors) {
+    // Assuming that the personId and the relativeId are valid
+    const person = await personModel.findOne({ where: { id: kinship.personId } });
+    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    const personKinships = await existingRelationshipValidator(person);
+    const relativeKinships = await existingRelationshipValidator(relative);
+    if (personKinships.some(k => k.relativeId === relative.id) || relativeKinships.some(k => k.relativeId === person.id)) {
+      errors.push('The person and the relative are already related');
+    }
+  }
+
+  function validateGender(genderId, errors) {
+    if (!genderId) {
+      errors.push('The gender field is required');
+    } else if (![1, 2].includes(genderId)) {
+      errors.push('Invalid submitted gender');
+    }
+  }
+
+  async function validateKinshipCreate(kinship, existingRelationshipValidator, errors) {
+    // Validate kinship data
+    await validateKinshipData(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+    // Validate kinship gender
+    await validateKinshipGender(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+    // Validate existing relationship
+    await validateExistingRelationship(kinship, existingRelationshipValidator, errors);
+    if (errors.length > 0) {
+      return;
+    }
+  }
+
+  async function validateKinshipData(kinship, errors) {
+    // Validate person
+    if (!kinship.personId) {
+      errors.push('The person id is required');
+    } else {
+      const person = await personModel.findOne({ where: { id: kinship.personId } });
+      if (!person || person.isGhost) {
+        errors.push('Invalid submitted person');
+      }
+    }
+    // Validate relative
+    if (!kinship.relativeId) {
+      errors.push('The relative id is required');
+    } else if (kinship.personId === kinship.relativeId) {
+      errors.push('The relative can\'t be the same as the person');
+    } else {
+      const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+      if (!relative || relative.isGhost) {
+        errors.push('Invalid submitted relative');
+      }
+    }
+    // Validate kinship type
+    if (!getKinshipTypeIds().includes(kinship.kinshipType)) {
+      errors.push('Invalid submitted kinship type');
+    }
+  }
+
+  async function validateKinshipGender(kinship, errors) {
+    // Assuming that the personId, the relativeId and the kinshipType are valid
+    const maleKinshipTypes = [
+      constants.fatherKinshipType.id,
+      constants.paternalGrandfatherKinshipType.id,
+      constants.maternalGrandfatherKinshipType.id
+    ];
+    const femaleKinshipTypes = [
+      constants.motherKinshipType.id,
+      constants.paternalGrandmotherKinshipType.id,
+      constants.maternalGrandmotherKinshipType.id
+    ];
+    const person = await personModel.findOne({ where: { id: kinship.personId } });
+    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    if (maleKinshipTypes.includes(kinship.kinshipType) && relative.genderId === 2) {
+      errors.push('The relative must be a male');
+    } else if (femaleKinshipTypes.includes(kinship.kinshipType) && relative.genderId === 1) {
+      errors.push('The relative must be a female');
+    } else if (kinship.kinshipType === constants.coupleKinshipType.id && person.genderId === relative.genderId) {
+      errors.push('The person and the relative must not have the same gender');
+    }
+  }
+
+  function validateLastName(lastName, errors) {
+    const lastNameRegex = /^[a-zA-ZñÑ'\s]{1,25}$/;
+    if (!lastName) {
+      errors.push('The last name field is required');
+    } else if (!lastNameRegex.test(lastName)) {
+      errors.push('Invalid last name format');
+    }
+  }
+
+  function validateName(name, errors) {
+    const nameRegex = /^[a-zA-ZñÑ'\s]{1,25}$/;
+    if (!name) {
+      errors.push('The name field is required');
+    } else if (!nameRegex.test(name)) {
+      errors.push('Invalid name format');
+    }
+  }
+
+  async function validatePersonCreate(person, errors) {
+    // Validate if document exists
+    const documentExists = await personModel.findOne({ where: { document: person.document } });
+    if (documentExists) {
+      errors.push('Document field must be unique');
+      return;
+    }
+    // Validate the rest of the fields
+    validateBirthdate(person.birthdate, errors);
+    validateCountry(person.countryId, errors);
+    validateDocument(person.documentTypeId, person.document, errors);
+    validateGender(person.genderId, errors);
+    validateLastName(person.lastName, errors);
+    validateName(person.name, errors);
+    if (person.contactType1Id) {
+      validateContact(person.contactType1Id, person.contact1, errors);
+    }
+    if (person.contactType2Id) {
+      validateContact(person.contactType2Id, person.contact2, errors);
+    }
+  }
+
+  async function validatePersonModify(id, person, errors) {
+    // Validate if document exists
+    const documentExists = await personModel.findOne({ where: { document: person.document } });
+    if (documentExists && documentExists.id !== id) {
+      errors.push('Document field must be unique');
+    }
+    // Validate the rest of the fields
+    if (person.birthdate) {
+      validateBirthdate(person.birthdate, errors);
+    }
+    if (person.contactType1Id) {
+      validateContact(person.contactType1Id, person.contact1, errors);
+    }
+    if (person.contactType2Id) {
+      validateContact(person.contactType2Id, person.contact2, errors);
+    }
+    if (person.countryId) {
+      validateCountry(person.countryId, errors);
+    }
+    if (person.documentTypeId) {
+      validateDocument(person.documentTypeId, person.document, errors);
+    }
+    if (person.lastName) {
+      validateLastName(person.lastName, errors);
+    }
+    if (person.name) {
+      validateName(person.name, errors);
     }
   }
   //#endregion
 
   async function doList(requestQuery) {
-    try {
-      let qOrderBy = getOrderField(requestQuery.orderBy);
-      let qOrderType = getOrderType(requestQuery.orderType);
-      let qQueryWhereClause = getQueryWhereClause(requestQuery.query.split(' '));
-      // Execute the query
-      const people = await personModel.findAll({
-        include: [
-          { as: 'documentType', model: documentTypeModel },
-          { as: 'gender', model: genderModel },
-          { as: 'country', model: countryModel },
-          { as: 'contactType1', model: contactTypeModel },
-          { as: 'contactType2', model: contactTypeModel }
-        ],
-        limit: requestQuery.limit,
-        offset: requestQuery.offset,
-        order: [[...qOrderBy, qOrderType]],
-        where: {
-          [Op.or]: [
-            { name: qQueryWhereClause },
-            { lastName: qQueryWhereClause },
-            { document: qQueryWhereClause },
-            { contact1: qQueryWhereClause },
-            { contact2: qQueryWhereClause }
-          ]
-        }
-      });
-      // Return the data
-      return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
-    }
-  }
-
-  async function doListKinships(id) {
-    try {
-      // Get person
-      const person = await personModel.findOne({ where: { id } });
-      // Validate if person exists
-      if (!person || person.isGhost) {
-        baseService.returnData.responseCode = 404;
-        baseService.returnData.message = 'Not found';
-        baseService.returnData.data = {};
-        return baseService.returnData;
+    // Get the query
+    let qOrderBy = getOrderField(requestQuery.orderBy);
+    let qOrderType = getOrderType(requestQuery.orderType);
+    let qQueryWhereClause = getQueryWhereClause(requestQuery.query.split(' '));
+    // Execute the query
+    const people = await personModel.findAll({
+      include: [
+        { as: 'documentType', model: documentTypeModel },
+        { as: 'gender', model: genderModel },
+        { as: 'country', model: countryModel },
+        { as: 'contactType1', model: contactTypeModel },
+        { as: 'contactType2', model: contactTypeModel }
+      ],
+      limit: requestQuery.limit,
+      offset: requestQuery.offset,
+      order: [[...qOrderBy, qOrderType]],
+      where: {
+        [Op.or]: [
+          { name: qQueryWhereClause },
+          { lastName: qQueryWhereClause },
+          { document: qQueryWhereClause },
+          { contact1: qQueryWhereClause },
+          { contact2: qQueryWhereClause }
+        ]
       }
-      // Get kinships
-      const personData = await sharedService.getPersonKinships(person);
-      // Return the data
-      return baseService.getServiceResponse(200, 'Success', personData);
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
-    }
-
-    return baseService.returnData;
+    });
+    // Return the data
+    return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
   }
 
   async function modify(id, person) {
-    try {
-      // Check if person exists
-      const personExists = await personModel.findOne({ where: { id } });
-      if (!personExists || personExists.isGhost) {
-        return baseService.getServiceResponse(404, 'Not found', {});
-      }
-      // Check if document exists
-      const documentExists = await personModel.findOne({ where: { document: person.document } });
-      if (documentExists && documentExists.id !== id) {
-        return baseService.getServiceResponse(400, 'Document field must be unique', {});
-      }
-      // Validate errors
-      const errors = [];
-      if (person.birthdate) {
-        sharedService.validateBirthdate(person.birthdate, errors);
-      }
-      if (person.contactType1Id) {
-        sharedService.validateContact(person.contactType1Id, person.contact1, errors);
-      }
-      if (person.contactType2Id) {
-        sharedService.validateContact(person.contactType2Id, person.contact2, errors);
-      }
-      if (person.countryId) {
-        sharedService.validateCountry(person.countryId, errors);
-      }
-      if (person.documentTypeId) {
-        sharedService.validateDocument(person.documentTypeId, person.document, errors);
-      }
-      if (person.lastName) {
-        sharedService.validateLastName(person.lastName, errors);
-      }
-      if (person.name) {
-        sharedService.validateName(person.name, errors);
-      }
-      if (errors.length > 0) {
-        // If some errors were found, return 400
-        return baseService.getServiceResponse(400, errors.join('\n'), {})
-      } else {
-        // Else, create the person
-        let modifiedPerson = await personModel.update(person, { where: { id } });
-        // Then obtain their complete data (including associations)
-        modifiedPerson = await personModel.findOne({
-          include: [
-            { as: 'documentType', model: documentTypeModel },
-            { as: 'gender', model: genderModel },
-            { as: 'country', model: countryModel },
-            { as: 'contactType1', model: contactTypeModel },
-            { as: 'contactType2', model: contactTypeModel }
-          ],
-          where: { id }
-        });
-        // And return 200
-        return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
-      }
-
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+    // If person doesn't exist, return 404
+    const personExists = await personModel.findOne({ where: { id } });
+    if (!personExists || personExists.isGhost) {
+      return baseService.getServiceResponse(404, 'Not found', {});
     }
+    // Else, validate fields
+    const errors = [];
+    await validatePersonModify(id, person, errors);
+    // If errors were found, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+    }
+    // Else, create the person
+    let modifiedPerson = await personModel.update(person, { where: { id } });
+    // Then obtain their complete data (including associations)
+    modifiedPerson = await personModel.findOne({
+      include: [
+        { as: 'documentType', model: documentTypeModel },
+        { as: 'gender', model: genderModel },
+        { as: 'country', model: countryModel },
+        { as: 'contactType1', model: contactTypeModel },
+        { as: 'contactType2', model: contactTypeModel }
+      ],
+      where: { id }
+    });
+    // And return 200
+    return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
   }
 
   async function create(person) {
-    try {
-      // Check if document exists
-      const documentExists = await personModel.findOne({ where: { document: person.document } });
-      if (documentExists) {
-        return baseService.getServiceResponse(400, 'Document field must be unique', {});
-      }
-      // Validate errors
-      const errors = [];
-      sharedService.validateBirthdate(person.birthdate, errors);
-      sharedService.validateCountry(person.countryId, errors);
-      sharedService.validateDocument(person.documentTypeId, person.document, errors);
-      sharedService.validateGender(person.genderId, errors);
-      sharedService.validateLastName(person.lastName, errors);
-      sharedService.validateName(person.name, errors);
-      if (person.contactType1Id) {
-        sharedService.validateContact(person.contactType1Id, person.contact1, errors);
-      }
-      if (person.contactType2Id) {
-        sharedService.validateContact(person.contactType2Id, person.contact2, errors);
-      }
-      if (errors.length > 0) {
-        // If some errors were found, return 400
-        return baseService.getServiceResponse(400, errors.join('\n'), {})
-      } else {
-        // Else, create the person
-        let createdPerson = await personModel.create(person);
-        // Then obtain their complete data (including associations)
-        createdPerson = await personModel.findOne({
-          include: [
-            { as: 'documentType', model: documentTypeModel },
-            { as: 'gender', model: genderModel },
-            { as: 'country', model: countryModel },
-            { as: 'contactType1', model: contactTypeModel },
-            { as: 'contactType2', model: contactTypeModel }
-          ],
-          where: { id: createdPerson.id }
-        });
-        // And return 200
-        return baseService.getServiceResponse(200, "Person created", getSimplePersonModel(createdPerson));
-      }
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+    // Validate fields
+    const errors = [];
+    await validatePersonCreate(person, errors);
+    // If errors were found, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
     }
+    // Else, create the person
+    let createdPerson = await personModel.create(person);
+    // Then obtain their complete data (including associations)
+    createdPerson = await personModel.findOne({
+      include: [
+        { as: 'documentType', model: documentTypeModel },
+        { as: 'gender', model: genderModel },
+        { as: 'country', model: countryModel },
+        { as: 'contactType1', model: contactTypeModel },
+        { as: 'contactType2', model: contactTypeModel }
+      ],
+      where: { id: createdPerson.id }
+    });
+    // And return 200
+    return baseService.getServiceResponse(200, "Success", getSimplePersonModel(createdPerson));
   }
 
-  async function createKinship(kinship) {
-    try {
-      let errors = [];
-      // Validate kinship data
-      await sharedService.validateKinshipData(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // Validate kinship gender
-      await sharedService.validateKinshipGender(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // Validate family tree
-      await sharedService.validateFamilyTree(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // If no errors were found, create the kinship
-      await confirmCreateKinship(kinship);
-      return baseService.getServiceResponse(200, 'Success', {});
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+  async function createKinship(kinship, existingRelationshipValidator) {
+    // Validate creation
+    const errors = [];
+    await validateKinshipCreate(kinship, existingRelationshipValidator, errors);
+    // If errors were gound, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
     }
+    // Else, create the kinship
+    await confirmCreateKinship(kinship);
+    // And return 200
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
-  async function createKinshipTest(kinship) {
-    try {
-      let errors = [];
-      // Validate kinship data
-      await sharedService.validateKinshipData(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // Validate kinship gender
-      await sharedService.validateKinshipGender(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // Validate family tree
-      await sharedService.validateFamilyTree(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // If no errors were found, test the kinship creation
-      const personData = await testCreateKinship(kinship);
-      return baseService.getServiceResponse(200, 'Success', personData);
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+  async function createKinshipTest(kinship, existingRelationshipValidator) {
+    // Validate creation
+    const errors = [];
+    await validateKinshipCreate(kinship, existingRelationshipValidator, errors);
+    // If errors were gound, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
     }
+    // Else, test the kinship creation
+    const personData = await testCreateKinship(kinship);
+    // And return 200
+    return baseService.getServiceResponse(200, 'Success', personData);
   }
 
   async function findById(id) {
-    try {
-      // Get models and find person
-      const person = await personModel.findOne({
-        include: [
-          { as: 'documentType', model: documentTypeModel },
-          { as: 'gender', model: genderModel },
-          { as: 'country', model: countryModel },
-          { as: 'contactType1', model: contactTypeModel },
-          { as: 'contactType2', model: contactTypeModel }
-        ],
-        where: { id }
-      });
-      if (person && !person.isGhost) {
-        // If a person was found, return 200
-        return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
-      } else {
-        // Else, return 404
-        return baseService.getServiceResponse(404, "Not found", {});
-      }
-
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+    // Get models and find person
+    const person = await personModel.findOne({
+      include: [
+        { as: 'documentType', model: documentTypeModel },
+        { as: 'gender', model: genderModel },
+        { as: 'country', model: countryModel },
+        { as: 'contactType1', model: contactTypeModel },
+        { as: 'contactType2', model: contactTypeModel }
+      ],
+      where: { id }
+    });
+    // If a person was found, return 200
+    if (person && !person.isGhost) {
+      return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
+    }
+    // Else, return 404
+    else {
+      return baseService.getServiceResponse(404, "Not found", {});
     }
   }
 
   return {
-    doList,
-    doListKinships,
     create,
     createKinship,
     createKinshipTest,
+    doList,
+    findById,
     modify,
-    findById
+    personModel
   };
 };
