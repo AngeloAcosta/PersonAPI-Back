@@ -1,61 +1,56 @@
 'use strict';
 
 const setupBaseController = require('./../base.controller');
-const setupServices = require('./../../../services');
+const serviceContainer = require('./../../../services/service.container');
 
 let baseController = new setupBaseController();
 
 const get = async (request, response) => {
   let responseCode;
   let responseData;
-
   try {
-    let services = await setupServices();
-    let peopleData = await services.personService.findById(request.params.id);
-
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get person
+    let peopleData = await personService.findById(request.params.id);
+    // Return data
     responseCode = peopleData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      peopleData.data,
-      peopleData.message
-    );
+    responseData = baseController.getSuccessResponse(peopleData.data, peopleData.message);
   } catch (err) {
+    console.error('Error: ', err);
     responseCode = 500;
-    console.error('Error getting all people: ', err);
-    responseData = baseController.getErrorResponse('Error getting all people.');
+    responseData = baseController.getErrorResponse('Error');
   }
-
   return response.status(responseCode).json(responseData);
 };
 
 const getKinships = async (request, response) => {
   let responseCode;
   let responseData;
-
   try {
-    let dbService = await setupServices();
-    let personData = await dbService.personService.doListKinships(request.params.id);
-
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get kinships
+    const personData = await personService.doListKinships(request.params.id);
+    // Return the data
     responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      personData.data,
-      personData.message
-    );
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
-    responseCode = 500;
     console.error('Error: ', err);
+    responseCode = 500;
     responseData = baseController.getErrorResponse('Error.');
   }
-
   return response.status(responseCode).json(responseData);
 }
 
 const post = async (request, response) => {
   let responseCode;
   let responseData;
-
   try {
-    let services = await setupServices();
-    let person = {
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get person from request body
+    const person = {
       name: request.body.name && request.body.name.trim(),
       lastName: request.body.lastName && request.body.lastName.trim(),
       birthdate: request.body.birthdate && request.body.birthdate.trim(),
@@ -69,21 +64,16 @@ const post = async (request, response) => {
       contact2: request.body.contact2 && request.body.contact2.trim(),
       isGhost: false
     };
-    let personData = await services.personService.create(person);
-
+    // Create person
+    const personData = await personService.create(person);
+    // Return the data
     responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      personData.data,
-      personData.message
-    );
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
+    console.error('Error: ' + err);
     responseCode = 500;
-    console.error('The person wasn\´t registered ' + err);
-    responseData = baseController.getErrorResponse(
-      'The person wasn\´t registered.'
-    );
+    responseData = baseController.getErrorResponse('Error');
   }
-
   return response.status(responseCode).json(responseData);
 };
 
@@ -91,9 +81,12 @@ const put = async (request, response) => {
   let responseCode;
   let responseData;
   try {
-    let services = await setupServices();
-    let id = parseInt(request.params.id);
-    let person = {
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get the id from the route
+    const id = parseInt(request.params.id);
+    // Get the person from the request body
+    const person = {
       name: request.body.name && request.body.name.trim(),
       lastName: request.body.lastName && request.body.lastName.trim(),
       birthdate: request.body.birthdate && request.body.birthdate.trim(),
@@ -105,21 +98,16 @@ const put = async (request, response) => {
       contactType2Id: request.body.contactType2Id && parseInt(request.body.contactType2Id),
       contact2: request.body.contact2 && request.body.contact2.trim(),
     };
-    let personData = await services.personService.modify(id, person);
-
+    // Modify person
+    const personData = await services.personService.modify(id, person);
+    // Return the data
     responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      personData.data,
-      personData.message
-    );
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
+    console.error('Error: ' + err);
     responseCode = 500;
-    console.error('The person wasn\´t modified ' + err);
-    responseData = baseController.getErrorResponse(
-      'The person wasn\´t modified.'
-    );
+    responseData = baseController.getErrorResponse('Error');
   }
-
   return response.status(responseCode).json(responseData);
 };
 
