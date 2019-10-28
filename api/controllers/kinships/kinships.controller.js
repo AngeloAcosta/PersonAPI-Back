@@ -3,57 +3,47 @@
 const setupBaseController = require('./../base.controller');
 const setupServices = require('./../../../services');
 
-let baseController = new setupBaseController();
-
-const getTypes = async (request, response) => {
-  let responseCode;
-  let responseData;
-
-  try {
-    let dbService = await setupServices();
-    let kinshipsData = await dbService.kinshipService.doListTypes();
-
-    responseCode = kinshipsData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      kinshipsData.data,
-      kinshipsData.message
-    );
-  } catch (err) {
-    responseCode = 500;
-    console.error('Error getting all kinship types: ', err);
-    responseData = baseController.getErrorResponse('Error getting all kinship types.');
-  }
-
-  return response.status(responseCode).json(responseData);
-};
+const baseController = new setupBaseController();
 
 const get = async (request, response) => {
   let responseCode;
   let responseData;
-
   try {
-    let dbService = await setupServices();
-    let query = request.query.query || '';
-
-    let kinshipsData = await dbService.kinshipService.doList({ query });
-
+    const services = await setupServices();
+    // Get the query
+    const query = request.query.query || '';
+    // Get kinships
+    const kinshipsData = await services.sharedService.doListKinships(query);
+    // Return the data
     responseCode = kinshipsData.responseCode;
-    responseData = baseController.getSuccessResponse(
-        kinshipsData.data, kinshipsData.message
-    );
-
+    responseData = baseController.getSuccessResponse(kinshipsData.data, kinshipsData.message);
   } catch (err) {
+    console.error('Error: ', err);
     responseCode = 500;
-    console.error('Error getting all kinships: ', err);
-    responseData = baseController.getErrorResponse('Error getting all kindships.');
+    responseData = baseController.getErrorResponse('Error');
   }
+  return response.status(responseCode).json(responseData);
+};
 
-  return response
-    .status(responseCode)
-    .json(responseData);
+const getTypes = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    const services = await setupServices();
+    // Get the kinship types
+    const kinshipsData = await services.kinshipService.doListTypes();
+    // Return the data
+    responseCode = kinshipsData.responseCode;
+    responseData = baseController.getSuccessResponse(kinshipsData.data, kinshipsData.message);
+  } catch (err) {
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
 };
 
 module.exports = {
-  getTypes,
-  get
+  get,
+  getTypes
 };
