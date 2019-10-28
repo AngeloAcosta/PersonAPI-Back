@@ -28,19 +28,13 @@ const getKinships = async (request, response) => {
   let responseData;
   try {
     const services = await setupServices();
-    // Get person
-    const person = await services.personService.personModel.findOne({ where: { id: request.params.id } });
-    // If person doesn't exist, return 404
-    if (!person || person.isGhost) {
-      responseCode = 404;
-      responseData = baseController.getSuccessResponse({}, 'Not found');
-    }
-    // Else, get their kinships, and return the data
-    else {
-      const kinships = await services.sharedService.getPersonKinships(person);
-      responseCode = 200;
-      responseData = baseController.getSuccessResponse(kinships, 'Success');
-    }
+    // Get the person id from the route
+    const personId = request.params.id;
+    // Get the person kinships
+    const personData = await services.sharedService.doListPersonKinships(personId);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;
@@ -94,10 +88,10 @@ const postKinships = async (request, response) => {
       kinshipType: request.body.kinshipType
     };
     // Create the kinship
-    const kinshipData = await services.personService.createKinship(kinship, services.sharedService.getPersonKinships);
+    const personData = await services.sharedService.createPersonKinship(kinship);
     // Return the data
-    responseCode = kinshipData.responseCode;
-    responseData = baseController.getSuccessResponse(kinshipData.data, kinshipData.message);
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;
@@ -118,10 +112,10 @@ const postKinshipsTest = async (request, response) => {
       kinshipType: request.body.kinshipType
     };
     // Test the kinship creation
-    const kinshipData = await services.personService.createKinshipTest(kinship, services.sharedService.getPersonKinships);
+    const personData = await services.sharedService.createPersonKinshipTest(kinship);
     // Return the data
-    responseCode = kinshipData.responseCode;
-    responseData = baseController.getSuccessResponse(kinshipData.data, kinshipData.message);
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;

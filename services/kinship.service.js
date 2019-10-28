@@ -23,7 +23,6 @@ module.exports = function setupKinshipService(kinshipModel) {
   }
 
   return {
-    doListTypes,
-    kinshipModel
+    doListTypes
   };
 }
