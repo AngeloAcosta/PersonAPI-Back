@@ -29,16 +29,18 @@ const getKinships = async (request, response) => {
   let responseData;
   try {
     // Inject services
-    const personService = await serviceContainer('person');
-    // Get kinships
-    const personData = await personService.doListKinships(request.params.id);
+    const sharedService = await serviceContainer('shared');
+    // Get the person id from the route
+    const personId = request.params.id;
+    // Get the person kinships
+    const personData = await sharedService.doListPersonKinships(personId);
     // Return the data
     responseCode = personData.responseCode;
     responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;
-    responseData = baseController.getErrorResponse('Error.');
+    responseData = baseController.getErrorResponse('Error');
   }
   return response.status(responseCode).json(responseData);
 }
@@ -70,7 +72,57 @@ const post = async (request, response) => {
     responseCode = personData.responseCode;
     responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
-    console.error('Error: ' + err);
+    console.error('Error ' + err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
+const postKinships = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const sharedService = await serviceContainer('shared');
+    // Get the kinship from the request
+    const kinship = {
+      personId: request.params.id && parseInt(request.params.id),
+      relativeId: request.body.relativeId && parseInt(request.body.relativeId),
+      kinshipType: request.body.kinshipType
+    };
+    // Create the kinship
+    const personData = await sharedService.createPersonKinship(kinship);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
+const postKinshipsTest = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const sharedService = await serviceContainer('shared');
+    // Get the kinship from the request
+    const kinship = {
+      personId: request.params.id && parseInt(request.params.id),
+      relativeId: request.body.relativeId && parseInt(request.body.relativeId),
+      kinshipType: request.body.kinshipType
+    };
+    // Test the kinship creation
+    const personData = await sharedService.createPersonKinshipTest(kinship);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ', err);
     responseCode = 500;
     responseData = baseController.getErrorResponse('Error');
   }
@@ -83,8 +135,8 @@ const put = async (request, response) => {
   try {
     // Inject services
     const personService = await serviceContainer('person');
-    // Get the id from the route
-    const id = parseInt(request.params.id);
+    // Get the person id from the route
+    const personId = parseInt(request.params.id);
     // Get the person from the request body
     const person = {
       name: request.body.name && request.body.name.trim(),
@@ -99,7 +151,7 @@ const put = async (request, response) => {
       contact2: request.body.contact2 && request.body.contact2.trim(),
     };
     // Modify person
-    const personData = await services.personService.modify(id, person);
+    const personData = await personService.modify(personId, person);
     // Return the data
     responseCode = personData.responseCode;
     responseData = baseController.getSuccessResponse(personData.data, personData.message);
@@ -115,5 +167,7 @@ module.exports = {
   get,
   getKinships,
   post,
+  postKinships,
+  postKinshipsTest,
   put
 };

@@ -24,6 +24,8 @@ module.exports = async function serviceContainer(serviceName) {
       return services.kinshipService;
     case 'person':
       return services.personService;
+    case 'shared':
+      return services.sharedService;
     case 'user':
       return services.userService;
     case 'validation':
