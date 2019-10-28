@@ -13,27 +13,16 @@ const setupUserService = require('./user.service');
 
 module.exports = async function () {
   const dbInstance = await setupDatabase();
-  const sharedService = setupSharedService({
-    kinshipModel: dbInstance.kinshipModel,
-    personModel: dbInstance.personModel
-  });
   const authenticationService = setupAuthenticationService();
   const contactTypeService = setupContactTypeService(dbInstance.contactTypeModel);
   const countryService = setupCountryService(dbInstance.countryModel);
   const documentTypeService = setupDocumentTypeService(dbInstance.documentTypeModel);
   const genderService = setupGenderService(dbInstance.genderModel);
-  const kinshipService = setupKinshipService({
-    personModel: dbInstance.personModel,
-    sharedService
-  });
-  const personService = setupPersonService({
-    contactTypeModel: dbInstance.contactTypeModel,
-    countryModel: dbInstance.countryModel,
-    documentTypeModel: dbInstance.documentTypeModel,
-    genderModel: dbInstance.genderModel,
+  const kinshipService = setupKinshipService(dbInstance.kinshipModel);
+  const personService = setupPersonService(dbInstance.personModel);
+  const sharedService = setupSharedService({
     kinshipModel: dbInstance.kinshipModel,
-    personModel: dbInstance.personModel,
-    sharedService
+    personModel: dbInstance.personModel
   });
   const userService = setupUserService(dbInstance.userModel);
 
@@ -45,6 +34,7 @@ module.exports = async function () {
     genderService,
     kinshipService,
     personService,
+    sharedService,
     userService
   };
 };
