@@ -768,8 +768,8 @@ module.exports = function setupSharedService(models) {
     if (!kinship.personId) {
       errors.push('The person id is required');
     } else {
-      const person = await personModel.findOne({ where: { id: kinship.personId } });
-      if (!person || person.isGhost) {
+      const person = await personModel.findOne({ where: { id: kinship.personId, isGhost: false } });
+      if (!person) {
         errors.push('Invalid submitted person');
       }
     }
@@ -779,8 +779,8 @@ module.exports = function setupSharedService(models) {
     } else if (kinship.personId === kinship.relativeId) {
       errors.push('The relative can\'t be the same as the person');
     } else {
-      const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
-      if (!relative || relative.isGhost) {
+      const relative = await personModel.findOne({ where: { id: kinship.relativeId, isGhost: false } });
+      if (!relative) {
         errors.push('Invalid submitted relative');
       }
     }
