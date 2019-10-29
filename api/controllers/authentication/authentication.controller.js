@@ -1,10 +1,9 @@
 'use strict';
 
 const setupBaseController = require('./../base.controller');
-const setupDBService = require('./../../../services');
+const serviceContainer = require('./../../../services/service.container');
 
 let baseController = new setupBaseController();
-const dbService = setupDBService();
 
 const login = async (request, response) => {
   if (!request.body.email || !request.body.password) {
@@ -21,10 +20,12 @@ const login = async (request, response) => {
       email: request.body.email,
       password: request.body.password
     };
+    const authenticationService = await serviceContainer('authentication');
+    const userService = await serviceContainer('user');
 
-    let loginData = await dbService.authenticationService.login(authenticationData);
+    let loginData = await authenticationService.login(authenticationData);
 
-    const user = await dbService.userService.findByUserId(loginData.data.uid);
+    const user = await userService.findByUserId(loginData.data.uid);
 
     loginData.data.user = user.data;
 
@@ -46,7 +47,8 @@ const logout = async (request, response) => {
   let responseData;
 
   try {
-    let loginData = await dbService.authenticationService.logout();
+    const authenticationService = await serviceContainer('authentication');
+    let loginData = await authenticationService.logout();
 
     responseCode = loginData.responseCode;
     responseData = baseController.getSuccessResponse(
@@ -75,9 +77,8 @@ const resetPassword = async (request, response) => {
   let responseData;
 
   try {
-    let authenticationData = await dbService
-      .authenticationService
-      .resetPassword(request.body.email);
+    const authenticationService = await serviceContainer('authentication');
+    let authenticationData = await authenticationService.resetPassword(request.body.email);
 
     responseCode = authenticationData.responseCode;
     responseData = baseController.getSuccessResponse(

@@ -1,19 +1,20 @@
 'use strict';
 
 const setupBaseController = require('./../base.controller');
-const setupServices = require('./../../../services');
+const serviceContainer = require('./../../../services/service.container');
 
-const baseController = new setupBaseController();
+let baseController = new setupBaseController();
 
 const get = async (request, response) => {
   let responseCode;
   let responseData;
   try {
-    const services = await setupServices();
+    // Inject services
+    const sharedService = await serviceContainer('shared');
     // Get the query
     const query = request.query.query || '';
     // Get kinships
-    const kinshipsData = await services.sharedService.doListKinships(query);
+    const kinshipsData = await sharedService.doListKinships(query);
     // Return the data
     responseCode = kinshipsData.responseCode;
     responseData = baseController.getSuccessResponse(kinshipsData.data, kinshipsData.message);
@@ -29,9 +30,10 @@ const getTypes = async (request, response) => {
   let responseCode;
   let responseData;
   try {
-    const services = await setupServices();
+    // Inject services
+    const kinshipService = await serviceContainer('kinship');
     // Get the kinship types
-    const kinshipsData = await services.kinshipService.doListTypes();
+    const kinshipsData = await kinshipService.doListTypes();
     // Return the data
     responseCode = kinshipsData.responseCode;
     responseData = baseController.getSuccessResponse(kinshipsData.data, kinshipsData.message);
