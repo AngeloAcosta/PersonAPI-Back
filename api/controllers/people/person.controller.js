@@ -171,7 +171,7 @@ const doDelete = async (request, response) => {
     const sharedService = await serviceContainer('shared');
     // Get the person id from the route
     const personId = parseInt(request.params.id);
-    // Modify person
+    // Delete person
     const personData = await sharedService.deletePerson(personId);
     // Return the data
     responseCode = personData.responseCode;
