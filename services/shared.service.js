@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-const Sequelize = require("sequelize");
-const constants = require("./constants");
-const setupBaseService = require("./base.service");
+const Sequelize = require('sequelize');
+const constants = require('./constants');
+const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
 
@@ -1169,7 +1169,7 @@ module.exports = function setupSharedService(models) {
       personKinships.some(k => k.relativeId === relative.id) ||
       relativeKinships.some(k => k.relativeId === person.id)
     ) {
-      errors.push("The person and the relative are already related");
+      errors.push('The person and the relative are already related');
     }
   }
 
@@ -1194,31 +1194,31 @@ module.exports = function setupSharedService(models) {
   async function validateKinshipData(kinship, errors) {
     // Validate person
     if (!kinship.personId) {
-      errors.push("The person id is required");
+      errors.push('The person id is required');
     } else {
       const person = await personModel.findOne({
         where: { id: kinship.personId, isGhost: false }
       });
       if (!person) {
-        errors.push("Invalid submitted person");
+        errors.push('Invalid submitted person');
       }
     }
     // Validate relative
     if (!kinship.relativeId) {
-      errors.push("The relative id is required");
+      errors.push('The relative id is required');
     } else if (kinship.personId === kinship.relativeId) {
-      errors.push("The relative can't be the same as the person");
+      errors.push('The relative can't be the same as the person');
     } else {
       const relative = await personModel.findOne({
         where: { id: kinship.relativeId, isGhost: false }
       });
       if (!relative) {
-        errors.push("Invalid submitted relative");
+        errors.push('Invalid submitted relative');
       }
     }
     // Validate kinship type
     if (!getKinshipTypeIds().includes(kinship.kinshipType)) {
-      errors.push("Invalid submitted kinship type");
+      errors.push('Invalid submitted kinship type');
     }
   }
 
@@ -1244,17 +1244,17 @@ module.exports = function setupSharedService(models) {
       maleKinshipTypes.includes(kinship.kinshipType) &&
       relative.genderId === 2
     ) {
-      errors.push("The relative must be a male");
+      errors.push('The relative must be a male');
     } else if (
       femaleKinshipTypes.includes(kinship.kinshipType) &&
       relative.genderId === 1
     ) {
-      errors.push("The relative must be a female");
+      errors.push('The relative must be a female');
     } else if (
       kinship.kinshipType === constants.coupleKinshipType.id &&
       person.genderId === relative.genderId
     ) {
-      errors.push("The person and the relative must not have the same gender");
+      errors.push('The person and the relative must not have the same gender');
     }
   }
   //#endregion
@@ -1265,12 +1265,12 @@ module.exports = function setupSharedService(models) {
     await validateKinshipCreate(kinship, errors);
     // If errors were gound, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, errors.join("\n"), {});
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
     }
     // Else, create the kinship
     await confirmCreateKinship(kinship);
     // And return 200
-    return baseService.getServiceResponse(200, "Success", {});
+    return baseService.getServiceResponse(200, 'Success', {});
   }
 
   async function createPersonKinshipTest(kinship) {
@@ -1279,12 +1279,12 @@ module.exports = function setupSharedService(models) {
     await validateKinshipCreate(kinship, errors);
     // If errors were gound, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, errors.join("\n"), {});
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
     }
     // Else, test the kinship creation
     const personData = await testCreateKinship(kinship);
     // And return 200
-    return baseService.getServiceResponse(200, "Success", personData);
+    return baseService.getServiceResponse(200, 'Success', personData);
   }
 
   async function deletePerson(personId) {
@@ -1297,27 +1297,24 @@ module.exports = function setupSharedService(models) {
       }
     });
     if (!personExists) {
-      return baseService.getServiceResponse(404, "Not found", {});
+      return baseService.getServiceResponse(404, 'Not found', {});
     }
     // Verity that the person hasn't got kinships
     const personKinships = await kinshipModel.findAll({
       where: {
         [Op.or]: [{ personId: personId }, { relativeId: personId }]
       }
-    });    
+    });
     if (personKinships.length > 0) {
       // Return 400
-      return baseService.getServiceResponse(400, "The person has kinships", {});
+      return baseService.getServiceResponse(400, 'The person has kinships', {});
     }
     // Delete person
-    personModel.update(
-      { isDeleted: true },
-      { where: { id: personId } }
-    );
+    personModel.update({ isDeleted: true }, { where: { id: personId } });
     // Return 200
-    return baseService.getServiceResponse(200, "Success", {});
+    return baseService.getServiceResponse(200, 'Success', {});
   }
- 
+
   async function doListKinships(query) {
     // Find all people that satisfy the query
     const whereClause = { [Op.like]: `%${query}%` };
@@ -1335,7 +1332,7 @@ module.exports = function setupSharedService(models) {
       kinships = kinships.concat(personKinships);
     }
     // Return 200
-    return baseService.getServiceResponse(200, "Success", kinships);
+    return baseService.getServiceResponse(200, 'Success', kinships);
   }
 
   async function doListPersonKinships(personId) {
@@ -1345,12 +1342,12 @@ module.exports = function setupSharedService(models) {
     });
     // If the person doesn't exist, return 404
     if (!person) {
-      return baseService.getServiceResponse(404, "Not found", []);
+      return baseService.getServiceResponse(404, 'Not found', []);
     }
     // Else, get their kinships
     const kinships = await getPersonKinships(person);
     // Return 200
-    return baseService.getServiceResponse(200, "Success", kinships);
+    return baseService.getServiceResponse(200, 'Success', kinships);
   }
 
   return {
