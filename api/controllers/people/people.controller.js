@@ -1,40 +1,32 @@
 'use strict';
 
 const setupBaseController = require('./../base.controller');
-const setupServices = require('./../../../services');
+const serviceContainer = require('./../../../services/service.container');
 
 let baseController = new setupBaseController();
 
 const get = async (request, response) => {
   let responseCode;
   let responseData;
-
   try {
-    let limit = parseInt(request.query.limit) || 20;
-    let offset = parseInt(request.query.offset) || 0;
-    let query = request.query.query || '';
-    let orderBy = parseInt(request.query.orderBy) || 1;
-    let orderType = parseInt(request.query.orderType) || 1;
-    let dbService = await setupServices();
-    let peopleData = await dbService.personService.doList({
-      limit,
-      offset,
-      query,
-      orderBy,
-      orderType
-    });
-
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get the query parameters
+    const limit = parseInt(request.query.limit) || 20;
+    const offset = parseInt(request.query.offset) || 0;
+    const query = request.query.query || '';
+    const orderBy = parseInt(request.query.orderBy) || 1;
+    const orderType = parseInt(request.query.orderType) || 1;
+    // Get people
+    const peopleData = await personService.doList({ limit, offset, query, orderBy, orderType });
+    // Return the data
     responseCode = peopleData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      peopleData.data,
-      peopleData.message
-    );
+    responseData = baseController.getSuccessResponse(peopleData.data, peopleData.message);
   } catch (err) {
+    console.error('Error: ', err);
     responseCode = 500;
-    console.error('Error getting all people: ', err);
-    responseData = baseController.getErrorResponse('Error getting all people.');
+    responseData = baseController.getErrorResponse('Error');
   }
-
   return response.status(responseCode).json(responseData);
 };
 

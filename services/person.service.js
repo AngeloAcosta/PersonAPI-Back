@@ -2,45 +2,13 @@
 
 const Sequelize = require('sequelize');
 const setupBaseService = require('./base.service');
-const constants = require('./constants');
 
 const Op = Sequelize.Op;
 
-module.exports = function setupPersonService(dependencies) {
+module.exports = function setupPersonService(personModel) {
   let baseService = new setupBaseService();
-  const contactTypeModel = dependencies.contactTypeModel;
-  const countryModel = dependencies.countryModel;
-  const documentTypeModel = dependencies.documentTypeModel;
-  const genderModel = dependencies.genderModel;
-  const kinshipModel = dependencies.kinshipModel;
-  const personModel = dependencies.personModel;
-  const validationService = dependencies.validationService;
 
   //#region Helpers
-  async function getCouple(personId) {
-    const coupleKinship = await kinshipModel.findOne({
-      include: [{ as: 'relative', model: personModel }],
-      where: { personId, kinshipType: constants.coupleKinshipType.id }
-    });
-    return coupleKinship && coupleKinship.relative;
-  }
-
-  async function getFather(personId) {
-    const fatherKinship = await kinshipModel.findOne({
-      include: [{ as: 'relative', model: personModel }],
-      where: { personId, kinshipType: constants.fatherKinshipType.id }
-    });
-    return fatherKinship && fatherKinship.relative;
-  }
-
-  async function getMother(personId) {
-    const motherKinship = await kinshipModel.findOne({
-      include: [{ as: 'relative', model: personModel }],
-      where: { personId, kinshipType: constants.motherKinshipType.id }
-    });
-    return motherKinship && motherKinship.relative;
-  }
-
   function getOrderField(orderBy) {
     let qOrderBy;
     switch (orderBy) {
@@ -87,84 +55,6 @@ module.exports = function setupPersonService(dependencies) {
     };
   }
 
-  async function getPersonKinships(person) {
-    const kinships = [];
-    // Get and attach couple
-    const couple = await getCouple(person.id);
-    if (couple && !couple.isGhost) {
-      kinships.push(getSimpleKinshipModel(person, couple, constants.coupleKinshipType));
-    }
-    // Get father
-    const father = await getFather(person.id);
-    // If there is at least a father, then the person has a tree...
-    if (father) {
-      // Attach father
-      if (!father.isGhost) {
-        kinships.push(getSimpleKinshipModel(person, father, constants.fatherKinshipType));
-      }
-      // Get and attach mother
-      const mother = await getMother(person.id);
-      if (mother && !mother.isGhost) {
-        kinships.push(getSimpleKinshipModel(person, mother, constants.motherKinshipType));
-      }
-      // Get and attach siblings
-      const siblings = await getSiblings(person.id, father.id);
-      siblings.forEach(s => {
-        if (s && !s.isGhost) {
-          kinships.push(getSimpleKinshipModel(person, s, constants.siblingKinshipType));
-        }
-      });
-      // Get and attach paternal grandfather
-      const paternalGrandfather = await getFather(father.id);
-      if (paternalGrandfather && !paternalGrandfather.isGhost) {
-        kinships.push(getSimpleKinshipModel(person, paternalGrandfather, constants.paternalGrandfatherKinshipType));
-      }
-      // Get and attach paternal grandmother
-      const paternalGrandmother = await getMother(father.id);
-      if (paternalGrandmother && !paternalGrandmother.isGhost) {
-        kinships.push(getSimpleKinshipModel(person, paternalGrandmother, constants.paternalGrandmotherKinshipType));
-      }
-      // Get and attach maternal grandfather
-      const maternalGrandfather = await getFather(mother.id);
-      if (maternalGrandfather && !maternalGrandfather.isGhost) {
-        kinships.push(getSimpleKinshipModel(person, maternalGrandfather, constants.maternalGrandfatherKinshipType));
-      }
-      // Get and attach maternal grandmother
-      const maternalGrandmother = await getMother(mother.id);
-      if (maternalGrandmother && !maternalGrandmother.isGhost) {
-        kinships.push(getSimpleKinshipModel(person, maternalGrandmother, constants.maternalGrandmotherKinshipType));
-      }
-    }
-    return kinships;
-  }
-
-  function getSimpleKinshipModel(person, relative, kinshipType) {
-    return {
-      personId: person.id,
-      personName: person.name,
-      personLastName: person.lastName,
-      relativeId: relative.id,
-      relativeName: relative.name,
-      relativeLastName: relative.lastName,
-      kinshipTypeId: kinshipType.id,
-      kinshipType: kinshipType.name
-    };
-  }
-
-  async function getSiblings(id, fatherId) {
-    const siblingKinships = await kinshipModel.findAll({
-      include: [{ as: 'person', model: personModel }],
-      where: {
-        personId: {
-          [Op.ne]: id
-        },
-        relativeId: fatherId,
-        kinshipType: constants.fatherKinshipType.id
-      }
-    });
-    return siblingKinships.map(sK => (sK.person));
-  }
-
   function getSimplePersonModel(model) {
     return {
       id: model.id,
@@ -188,210 +78,229 @@ module.exports = function setupPersonService(dependencies) {
   }
   //#endregion
 
-  async function doList(requestQuery) {
-    try {
-      let qOrderBy = getOrderField(requestQuery.orderBy);
-      let qOrderType = getOrderType(requestQuery.orderType);
-      let qQueryWhereClause = getQueryWhereClause(requestQuery.query.split(' '));
-      // Execute the query
-      const people = await personModel.findAll({
-        include: [
-          { as: 'documentType', model: documentTypeModel },
-          { as: 'gender', model: genderModel },
-          { as: 'country', model: countryModel },
-          { as: 'contactType1', model: contactTypeModel },
-          { as: 'contactType2', model: contactTypeModel }
-        ],
-        limit: requestQuery.limit,
-        offset: requestQuery.offset,
-        order: [[...qOrderBy, qOrderType]],
-        where: {
-          [Op.or]: [
-            { name: qQueryWhereClause },
-            { lastName: qQueryWhereClause },
-            { document: qQueryWhereClause },
-            { contact1: qQueryWhereClause },
-            { contact2: qQueryWhereClause }
-          ]
-        }
-      });
-      // Return the data
-      return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+  //#region Validators
+  function validateBirthdate(birthdate, errors) {
+    if (!birthdate) {
+      errors.push('The birthdate field is required');
+      return;
+    }
+
+    const parsedBirthdate = new Date(birthdate);
+    const minDate = new Date('1900/01/01');
+    const maxDate = Date.now();
+
+    if (isNaN(parsedBirthdate)) {
+      errors.push('Invalid birthdate format');
+    } else if (parsedBirthdate < minDate || parsedBirthdate > maxDate) {
+      errors.push('Invalid submitted birthdate');
     }
   }
 
-  async function doListKinships(id) {
-    try {
-      // Get person
-      const person = await personModel.findOne({ where: { id } });
-      // Validate if person exists
-      if (!person || person.isGhost) {
-        baseService.returnData.responseCode = 404;
-        baseService.returnData.message = 'Not found';
-        baseService.returnData.data = {};
-        return baseService.returnData;
-      }
-      // Get kinships
-      const personData = await getPersonKinships(person);
-      // Return the data
-      baseService.returnData.responseCode = 200;
-      baseService.returnData.message = 'Success';
-      baseService.returnData.data = personData;
-    } catch (err) {
-      console.log('Error: ', err);
-      baseService.returnData.responseCode = 500;
-      baseService.returnData.message = '' + err;
-      baseService.returnData.data = [];
+  function validateContact(contactTypeId, contact, errors) {
+    // Assuming that the contactTypeId is not null
+    const phoneRegex = /^([0-9]){6,9}$/;
+    const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    if (![1, 2].includes(contactTypeId)) {
+      errors.push('Invalid submitted contact type');
+    } else if (contactTypeId === 1 && !phoneRegex.test(contact)) {
+      errors.push('Invalid phone format');
+    } else if (contactTypeId === 2 && !emailRegex.test(contact)) {
+      errors.push('Invalid email format');
     }
+  }
 
-    return baseService.returnData;
+  function validateCountry(countryId, errors) {
+    if (!countryId) {
+      errors.push('The country field is required');
+    } else if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(countryId)) {
+      errors.push('Invalid submitted country');
+    }
+  }
+
+  function validateDocument(documentTypeId, document, errors) {
+    const dniRegex = /^[0-9]{1,8}$/;
+    const passportRegex = /^([a-zA-Z0-9]){1,12}$/;
+    const foreignCardRegex = /^([a-zA-Z0-9]){1,12}$/;
+    if (!documentTypeId) {
+      errors.push('The document field is required');
+    } else if (![1, 2, 3].includes(documentTypeId)) {
+      errors.push('Invalid submitted document type');
+    } else if (documentTypeId === 1 && !dniRegex.test(document)) {
+      errors.push('Invalid DNI format');
+    } else if (documentTypeId === 2 && !passportRegex.test(document)) {
+      errors.push('Invalid passport format');
+    } else if (documentTypeId === 3 && !foreignCardRegex.test(document)) {
+      errors.push('Invalid foreign card format');
+    }
+  }
+
+  function validateGender(genderId, errors) {
+    if (!genderId) {
+      errors.push('The gender field is required');
+    } else if (![1, 2].includes(genderId)) {
+      errors.push('Invalid submitted gender');
+    }
+  }
+
+  function validateLastName(lastName, errors) {
+    const lastNameRegex = /^[a-zA-ZñÑ'\s]{1,25}$/;
+    if (!lastName) {
+      errors.push('The last name field is required');
+    } else if (!lastNameRegex.test(lastName)) {
+      errors.push('Invalid last name format');
+    }
+  }
+
+  function validateName(name, errors) {
+    const nameRegex = /^[a-zA-ZñÑ'\s]{1,25}$/;
+    if (!name) {
+      errors.push('The name field is required');
+    } else if (!nameRegex.test(name)) {
+      errors.push('Invalid name format');
+    }
+  }
+
+  async function validatePersonCreate(person, errors) {
+    // Validate if document exists
+    const documentExists = await personModel.findOne({ where: { document: person.document } });
+    if (documentExists) {
+      errors.push('Document field must be unique');
+      return;
+    }
+    // Validate the rest of the fields
+    validateBirthdate(person.birthdate, errors);
+    validateCountry(person.countryId, errors);
+    validateDocument(person.documentTypeId, person.document, errors);
+    validateGender(person.genderId, errors);
+    validateLastName(person.lastName, errors);
+    validateName(person.name, errors);
+    if (person.contactType1Id) {
+      validateContact(person.contactType1Id, person.contact1, errors);
+    }
+    if (person.contactType2Id) {
+      validateContact(person.contactType2Id, person.contact2, errors);
+    }
+  }
+
+  async function validatePersonModify(id, person, errors) {
+    // Validate if document exists
+    const documentExists = await personModel.findOne({ where: { document: person.document } });
+    if (documentExists && documentExists.id !== id) {
+      errors.push('Document field must be unique');
+    }
+    // Validate the rest of the fields
+    if (person.birthdate) {
+      validateBirthdate(person.birthdate, errors);
+    }
+    if (person.contactType1Id) {
+      validateContact(person.contactType1Id, person.contact1, errors);
+    }
+    if (person.contactType2Id) {
+      validateContact(person.contactType2Id, person.contact2, errors);
+    }
+    if (person.countryId) {
+      validateCountry(person.countryId, errors);
+    }
+    if (person.documentTypeId) {
+      validateDocument(person.documentTypeId, person.document, errors);
+    }
+    if (person.lastName) {
+      validateLastName(person.lastName, errors);
+    }
+    if (person.name) {
+      validateName(person.name, errors);
+    }
+  }
+  //#endregion
+
+  async function doList(requestQuery) {
+    // Get the query
+    let qOrderBy = getOrderField(requestQuery.orderBy);
+    let qOrderType = getOrderType(requestQuery.orderType);
+    let qQueryWhereClause = getQueryWhereClause(requestQuery.query.split(' '));
+    // Execute the query
+    const people = await personModel.findAll({
+      include: { all: true },
+      limit: requestQuery.limit,
+      offset: requestQuery.offset,
+      order: [[...qOrderBy, qOrderType]],
+      where: {
+        [Op.or]: [
+          { name: qQueryWhereClause },
+          { lastName: qQueryWhereClause },
+          { document: qQueryWhereClause },
+          { contact1: qQueryWhereClause },
+          { contact2: qQueryWhereClause }
+        ]
+      }
+    });
+    // Return the data
+    return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
   }
 
   async function modify(id, person) {
-    try {
-      // Check if person exists
-      const personExists = await personModel.findOne({ where: { id } });
-      if (!personExists || personExists.isGhost) {
-        return baseService.getServiceResponse(404, 'Not found', {});
-      }
-      // Check if document exists
-      const documentExists = await personModel.findOne({ where: { document: person.document } });
-      if (documentExists && documentExists.id !== id) {
-        return baseService.getServiceResponse(400, 'Document field must be unique', {});
-      }
-      // Validate errors
-      const errors = [];
-      if (person.birthdate) {
-        validationService.validateBirthdate(person.birthdate, errors);
-      }
-      if (person.contactType1Id) {
-        validationService.validateContact(person.contactType1Id, person.contact1, errors);
-      }
-      if (person.contactType2Id) {
-        validationService.validateContact(person.contactType2Id, person.contact2, errors);
-      }
-      if (person.countryId) {
-        validationService.validateCountry(person.countryId, errors);
-      }
-      if (person.documentTypeId) {
-        validationService.validateDocument(person.documentTypeId, person.document, errors);
-      }
-      if (person.lastName) {
-        validationService.validateLastName(person.lastName, errors);
-      }
-      if (person.name) {
-        validationService.validateName(person.name, errors);
-      }
-      if (errors.length > 0) {
-        // If some errors were found, return 400
-        return baseService.getServiceResponse(400, errors.join('\n'), {})
-      } else {
-        // Else, create the person
-        let modifiedPerson = await personModel.update(person, { where: { id } });
-        // Then obtain their complete data (including associations)
-        modifiedPerson = await personModel.findOne({
-          include: [
-            { as: 'documentType', model: documentTypeModel },
-            { as: 'gender', model: genderModel },
-            { as: 'country', model: countryModel },
-            { as: 'contactType1', model: contactTypeModel },
-            { as: 'contactType2', model: contactTypeModel }
-          ],
-          where: { id }
-        });
-        // And return 200
-        return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
-      }
-
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+    // If person doesn't exist, return 404
+    const personExists = await personModel.findOne({ where: { id, isGhost: false } });
+    if (!personExists) {
+      return baseService.getServiceResponse(404, 'Not found', {});
     }
+    // Else, validate fields
+    const errors = [];
+    await validatePersonModify(id, person, errors);
+    // If errors were found, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+    }
+    // Else, create the person
+    let modifiedPerson = await personModel.update(person, { where: { id } });
+    // Then obtain their complete data (including associations)
+    modifiedPerson = await personModel.findOne({
+      include: { all: true },
+      where: { id }
+    });
+    // And return 200
+    return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
   }
 
   async function create(person) {
-    try {
-      // Check if document exists
-      const documentExists = await personModel.findOne({ where: { document: person.document } });
-      if (documentExists) {
-        return baseService.getServiceResponse(400, 'Document field must be unique', {});
-      }
-      // Validate errors
-      const errors = [];
-      validationService.validateBirthdate(person.birthdate, errors);
-      validationService.validateCountry(person.countryId, errors);
-      validationService.validateDocument(person.documentTypeId, person.document, errors);
-      validationService.validateGender(person.genderId, errors);
-      validationService.validateLastName(person.lastName, errors);
-      validationService.validateName(person.name, errors);
-      if (person.contactType1Id) {
-        validationService.validateContact(person.contactType1Id, person.contact1, errors);
-      }
-      if (person.contactType2Id) {
-        validationService.validateContact(person.contactType2Id, person.contact2, errors);
-      }
-      if (errors.length > 0) {
-        // If some errors were found, return 400
-        return baseService.getServiceResponse(400, errors.join('\n'), {})
-      } else {
-        // Else, create the person
-        let createdPerson = await personModel.create(person);
-        // Then obtain their complete data (including associations)
-        createdPerson = await personModel.findOne({
-          include: [
-            { as: 'documentType', model: documentTypeModel },
-            { as: 'gender', model: genderModel },
-            { as: 'country', model: countryModel },
-            { as: 'contactType1', model: contactTypeModel },
-            { as: 'contactType2', model: contactTypeModel }
-          ],
-          where: { id: createdPerson.id }
-        });
-        // And return 200
-        return baseService.getServiceResponse(200, "Person created", getSimplePersonModel(createdPerson));
-      }
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+    // Validate fields
+    const errors = [];
+    await validatePersonCreate(person, errors);
+    // If errors were found, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
     }
+    // Else, create the person
+    let createdPerson = await personModel.create(person);
+    // Then obtain their complete data (including associations)
+    createdPerson = await personModel.findOne({
+      include: { all: true },
+      where: { id: createdPerson.id }
+    });
+    // And return 200
+    return baseService.getServiceResponse(200, "Success", getSimplePersonModel(createdPerson));
   }
 
   async function findById(id) {
-    try {
-      // Get models and find person
-      const person = await personModel.findOne({
-        include: [
-          { as: 'documentType', model: documentTypeModel },
-          { as: 'gender', model: genderModel },
-          { as: 'country', model: countryModel },
-          { as: 'contactType1', model: contactTypeModel },
-          { as: 'contactType2', model: contactTypeModel }
-        ],
-        where: { id }
-      });
-      if (person && !person.isGhost) {
-        // If a person was found, return 200
-        return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
-      } else {
-        // Else, return 404
-        return baseService.getServiceResponse(404, "Not found", {});
-      }
-
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
+    // Find person
+    const person = await personModel.findOne({
+      include: { all: true },
+      where: { id, isGhost: false }
+    });
+    // If a person was found, return 200
+    if (person) {
+      return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
+    }
+    // Else, return 404
+    else {
+      return baseService.getServiceResponse(404, "Not found", {});
     }
   }
 
   return {
-    doList,
-    doListKinships,
     create,
-    modify,
+    doList,
     findById,
-    getPersonKinships // TODO: Move this to a shared service file
+    modify
   };
 };

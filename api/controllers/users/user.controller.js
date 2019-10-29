@@ -1,10 +1,9 @@
 'use strict';
 
 const setupBaseController = require('../base.controller');
-const setupDBService = require('../../../services');
+const serviceContainer = require('./../../../services/service.container');
 
 let baseController = new setupBaseController();
-const dbService = setupDBService();
 
 const get = async (request, response) => {
   
@@ -38,7 +37,8 @@ const post = async (request, response) => {
   let responseData;
 
   try {
-    const newUserData = await dbService.userService.create(userData);
+    const userService = await serviceContainer('user');
+    const newUserData = await userService.create(userData);
 
     responseCode = newUserData.responseCode;
     responseData = baseController.getSuccessResponse(
@@ -97,9 +97,8 @@ const update = async (request, response) => {
   let responseData;
 
   try {
-    const updatedData = await dbService
-      .userService
-      .update(userId, userData);
+    const userService = await serviceContainer('user');
+    const updatedData = await userService.update(userId, userData);
 
     responseCode = updatedData.responseCode;
     responseData = baseController.getSuccessResponse(
@@ -128,9 +127,8 @@ const remove = async (request, response) => {
   let responseData;
 
   try {
-    const data = await dbService
-      .userService
-      .toggleEnable(request.params.id);
+    const userService = await serviceContainer('user');
+    const data = await userService.toggleEnable(request.params.id);
 
     responseCode = data.responseCode;
     responseData = baseController.getSuccessResponse(
@@ -164,9 +162,11 @@ const changePassword = async (request, response) => {
   let responseData;
 
   try {
-    const userInfo = await dbService.userService.findById(request.body.id);
+    const authenticationService = await serviceContainer('authentication');
+    const userService = await serviceContainer('user');
+    const userInfo = await userService.findById(request.body.id);
 
-    const checkAuthentication = await dbService.authenticationService.checkLogin(
+    const checkAuthentication = await authenticationService.checkLogin(
       userInfo.data.email,
       request.body.oldPassword
     );
@@ -180,7 +180,7 @@ const changePassword = async (request, response) => {
         });
     }
 
-    const updatedUserData = await dbService.authenticationService.changePasswordUsingAdminSDK(
+    const updatedUserData = await authenticationService.changePasswordUsingAdminSDK(
       request.body.uid,
       request.body.newPassword
     );
@@ -194,9 +194,9 @@ const changePassword = async (request, response) => {
         });
     }
 
-    await dbService.authenticationService.logout();
+    await authenticationService.logout();
 
-    const loginData = await dbService.authenticationService.login({
+    const loginData = await authenticationService.login({
       email: userInfo.data.email,
       password: request.body.newPassword
     });

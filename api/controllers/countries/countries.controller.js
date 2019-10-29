@@ -1,29 +1,26 @@
 'use strict';
 
 const setupBaseController = require('./../base.controller');
-const setupServices = require('./../../../services');
+const serviceContainer = require('./../../../services/service.container');
 
 let baseController = new setupBaseController();
 
 const get = async (request, response) => {
   let responseCode;
   let responseData;
-
   try {
-    let dbService = await setupServices();
-    let countriesData = await dbService.countryService.doList();
-
+    // Inject services
+    const countryService = await serviceContainer('country');
+    // Get countries
+    const countriesData = await countryService.doList();
+    // Return the data
     responseCode = countriesData.responseCode;
-    responseData = baseController.getSuccessResponse(
-        countriesData.data,
-        countriesData.message
-    );
+    responseData = baseController.getSuccessResponse(countriesData.data, countriesData.message);
   } catch (err) {
+    console.error('Error: ', err);
     responseCode = 500;
-    console.error('Error getting all countries: ', err);
-    responseData = baseController.getErrorResponse('Error getting all countries.');
+    responseData = baseController.getErrorResponse('Error');
   }
-
   return response.status(responseCode).json(responseData);
 };
 
