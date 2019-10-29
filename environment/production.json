@@ -5,5 +5,6 @@
   "password": "",
   "host": "ec2-54-225-205-79.compute-1.amazonaws.com",
   "port": "5432",
-  "operatorsAliases": false
+  "operatorsAliases": false,
+  "ssl": true
 }
