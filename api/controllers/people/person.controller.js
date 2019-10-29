@@ -100,28 +100,26 @@ const postKinships = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 const putKinships = async (request, response) => {
-  let responseCode = 500;
+  let responseCode;
   let responseData;
-
   try {
-    let kinship = {
-      personId: request.params.id,
-      relativeId: request.body.relativeId,
+    const services = await setupServices();
+    // Get the kinship from the request
+    const kinship = {
+      personId: request.params.id && parseInt(request.params.id),
+      relativeId: request.body.relativeId && parseInt(request.body.relativeId),
       kinshipType: request.body.kinshipType
     };
-    let dbService = await setupServices();
-    let kinshipData = await dbService.personService.modifyKinship(kinship);
-
-    responseCode = kinshipData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      kinshipData.data,
-      kinshipData.message
-    );
+    // Create the kinship
+    const personData = await services.sharedService.modifyPersonKinship(kinship);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
   } catch (err) {
-    console.error('Error updating kinship: ', err);
-    responseData = baseController.getErrorResponse('Error updating kinship');
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
   }
-
   return response.status(responseCode).json(responseData);
 };
 
@@ -138,6 +136,30 @@ const postKinshipsTest = async (request, response) => {
     };
     // Test the kinship creation
     const personData = await services.sharedService.createPersonKinshipTest(kinship);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
+const putKinshipTest = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    const services = await setupServices();
+    // Get the kinship from the request
+    const kinship = {
+      personId: request.params.id && parseInt(request.params.id),
+      relativeId: request.body.relativeId && parseInt(request.body.relativeId),
+      kinshipType: request.body.kinshipType
+    };
+    // Test the kinship creation
+    const personData = await services.sharedService.modifyPersonKinshipTest(kinship);
     // Return the data
     responseCode = personData.responseCode;
     responseData = baseController.getSuccessResponse(personData.data, personData.message);
@@ -189,5 +211,6 @@ module.exports = {
   postKinships,
   putKinships,
   postKinshipsTest,
+  putKinshipTest,
   put
 };
