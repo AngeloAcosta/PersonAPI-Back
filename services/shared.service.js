@@ -49,6 +49,17 @@ module.exports = function setupSharedService(models) {
     }
   }
 
+  async function confirmDeleteKinship(kinship) {
+    switch (kinship.kinshipType) {
+      // Delete father kinship
+      case constants.fatherKinshipType.id:
+        await deleteFatherKinship(kinship.personId, kinship.relativeId);
+        break;
+      case constants.motherKinshipType.id:
+        await deleteMotherKinship(kinship.personId, kinship.relativeId);
+        break;
+    }
+  }
   async function createCoupleKinship(personId, relativeId) {
     // Check if there's a couple kinship registered, and if so, update it and its counterpart
     const coupleKinship = await kinshipModel.findOne({
@@ -256,6 +267,24 @@ module.exports = function setupSharedService(models) {
       await kinshipModel.create({ personId: relativeId, relativeId: motherId, kinshipType: constants.motherKinshipType.id });
     }
   }
+
+  async function deleteFatherKinship(personId, relativeId) {
+      const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
+
+      await kinshipModel.update(
+        { relativeId: ghostFather.id}, 
+        { where: { personId, kinshipType: constants.fatherKinshipType.id, relativeId } 
+      });
+  }
+
+  async function deleteMotherKinship(personId, relativeId) {
+    const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
+    
+    await kinshipModel.update(
+      { relativeId: ghostMother.id}, 
+      { where: { personId, kinshipType: constants.motherKinshipType.id, relativeId } 
+    });
+}
 
   async function getCouple(personId) {
     const coupleKinship = await kinshipModel.findOne({
@@ -763,6 +792,21 @@ module.exports = function setupSharedService(models) {
     }
   }
 
+  async function validateKinship(kinship, errors) {
+    // Validate kinship data
+    await validateKinshipData(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+    
+    // Validate existing relationship
+    await validateExistingRelationship(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+  }
+  
+
   async function validateKinshipData(kinship, errors) {
     // Validate person
     if (!kinship.personId) {
@@ -871,11 +915,26 @@ module.exports = function setupSharedService(models) {
     // Return 200
     return baseService.getServiceResponse(200, 'Success', kinships);
   }
+  
+  async function deletePersonKinship(kinship){
+    // // Validate kinship
+    // const errors = [];
+    // await validateKinship(kinship, errors);
+    // // If errors were found, return 400
+    // if (errors.length > 0) {
+    //   return baseService.getServiceResponse(400, errors.join('\n'), {});
+    // }
+    await confirmDeleteKinship(kinship);
+    // And return 200
+    return baseService.getServiceResponse(200, 'Success', {});
+
+  }
 
   return {
     createPersonKinship,
     createPersonKinshipTest,
     doListKinships,
-    doListPersonKinships
+    doListPersonKinships,
+    deletePersonKinship
   };
 }
