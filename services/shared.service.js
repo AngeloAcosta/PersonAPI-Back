@@ -55,6 +55,7 @@ module.exports = function setupSharedService(models) {
       case constants.fatherKinshipType.id:
         await deleteFatherKinship(kinship.personId, kinship.relativeId);
         break;
+      // Delete mother kinship  
       case constants.motherKinshipType.id:
         await deleteMotherKinship(kinship.personId, kinship.relativeId);
         break;
@@ -771,6 +772,17 @@ module.exports = function setupSharedService(models) {
     const relativeKinships = await getPersonKinships(relative);
     if (personKinships.some(k => k.relativeId === relative.id) || relativeKinships.some(k => k.relativeId === person.id)) {
       errors.push('The person and the relative are already related');
+    }
+  }
+
+  async function validateKinshipExists(kinship, errors) {
+    // Assuming that the personId and the relativeId are valid
+    const person = await personModel.findOne({ where: { id: kinship.personId } });
+    const relative = await personModel.findOne({ where: { id: kinship.relativeId } });
+    const personKinships = await getPersonKinships(person);
+    const relativeKinships = await getPersonKinships(relative);
+    if (personKinships.some(k => k.relativeId === relative.id) || relativeKinships.some(k => k.relativeId === person.id)) {
+      errors.push('This relationship does not exist');
     }
   }
 
