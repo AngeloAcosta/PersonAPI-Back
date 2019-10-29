@@ -212,7 +212,7 @@ module.exports = function setupPersonService(personModel) {
     }
   }
   //#endregion
-
+  
   async function doList(requestQuery) {
     // Get the query
     let qOrderBy = getOrderField(requestQuery.orderBy);
