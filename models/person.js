@@ -74,6 +74,10 @@ module.exports = function setupPersonModel(config) {
     isGhost: {
       type: Sequelize.BOOLEAN,
       allowNull: false
+    },
+    isDeleted: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false  
     }
   });
   person.belongsTo(sequelize.models.contactType, { as: 'contactType1' });
