@@ -225,6 +225,8 @@ module.exports = function setupPersonService(personModel) {
       offset: requestQuery.offset,
       order: [[...qOrderBy, qOrderType]],
       where: {
+        isGhost:false,
+        isDeleted: false,
         [Op.or]: [
           { name: qQueryWhereClause },
           { lastName: qQueryWhereClause },
