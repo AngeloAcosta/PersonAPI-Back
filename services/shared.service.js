@@ -904,6 +904,7 @@ module.exports = function setupSharedService(models) {
     createPersonKinship,
     createPersonKinshipTest,
     doListKinships,
-    doListPersonKinships
+    doListPersonKinships,
+    deletePerson
   };
 }
