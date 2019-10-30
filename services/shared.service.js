@@ -844,7 +844,7 @@ module.exports = function setupSharedService(models) {
 
   async function deletePerson(personId) {
     // Verify that person exists
-    const personExists = personModel.findOne({
+    const personExists = await personModel.findOne({
       where: {
         id: personId,
         isGhost: false,
@@ -852,7 +852,7 @@ module.exports = function setupSharedService(models) {
       }
     });
     if (!personExists) {
-      return baseService.getServiceResponse(404, 'Not found', {});
+      return baseService.getServiceResponse(404, 'Person doesn\'t exist', {});
     }
     // Verity that the person hasn't got kinships
     const personKinships = await kinshipModel.findAll({
