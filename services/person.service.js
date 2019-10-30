@@ -242,7 +242,7 @@ module.exports = function setupPersonService(personModel) {
 
   async function modify(id, person) {
     // If person doesn't exist, return 404
-    const personExists = await personModel.findOne({ where: { id, isGhost: false } });
+    const personExists = await personModel.findOne({ where: { id, isGhost: false, isDeleted: false } });
     if (!personExists) {
       return baseService.getServiceResponse(404, 'Not found', {});
     }
