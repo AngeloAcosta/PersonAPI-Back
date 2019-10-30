@@ -5,23 +5,23 @@ const setupBaseService = require('./base.service');
 module.exports = function setupAuthenticationService() {
   const baseService = new setupBaseService();
 
-  async function login(data) {
+  function login(data) {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
-  async function checkLogin(email, password) {
+  function checkLogin(email, password) {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
-  async function changePassword(password) {
+  function changePassword(password) {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
-  async function resetPassword(email) {
+  function resetPassword(email) {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
-  async function logout() {
+  function logout() {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
