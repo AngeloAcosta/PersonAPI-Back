@@ -1576,6 +1576,34 @@ module.exports = function setupSharedService(models) {
     return baseService.getServiceResponse(200, "Success", personData);
   }
 
+  async function deletePerson(personId) {
+    // Verify that person exists
+    const personExists = personModel.findOne({
+      where: {
+        id: personId,
+        isGhost: false,
+        isDeleted: false
+      }
+    });
+    if (!personExists) {
+      return baseService.getServiceResponse(404, 'Not found', {});
+    }
+    // Verity that the person hasn't got kinships
+    const personKinships = await kinshipModel.findAll({
+      where: {
+        [Op.or]: [{ personId: personId }, { relativeId: personId }]
+      }
+    });
+    if (personKinships.length > 0) {
+      // Return 400
+      return baseService.getServiceResponse(400, 'The person has kinships', {});
+    }
+    // Delete person
+    personModel.update({ isDeleted: true }, { where: { id: personId } });
+    // Return 200
+    return baseService.getServiceResponse(200, 'Success', {});
+  }
+
   async function doListKinships(query) {
     // Find all people that satisfy the query
     const whereClause = { [Op.like]: `%${query}%` };
@@ -1614,6 +1642,7 @@ module.exports = function setupSharedService(models) {
   return {
     createPersonKinship,
     createPersonKinshipTest,
+    deletePerson,
     doListKinships,
     doListPersonKinships,
     modifyPersonKinship,

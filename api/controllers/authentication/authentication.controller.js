@@ -7,9 +7,7 @@ let baseController = new setupBaseController();
 
 const login = async (request, response) => {
   if (!request.body.email || !request.body.password) {
-    return response
-      .status(400)
-      .json(baseController.getErrorResponse('Paramaters are missing'));
+    return response.status(400).json(baseController.getErrorResponse('Paramaters are missing'));
   }
 
   let responseCode;
@@ -21,13 +19,8 @@ const login = async (request, response) => {
       password: request.body.password
     };
     const authenticationService = await serviceContainer('authentication');
-    const userService = await serviceContainer('user');
 
-    let loginData = await authenticationService.login(authenticationData);
-
-    const user = await userService.findByUserId(loginData.data.uid);
-
-    loginData.data.user = user.data;
+    let loginData = authenticationService.login(authenticationData);
 
     responseCode = loginData.responseCode;
     responseData = baseController.getSuccessResponse(loginData.data, loginData.message);
@@ -37,9 +30,7 @@ const login = async (request, response) => {
     responseData = baseController.getErrorResponse('Error logging in the application');
   }
 
-  return response
-    .status(responseCode)
-    .json(responseData);
+  return response.status(responseCode).json(responseData);
 };
 
 const logout = async (request, response) => {

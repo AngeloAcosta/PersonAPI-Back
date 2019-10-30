@@ -11,6 +11,7 @@ router.post('/', personController.post);
 router.get('/:id', personController.get);
 router.put('/:id', personController.put);
 router.put('/:id/kinships', personController.putKinships);
+router.delete('/:id', personController.doDelete);
 router.get('/:id/kinships', personController.getKinships);
 router.post('/:id/kinships', personController.postKinships);
 router.post('/:id/kinships/test', personController.postKinshipsTest);
