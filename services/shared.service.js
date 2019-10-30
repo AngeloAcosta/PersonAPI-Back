@@ -315,7 +315,7 @@ module.exports = function setupSharedService(models) {
         kinships.push(getSimpleKinshipModel(person, mother, constants.motherKinshipType));
       }
       // Get and attach siblings
-      const siblings = await getSiblings(person.id, father.id);
+      const siblings = await getSiblings(person.id, father.id, mother.id);
       siblings.forEach(s => {
         if (s && !s.isGhost) {
           kinships.push(getSimpleKinshipModel(person, s, constants.siblingKinshipType));
@@ -345,18 +345,28 @@ module.exports = function setupSharedService(models) {
     return kinships;
   }
 
-  async function getSiblings(id, fatherId) {
-    const siblingKinships = await kinshipModel.findAll({
+  async function getSiblings(id, fatherId, motherId) {
+    const fatherKinships = await kinshipModel.findAll({
       include: { all: true },
       where: {
-        personId: {
-          [Op.ne]: id
-        },
-        relativeId: fatherId,
-        kinshipType: constants.fatherKinshipType.id
+        personId: { [Op.ne]: id },
+        relativeId: fatherId, kinshipType: constants.fatherKinshipType.id
       }
     });
-    return siblingKinships.map(sK => (sK.person));
+    const motherKinships = await kinshipModel.findAll({
+      include: { all: true },
+      where: {
+        personId: { [Op.ne]: id },
+        relativeId: motherId, kinshipType: constants.motherKinshipType.id
+      }
+    });
+    const siblings = [];
+    fatherKinships.forEach(fK => {
+      if (motherKinships.find(mK => mK.personId === fK.personId)) {
+        siblings.push(fK.person);
+      }
+    });
+    return siblings;
   }
 
   function getSimpleKinshipModel(person, relative, kinshipType) {
