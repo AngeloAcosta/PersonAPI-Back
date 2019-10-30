@@ -1,8 +1,11 @@
 'use strict';
 
 const Sequelize = require('sequelize');
+
 const constants = require('./constants');
 const setupBaseService = require('./base.service');
+const setupKinshipService = require('./kinship.service');
+const setupPersonService = require('./person.service');
 
 const Op = Sequelize.Op;
 
@@ -10,6 +13,9 @@ module.exports = function setupSharedService(models) {
   let baseService = new setupBaseService();
   const kinshipModel = models.kinshipModel;
   const personModel = models.personModel;
+  
+  const kinshipService = setupKinshipService(models.kinshipModel);
+  const personService = setupPersonService(models.personModel);
 
   //#region Helpers
   async function confirmCreateKinship(kinship) {
@@ -49,14 +55,6 @@ module.exports = function setupSharedService(models) {
     }
   }
 
-  async function getCouple(personId) {
-    const coupleKinship = await kinshipModel.findOne({
-      include: { all: true },
-      where: { personId, kinshipType: constants.coupleKinshipType.id }
-    });
-    return coupleKinship && coupleKinship.relative;
-  }
-
   function getKinshipTypeIds() {
     return [
       constants.coupleKinshipType.id,
@@ -70,20 +68,17 @@ module.exports = function setupSharedService(models) {
     ];
   }
 
+  // TODO: Review dependencies for avoid using this service instead of kinship service
+  async function getCouple(personId) {
+    return await kinshipService.getCouple(personId);
+  }
+
   async function getFather(personId) {
-    const fatherKinship = await kinshipModel.findOne({
-      include: { all: true },
-      where: { personId, kinshipType: constants.fatherKinshipType.id }
-    });
-    return fatherKinship && fatherKinship.relative;
+    return await kinshipService.getFather(personId);
   }
 
   async function getMother(personId) {
-    const motherKinship = await kinshipModel.findOne({
-      include: { all: true },
-      where: { personId, kinshipType: constants.motherKinshipType.id }
-    });
-    return motherKinship && motherKinship.relative;
+    return await kinshipService.getMother(personId);
   }
 
   async function getPersonKinships(person) {
@@ -182,15 +177,16 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: { personId, kinshipType: constants.coupleKinshipType.id }
     });
+    
     if (coupleKinship) {
+      // TODO: Review kinship line 184
       const coupleKinshipCounterpart = await kinshipModel.findOne({
         where: { personId: coupleKinship.relativeId, relativeId: kinship.personId, kinshipType: constants.coupleKinshipType.id }
       });
       await kinshipModel.update({ relativeId }, { where: { id: coupleKinship.id } });
       await kinshipModel.update({ personId: relativeId }, { where: { id: coupleKinshipCounterpart.id } });
-    }
-    // Else, register the new couple kinship and its counterpart
-    else {
+    } else {
+      // Register the new couple kinship and its counterpart
       await kinshipModel.create({ personId, relativeId, kinshipType: constants.coupleKinshipType.id });
       await kinshipModel.create({ personId: relativeId, relativeId: personId, kinshipType: constants.coupleKinshipType.id });
     }
@@ -202,6 +198,7 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: { personId, kinshipType: constants.fatherKinshipType.id }
     });
+    
     // If there's a father kinship, update that kinship and all the other kinships in which they are involved
     if (fatherKinship) {
       await kinshipModel.update({ personId: relativeId }, { where: { personId: fatherKinship.relativeId } });
@@ -256,7 +253,7 @@ module.exports = function setupSharedService(models) {
     // Else, we need a ghost mother
     else {
       // Create the ghost mother
-      const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
+      const ghostMother = await personService.add({ genderId: 2, isGhost: true, isDeleted: false });
       // Save their id
       motherId = ghostMother.id;
       // Use the setMotherKinship method to register them as a mother, and also make sure to create a ghost father
@@ -273,14 +270,14 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: { personId, kinshipType: constants.motherKinshipType.id }
     });
+    
     // If there's a mother, update that kinship and all the other kinships in which they are involved
     if (motherKinship) {
       await kinshipModel.update({ personId: relativeId }, { where: { personId: motherKinship.relativeId } });
       await kinshipModel.update({ relativeId }, { where: { relativeId: motherKinship.relativeId } });
-    }
-    // Else, a ghost father has to be created along with the new mother kinship
-    else {
-      const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
+    } else {
+      // Else, a ghost father has to be created along with the new mother kinship
+      const ghostFather = await personService.add({ genderId: 1, isGhost: true, isDeleted: false });
       await kinshipModel.create({ personId, relativeId: ghostFather.id, kinshipType: constants.fatherKinshipType.id });
       await kinshipModel.create({ personId, relativeId, kinshipType: constants.motherKinshipType.id });
     }
@@ -508,9 +505,8 @@ module.exports = function setupSharedService(models) {
     // If so, then save the id of that father
     if (fatherKinship) {
       fatherId = fatherKinship.relativeId;
-    }
-    // Else, we need a ghost father
-    else {
+    } else {
+      // else, we need a ghost father
       // Create the ghost father
       const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
       // Save their id

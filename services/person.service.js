@@ -264,23 +264,27 @@ module.exports = function setupPersonService(personModel) {
     return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
   }
 
+  async function add(person) {
+    return await personModel.create(person);
+  }
+
   async function create(person) {
     // Validate fields
     const errors = [];
     await validatePersonCreate(person, errors);
     // If errors were found, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+      return baseService.getServiceResponse(400, 'Error', errors.join('\n'));
     }
     // Else, create the person
-    let createdPerson = await personModel.create(person);
+    let createdPerson = await add(person);
     // Then obtain their complete data (including associations)
     createdPerson = await personModel.findOne({
       include: { all: true },
       where: { id: createdPerson.id }
     });
     // And return 200
-    return baseService.getServiceResponse(200, "Success", getSimplePersonModel(createdPerson));
+    return baseService.getServiceResponse(200, 'Success', getSimplePersonModel(createdPerson));
   }
 
   async function findById(id) {
@@ -300,6 +304,7 @@ module.exports = function setupPersonService(personModel) {
   }
 
   return {
+    add,
     create,
     doList,
     findById,
