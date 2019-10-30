@@ -1227,7 +1227,186 @@ module.exports = function setupSharedService(models) {
       personKinships.some(k => k.relativeId === relative.id) ||
       relativeKinships.some(k => k.relativeId === person.id)
     ) {
-      errors.push("The person and the relative are already related");
+      errors.push('The person and the relative are already related');
+    }
+  }
+
+  async function validateExistingKinship(kinship, errors) {
+    switch (kinship.kinshipType) {
+      case constants.fatherKinshipType.id:
+        await validateExistingFather(kinship,errors);
+        break;
+      case constants.motherKinshipType.id:
+        await validateExistingMother(kinship, errors);
+        break;
+      case constants.coupleKinshipType.id:
+        await validateExistingCouple(kinship, errors);
+        break;
+      case constants.maternalGrandmotherKinshipType.id:
+        await validateExistingMaternalGrandMother(kinship, errors);
+        break;
+      case constants.maternalGrandfatherKinshipType.id:
+        await validateExistingMaternalGrandFather(kinship, errors);
+        break;
+      case constants.paternalGrandfatherKinshipType.id:
+        await validateExistingPaternalGrandFather(kinship, errors);
+        break;
+      case constants.paternalGrandmotherKinshipType.id:
+        await validateExistingPaternalGrandMother(kinship, errors);
+        break;
+    }
+  }
+
+  async function validateExistingFather(kinship, errors){
+    const fatherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.fatherKinshipType.id
+      }
+    });
+    if (fatherKinship && !fatherKinship.relative.isGhost) {
+      errors.push(
+        `${constants.fatherKinshipType.name} kinship already exists`
+      );
+    }
+  }
+
+  async function validateExistingMother(kinship, errors){
+    const motherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.motherKinshipType.id
+      }
+    });
+    if (motherKinship && !motherKinship.relative.isGhost) {
+      errors.push(
+        `${constants.motherKinshipType.name} kinship already exists`
+      );
+    }
+  }
+
+  async function validateExistingCouple(kinship, errors){
+    const coupleKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.coupleKinshipType.id
+      }
+    });
+    if (coupleKinship && !coupleKinship.relative.isGhost) {
+      errors.push(
+        `${constants.coupleKinshipType.name} kinship already exists`
+      );
+    }
+  }
+
+  async function validateExistingMaternalGrandMother(kinship, errors){
+    const maternalMotherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.motherKinshipType.id
+      }
+    });
+    if (maternalMotherKinship) {
+      const maternalGrandmotherKinship = await kinshipModel.findOne({
+        include: { all: true },
+        where: {
+          personId: maternalMotherKinship.relativeId,
+          kinshipType: constants.motherKinshipType.id
+        }
+      });
+      if (
+        maternalGrandmotherKinship &&
+        !maternalGrandmotherKinship.relative.isGhost
+      ) {
+        errors.push(
+          `${constants.maternalGrandmotherKinshipType.name} kinship already exists`
+        );
+      }
+    }
+  }
+
+  async function validateExistingMaternalGrandFather(kinship, errors){
+    const maternalFatherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.fatherKinshipType.id
+      }
+    });
+    if (maternalFatherKinship) {
+      const maternalGrandfatherKinship = await kinshipModel.findOne({
+        include: { all: true },
+        where: {
+          personId: maternalFatherKinship.relativeId,
+          kinshipType: constants.fatherKinshipType.id
+        }
+      });
+      if (
+        maternalGrandfatherKinship &&
+        !maternalGrandfatherKinship.relative.isGhost
+      ) {
+        errors.push(
+          `${constants.maternalGrandfatherKinshipType.name} kinship already exists`
+        );
+      }
+    }
+  }
+
+  async function validateExistingPaternalGrandFather(kinship, errors){
+    const paternalFatherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.fatherKinshipType.id
+      }
+    });
+    if (paternalFatherKinship) {
+      const paternalGrandfatherKinship = await kinshipModel.findOne({
+        include: { all: true },
+        where: {
+          personId: paternalFatherKinship.relativeId,
+          kinshipType: constants.fatherKinshipType.id
+        }
+      });
+      if (
+        paternalGrandfatherKinship &&
+        !paternalGrandfatherKinship.relative.isGhost
+      ) {
+        errors.push(
+          `${constants.paternalGrandfatherKinshipType.name} kinship already exists`
+        );
+      }
+    }
+  }
+
+  async function validateExistingPaternalGrandMother(kinship, errors){
+    const paternalMotherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: {
+        personId: kinship.personId,
+        kinshipType: constants.motherKinshipType.id
+      }
+    });
+    if (paternalMotherKinship) {
+      const paternalGrandmotherKinship = await kinshipModel.findOne({
+        include: { all: true },
+        where: {
+          personId: paternalMotherKinship.relativeId,
+          kinshipType: constants.motherKinshipType.id
+        }
+      });
+      if (
+        paternalGrandmotherKinship &&
+        !paternalGrandmotherKinship.relative.isGhost
+      ) {
+        errors.push(
+          `${constants.paternalGrandmotherKinshipType.name} kinship already exists`
+        );
+      }
     }
   }
 
@@ -1248,7 +1427,7 @@ module.exports = function setupSharedService(models) {
       return;
     }
   }
-
+  
   async function validateKinshipModify(kinship, errors) {
     // Validate kinship data
     await validateKinshipData(kinship, errors);
@@ -1257,6 +1436,17 @@ module.exports = function setupSharedService(models) {
     }
     // Validate kinship gender
     await validateKinshipGender(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+    // Validate existing kinship
+    await validateExistingKinship(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+    // Validate existing relationship
+    await validateExistingRelationship(kinship, errors);
+    console.log(errors);
     if (errors.length > 0) {
       return;
     }
@@ -1424,9 +1614,9 @@ module.exports = function setupSharedService(models) {
   return {
     createPersonKinship,
     createPersonKinshipTest,
-    modifyPersonKinship,
-    modifyPersonKinshipTest,
     doListKinships,
-    doListPersonKinships
+    doListPersonKinships,
+    modifyPersonKinship,
+    modifyPersonKinshipTest
   };
 };

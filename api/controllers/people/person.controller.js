@@ -107,7 +107,7 @@ const putKinships = async (request, response) => {
   let responseCode;
   let responseData;
   try {
-    const services = await setupServices();
+    const services = await serviceContainer('shared');
     // Get the kinship from the request
     const kinship = {
       personId: request.params.id && parseInt(request.params.id),
@@ -115,7 +115,7 @@ const putKinships = async (request, response) => {
       kinshipType: request.body.kinshipType
     };
     // Create the kinship
-    const personData = await services.sharedService.modifyPersonKinship(kinship);
+    const personData = await services.modifyPersonKinship(kinship);
     // Return the data
     responseCode = personData.responseCode;
     responseData = baseController.getSuccessResponse(personData.data, personData.message);
