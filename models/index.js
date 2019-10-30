@@ -1,7 +1,5 @@
 'use strict';
 
-const devEnvironment = require('./../environment/development.json');
-const defaults = require('defaults');
 const pg = require('pg');
 
 const setupDatabase = require('./database');
@@ -14,14 +12,14 @@ const setupCountryModel = require('./country');
 const setupPersonModel = require('./person');
 const setupUserModel = require('./user');
 
-pg.defaults.ssl = true;
-
 function getEnvironmentConf(environment) {
   const config = require(`./../environment/${environment}.json`);
+  pg.defaults.ssl = config.ssl;
   return config;
 }
 
 module.exports = async function (setup = false) {
+  // TODO: 'Development' and 'production' should be moved into constants
   const environment = process.env.NODE_ENV || 'development';
   const config = getEnvironmentConf(environment);
 

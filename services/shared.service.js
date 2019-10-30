@@ -67,6 +67,22 @@ module.exports = function setupSharedService(models) {
       case constants.siblingKinshipType.id:
         await deleteSiblingKinship(kinship.personId, kinship.relativeId);
         break;
+      // Delete paternal grandfather kinship
+      case constants.paternalGrandfatherKinshipType.id:
+        await deletePaternalGrandfatherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Delete paternal grandmother kinship
+      case constants.paternalGrandmotherKinshipType.id:
+        await deletePaternalGrandmotherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Delete maternal grandfather kinship
+      case constants.maternalGrandfatherKinshipType.id:
+        await deleteMaternalGrandfatherKinship(kinship.personId, kinship.relativeId);
+        break;
+      // Delete maternal grandmother kinship
+      case constants.maternalGrandmotherKinshipType.id:
+        await deleteMaternalGrandmotherKinship(kinship.personId, kinship.relativeId);
+        break;
     }
   }
   async function createCoupleKinship(personId, relativeId) {
@@ -318,9 +334,70 @@ module.exports = function setupSharedService(models) {
     fatherId = fatherKinship.relativeId;
     motherId = motherKinship.relativeId;
     // Assign parent ghosts for the sibling
-    deleteFatherKinship(relativeId, fatherId);
-    deleteMotherKinship(relativeId, motherId);
+    await deleteFatherKinship(relativeId, fatherId);
+    await deleteMotherKinship(relativeId, motherId);
   }
+
+  async function deletePaternalGrandfatherKinship(personId, relativeId) {
+    // Declare temp variable to hold the intermediate father id
+    let fatherId;
+    // Get the father kinship
+    const fatherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.fatherKinshipType.id }
+    });
+    // Save the id of that father
+    fatherId = fatherKinship.relativeId;
+    
+    // Assign father ghost for the father
+    await deleteFatherKinship(fatherId, relativeId);
+  }
+
+  async function deletePaternalGrandmotherKinship(personId, relativeId) {
+    // Declare temp variable to hold the intermediate father id
+    let fatherId;
+    // Get the father kinship
+    const fatherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.fatherKinshipType.id }
+    });
+    // Save the id of that father
+    fatherId = fatherKinship.relativeId;
+    
+    // Assign mother ghost for the father
+    await deleteMotherKinship(fatherId, relativeId);
+  }
+
+  async function deleteMaternalGrandfatherKinship(personId, relativeId) {
+    // Declare temp variable to hold the intermediate mother id
+    let motherId;
+    // Get the mother kinship
+    const motherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.motherKinshipType.id }
+    });
+    // Save the id of that mother
+    motherId = motherKinship.relativeId;
+    
+    // Assign father ghost for the mother
+    await deleteFatherKinship(motherId, relativeId);
+  }
+
+  async function deleteMaternalGrandmotherKinship(personId, relativeId) {
+    // Declare temp variable to hold the intermediate mother id
+    let motherId;
+    // Get the mother kinship
+    const motherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.motherKinshipType.id }
+    });
+    // Save the id of that mother
+    motherId = motherKinship.relativeId;
+    
+    // Assign father ghost for the mother
+    await deleteMotherKinship(motherId, relativeId);
+  }
+
   async function getCouple(personId) {
     const coupleKinship = await kinshipModel.findOne({
       include: { all: true },

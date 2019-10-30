@@ -1,9 +1,10 @@
 {
-  "dialect": "mysql",
+  "dialect": "postgres",
   "database": "person_db",
   "username": "person_db_user",
   "password": "secret",
   "host": "127.0.0.1",
   "port": "8084",
-  "operatorsAliases": false
+  "operatorsAliases": false,
+  "ssl": false
 }

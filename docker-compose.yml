@@ -7,15 +7,15 @@ services:
 ################################################
   person_db:
     container_name: person_api_db
-    image: "mysql:${MYSQL_VERSION}"
+    image: "postgres:${SERVER_ENGINE_VERSION}"
     ports:
-      - "${MYSQL_PROJECT_DB_PORT}:${DB_PORT}"
+      - "${LOCAL_DB_PORT}:${SERVICE_PORT}"
     expose:
-      - "${DB_PORT}"
+      - "${SERVICE_PORT}"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
 ################################################
