@@ -384,7 +384,7 @@ module.exports = function setupSharedService(models) {
     }
   }
 
-  async function testCreateCoupleKinship(personId, relativeId, kinships) {
+  async function testSetCoupleKinship(personId, relativeId, kinships) {
     // Check if there's a couple kinship registered, and if so, update it and its counterpart
     const coupleKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.coupleKinshipType.id);
     if (coupleKinship) {
@@ -399,7 +399,7 @@ module.exports = function setupSharedService(models) {
     }
   }
 
-  async function testCreateFatherKinship(personId, relativeId, kinships) {
+  async function testSetFatherKinship(personId, relativeId, kinships) {
     // Check if there's a father kinship registered
     const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
     // If there's a father kinship, update that kinship and all the other kinships in which they are involved
@@ -433,7 +433,7 @@ module.exports = function setupSharedService(models) {
     return getTreesComparingResult(currentTree, updatedTree);
   }
 
-  async function testCreateMaternalGrandfatherKinship(personId, relativeId, kinships) {
+  async function testSetMaternalGrandfatherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate mother id
     let motherId;
     // Check if the person has a registered mother kinship
@@ -448,15 +448,15 @@ module.exports = function setupSharedService(models) {
       const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
       // Save their id
       motherId = ghostMother.id;
-      // Use the testCreateMotherKinship method to register them as a mother, and also make sure to create a ghost father
-      await testCreateMotherKinship(personId, motherId, kinships);
+      // Use the testSetMotherKinship method to register them as a mother, and also make sure to create a ghost father
+      await testSetMotherKinship(personId, motherId, kinships);
     }
-    // Use the testCreateFatherKinship method to register the new grandfather as the father of the person's mother
+    // Use the testSetFatherKinship method to register the new grandfather as the father of the person's mother
     // It also makes sure that a ghost grandmother is created
-    await testCreateFatherKinship(motherId, relativeId, kinships);
+    await testSetFatherKinship(motherId, relativeId, kinships);
   }
 
-  async function testCreateMaternalGrandmotherKinship(personId, relativeId, kinships) {
+  async function testSetMaternalGrandmotherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate mother id
     let motherId;
     // Check if the person has a registered mother kinship
@@ -471,15 +471,15 @@ module.exports = function setupSharedService(models) {
       const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
       // Save their id
       motherId = ghostMother.id;
-      // Use the testCreateMotherKinship method to register them as a mother, and also make sure to create a ghost father
-      await testCreateMotherKinship(personId, motherId, kinships);
+      // Use the testSetMotherKinship method to register them as a mother, and also make sure to create a ghost father
+      await testSetMotherKinship(personId, motherId, kinships);
     }
-    // Use the testCreateMotherKinship method again to register the new grandmother as the mother of the person's mother
+    // Use the testSetMotherKinship method again to register the new grandmother as the mother of the person's mother
     // It also makes sure that a ghost grandfather is created
-    await testCreateMotherKinship(motherId, relativeId, kinships);
+    await testSetMotherKinship(motherId, relativeId, kinships);
   }
 
-  async function testCreateMotherKinship(personId, relativeId, kinships) {
+  async function testSetMotherKinship(personId, relativeId, kinships) {
     // Check if there's a mother kinship registered
     const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
     // If there's a mother kinship, update that kinship and all the other kinships in which they are involved
@@ -500,7 +500,7 @@ module.exports = function setupSharedService(models) {
     }
   }
 
-  async function testCreatePaternalGrandfatherKinship(personId, relativeId, kinships) {
+  async function testSetPaternalGrandfatherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate father id
     let fatherId;
     // Check if the person has a registered father kinship
@@ -515,15 +515,15 @@ module.exports = function setupSharedService(models) {
       const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
       // Save their id
       fatherId = ghostFather.id;
-      // Use the testCreateFatherKinship method to register them as a father, and also make sure to create a ghost mother
-      await testCreateFatherKinship(personId, fatherId, kinships);
+      // Use the testSetFatherKinship method to register them as a father, and also make sure to create a ghost mother
+      await testSetFatherKinship(personId, fatherId, kinships);
     }
-    // Use the testCreateFatherKinship method again to register the new grandfather as the father of the person's father
+    // Use the testSetFatherKinship method again to register the new grandfather as the father of the person's father
     // It also makes sure that a ghost grandmother is created
-    await testCreateFatherKinship(fatherId, relativeId, kinships);
+    await testSetFatherKinship(fatherId, relativeId, kinships);
   }
 
-  async function testCreatePaternalGrandmotherKinship(personId, relativeId, kinships) {
+  async function testSetPaternalGrandmotherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate father id
     let fatherId;
     // Check if the person has a registered father kinship
@@ -538,15 +538,15 @@ module.exports = function setupSharedService(models) {
       const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
       // Save their id
       fatherId = ghostFather.id;
-      // Use the testCreateFatherKinship method to register them as a father, and also make sure to create a ghost mother
-      await testCreateFatherKinship(personId, fatherId, kinships);
+      // Use the testSetFatherKinship method to register them as a father, and also make sure to create a ghost mother
+      await testSetFatherKinship(personId, fatherId, kinships);
     }
-    // Use the testCreateMotherKinship method to register the new grandmother as the mother of the person's father
+    // Use the testSetMotherKinship method to register the new grandmother as the mother of the person's father
     // It also makes sure that a ghost grandfather is created
-    await testCreateMotherKinship(fatherId, relativeId, kinships);
+    await testSetMotherKinship(fatherId, relativeId, kinships);
   }
 
-  async function testCreateSiblingKinship(personId, relativeId, kinships) {
+  async function testSetSiblingKinship(personId, relativeId, kinships) {
     // Declare temp variables to hold the parents ids
     let fatherId;
     let motherId;
@@ -593,35 +593,35 @@ module.exports = function setupSharedService(models) {
     switch (kinship.kinshipType) {
       // Create couple kinship
       case constants.coupleKinshipType.id:
-        await testCreateCoupleKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetCoupleKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create father kinship
       case constants.fatherKinshipType.id:
-        await testCreateFatherKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetFatherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create mother kinship
       case constants.motherKinshipType.id:
-        await testCreateMotherKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetMotherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create sibling kinship
       case constants.siblingKinshipType.id:
-        await testCreateSiblingKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetSiblingKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create paternal grandfather kinship
       case constants.paternalGrandfatherKinshipType.id:
-        await testCreatePaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetPaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create paternal grandmother kinship
       case constants.paternalGrandmotherKinshipType.id:
-        await testCreatePaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetPaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create maternal grandfather kinship
       case constants.maternalGrandfatherKinshipType.id:
-        await testCreateMaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetMaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Create maternal grandmother kinship
       case constants.maternalGrandmotherKinshipType.id:
-        await testCreateMaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
+        await testSetMaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
     }
   }
