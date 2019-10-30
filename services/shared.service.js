@@ -103,7 +103,7 @@ module.exports = function setupSharedService(models) {
       }
       // Get and attach mother
       const mother = await getMother(person.id);
-      if (mother && !mother.isGhost) {
+      if (!mother.isGhost) {
         kinships.push(getSimpleKinshipModel(person, mother, constants.motherKinshipType));
       }
       // Get and attach siblings
@@ -142,14 +142,16 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: {
         personId: { [Op.ne]: id },
-        relativeId: fatherId, kinshipType: constants.fatherKinshipType.id
+        relativeId: fatherId,
+        kinshipType: constants.fatherKinshipType.id
       }
     });
     const motherKinships = await kinshipModel.findAll({
       include: { all: true },
       where: {
         personId: { [Op.ne]: id },
-        relativeId: motherId, kinshipType: constants.motherKinshipType.id
+        relativeId: motherId,
+        kinshipType: constants.motherKinshipType.id
       }
     });
     const siblings = [];
@@ -555,8 +557,10 @@ module.exports = function setupSharedService(models) {
       // Get the mother's kinship
       const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
       // Save both parents
-      fatherId = fatherKinship.relative;
-      motherId = motherKinship.relative;
+      const father = await personModel.findOne({ where: { id: fatherKinship.relativeId } });
+      const mother = await personModel.findOne({ where: { id: motherKinship.relativeId } });
+      fatherId = father.id;
+      motherId = mother.id;
     }
     // Else, new ghost parents need to be created
     else {
@@ -667,16 +671,17 @@ module.exports = function setupSharedService(models) {
       tree.father = await personModel.findOne({ where: { id: fatherKinship.relativeId, isGhost: false } });
       // Get and attach mother
       const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
-      if (motherKinship) {
-        tree.mother = await personModel.findOne({ where: { id: motherKinship.relativeId, isGhost: false } });
-      }
+      tree.mother = await personModel.findOne({ where: { id: motherKinship.relativeId, isGhost: false } });
       // Get and attach siblings
-      const siblingKinships = kinships.filter(k => k.personId !== personId && k.relativeId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
-      for (let index = 0; index < siblingKinships.length; index++) {
-        const k = siblingKinships[index];
-        const sibling = await personModel.findOne({ where: { id: k.personId, isGhost: false } });
-        if (sibling) {
-          tree.siblings.push(sibling);
+      const paternalSiblingKinships = kinships.filter(k => k.personId !== personId && k.relativeId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
+      const maternalSiblingKinships = kinships.filter(k => k.personId !== personId && k.relativeId === motherKinship.relativeId && k.kinshipType === constants.motherKinshipType.id);
+      for (let index = 0; index < paternalSiblingKinships.length; index++) {
+        const pSK = paternalSiblingKinships[index];
+        if (maternalSiblingKinships.find(mSK => mSK.personId === pSK.personId)) {
+          const sibling = await personModel.findOne({ where: { id: pSK.personId, isGhost: false } });
+          if (sibling) {
+            tree.siblings.push(sibling);
+          }
         }
       }
       // Get and attach paternal grandfather
@@ -725,10 +730,10 @@ module.exports = function setupSharedService(models) {
     doSimpleTreeNodeCompare(currentTree.mother, updatedTree.mother, constants.motherKinshipType.name, testResults);
     // Compare siblings
     updatedTree.siblings // Added
-      .filter(s => !currentTree.siblings.includes(s))
+      .filter(s => !currentTree.siblings.map(s => s.id).includes(s.id))
       .forEach(s => testResults.added.push(getAddedComparingResult(s, constants.siblingKinshipType.name)));
     currentTree.siblings // Deleted
-      .filter(s => !updatedTree.siblings.includes(s))
+      .filter(s => !updatedTree.siblings.map(s => s.id).includes(s.id))
       .forEach(s => testResults.deleted.push(getDeletedComparingResult(s, constants.siblingKinshipType.name)));
     // Compare paternal grandfathers
     doSimpleTreeNodeCompare(currentTree.paternalGrandfather, updatedTree.paternalGrandfather, constants.paternalGrandfatherKinshipType.name, testResults);
