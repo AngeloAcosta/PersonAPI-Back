@@ -852,7 +852,7 @@ module.exports = function setupSharedService(models) {
       }
     });
     if (!personExists) {
-      return baseService.getServiceResponse(404, 'Person doesn\'t exist', {});
+      return baseService.getServiceResponse(404, 'Not found', {});
     }
     // Verity that the person hasn't got kinships
     const personKinships = await kinshipModel.findAll({
