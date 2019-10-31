@@ -181,7 +181,7 @@ module.exports = function setupSharedService(models) {
     if (coupleKinship) {
       // TODO: Review kinship line 184
       const coupleKinshipCounterpart = await kinshipModel.findOne({
-        where: { personId: coupleKinship.relativeId, relativeId: kinship.personId, kinshipType: constants.coupleKinshipType.id }
+        where: { personId: coupleKinship.relativeId, relativeId: personId, kinshipType: constants.coupleKinshipType.id }
       });
       await kinshipModel.update({ relativeId }, { where: { id: coupleKinship.id } });
       await kinshipModel.update({ personId: relativeId }, { where: { id: coupleKinshipCounterpart.id } });
