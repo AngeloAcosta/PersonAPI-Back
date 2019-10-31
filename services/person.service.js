@@ -1,6 +1,7 @@
 'use strict';
 
 const Sequelize = require('sequelize');
+
 const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
@@ -237,7 +238,7 @@ module.exports = function setupPersonService(personModel) {
       }
     });
     // Return the data
-    return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
+    return baseService.getServiceResponse(200, 'Success', people.map(p => getSimplePersonModel(p)));
   }
 
   async function modify(id, person) {
@@ -251,7 +252,7 @@ module.exports = function setupPersonService(personModel) {
     await validatePersonModify(id, person, errors);
     // If errors were found, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+      return baseService.getServiceResponse(400, 'Error', errors.join('\n'));
     }
     // Else, create the person
     let modifiedPerson = await personModel.update(person, { where: { id } });
@@ -261,7 +262,7 @@ module.exports = function setupPersonService(personModel) {
       where: { id }
     });
     // And return 200
-    return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
+    return baseService.getServiceResponse(200, 'Success', getSimplePersonModel(modifiedPerson));
   }
 
   async function create(person) {
@@ -270,7 +271,7 @@ module.exports = function setupPersonService(personModel) {
     await validatePersonCreate(person, errors);
     // If errors were found, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+      return baseService.getServiceResponse(400, 'Error', errors.join('\n'));
     }
     // Else, create the person
     let createdPerson = await personModel.create(person);
@@ -280,7 +281,7 @@ module.exports = function setupPersonService(personModel) {
       where: { id: createdPerson.id }
     });
     // And return 200
-    return baseService.getServiceResponse(200, "Success", getSimplePersonModel(createdPerson));
+    return baseService.getServiceResponse(200, 'Success', getSimplePersonModel(createdPerson));
   }
 
   async function findById(id) {
@@ -291,11 +292,11 @@ module.exports = function setupPersonService(personModel) {
     });
     // If a person was found, return 200
     if (person) {
-      return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
+      return baseService.getServiceResponse(200, 'Success', getSimplePersonModel(person));
     }
     // Else, return 404
     else {
-      return baseService.getServiceResponse(404, "Not found", {});
+      return baseService.getServiceResponse(404, 'Not found', {});
     }
   }
 
@@ -305,4 +306,4 @@ module.exports = function setupPersonService(personModel) {
     findById,
     modify
   };
-};
+}
