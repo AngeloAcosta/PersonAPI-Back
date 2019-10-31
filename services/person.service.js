@@ -159,33 +159,7 @@ module.exports = function setupPersonService(personModel) {
       errors.push('Invalid name format');
     }
   }
-  async function modifyKinship(kinship) {
-    try {
-      let errors = [];
-      // Validate kinship data
-      await sharedService.validateKinshipData(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // Validate kinship gender
-      await sharedService.validateKinshipGender(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // Validate family tree
-      await sharedService.validateFamilyTree(kinship, errors);
-      if (errors.length > 0) {
-        return baseService.getServiceResponse(400, errors.join('\n'), {});
-      }
-      // If no errors were found, create the kinship
-      await confirmModifyKinship(kinship);
-      return baseService.getServiceResponse(200, 'Success', {});
-    } catch (err) {
-      console.log('Error: ', err);
-      return baseService.getServiceResponse(500, err, {});
-    }
-  }
-
+  
   async function validatePersonCreate(person, errors) {
     // Validate if document exists
     const documentExists = await personModel.findOne({ where: { document: person.document } });
