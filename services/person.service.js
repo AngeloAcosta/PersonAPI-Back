@@ -306,4 +306,4 @@ module.exports = function setupPersonService(personModel) {
     findById,
     modify
   };
-};
+}
