@@ -2,9 +2,9 @@
   "dialect": "postgres",
   "database": "person_db",
   "username": "person_db_user",
-  "password": "secret",
+  "password": "",
   "host": "127.0.0.1",
-  "port": "8084",
+  "port": "5432",
   "operatorsAliases": false,
   "ssl": false
 }
