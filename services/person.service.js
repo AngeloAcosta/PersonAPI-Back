@@ -268,7 +268,7 @@ module.exports = function setupPersonService(personModel) {
 
   async function modify(id, person) {
     // If person doesn't exist, return 404
-    const personExists = await personModel.findOne({ where: { id, isGhost: false } });
+    const personExists = await personModel.findOne({ where: { id, isGhost: false, isDeleted: false } });
     if (!personExists) {
       return baseService.getServiceResponse(404, 'Not found', {});
     }
@@ -313,7 +313,7 @@ module.exports = function setupPersonService(personModel) {
     // Find person
     const person = await personModel.findOne({
       include: { all: true },
-      where: { id, isGhost: false }
+      where: { id, isGhost: false, isDeleted: false }
     });
     // If a person was found, return 200
     if (person) {
