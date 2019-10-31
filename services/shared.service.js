@@ -12,9 +12,6 @@ module.exports = function setupSharedService(models) {
   const kinshipModel = models.kinshipModel;
   const personModel = models.personModel;
 
-  const kinshipService = setupKinshipService(models.kinshipModel);
-  const personService = setupPersonService(models.personModel);
-
   //#region Helpers
   async function confirmCreateKinship(kinship) {
     switch (kinship.kinshipType) {
@@ -262,7 +259,7 @@ module.exports = function setupSharedService(models) {
     // Else, we need a ghost mother
     else {
       // Create the ghost mother
-      const ghostMother = await personService.add({ genderId: 2, isGhost: true, isDeleted: false });
+      const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
       // Save their id
       motherId = ghostMother.id;
       // Use the setMotherKinship method to register them as a mother, and also make sure to create a ghost father
@@ -286,7 +283,7 @@ module.exports = function setupSharedService(models) {
       await kinshipModel.update({ relativeId }, { where: { relativeId: motherKinship.relativeId } });
     } else {
       // Else, a ghost father has to be created along with the new mother kinship
-      const ghostFather = await personService.add({ genderId: 1, isGhost: true, isDeleted: false });
+      const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
       await kinshipModel.create({ personId, relativeId: ghostFather.id, kinshipType: constants.fatherKinshipType.id });
       await kinshipModel.create({ personId, relativeId, kinshipType: constants.motherKinshipType.id });
     }

@@ -265,10 +265,6 @@ module.exports = function setupPersonService(personModel) {
     return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
   }
 
-  async function add(person) {
-    return await personModel.create(person);
-  }
-
   async function create(person) {
     // Validate fields
     const errors = [];
@@ -305,7 +301,6 @@ module.exports = function setupPersonService(personModel) {
   }
 
   return {
-    add,
     create,
     doList,
     findById,
