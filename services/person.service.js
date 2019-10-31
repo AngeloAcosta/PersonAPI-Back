@@ -274,7 +274,7 @@ module.exports = function setupPersonService(personModel) {
       return baseService.getServiceResponse(400, 'Error', errors.join('\n'));
     }
     // Else, create the person
-    let createdPerson = await add(person);
+    let createdPerson = await personModel.create(person);
     // Then obtain their complete data (including associations)
     createdPerson = await personModel.findOne({
       include: { all: true },
