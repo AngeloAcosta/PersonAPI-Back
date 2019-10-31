@@ -1013,7 +1013,7 @@ module.exports = function setupSharedService(models) {
 
   async function deletePerson(personId) {
     // Verify that person exists
-    const personExists = personModel.findOne({
+    const personExists = await personModel.findOne({
       where: {
         id: personId,
         isGhost: false,
