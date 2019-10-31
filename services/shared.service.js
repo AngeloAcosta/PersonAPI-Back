@@ -4,8 +4,6 @@ const Sequelize = require('sequelize');
 
 const constants = require('./constants');
 const setupBaseService = require('./base.service');
-const setupKinshipService = require('./kinship.service');
-const setupPersonService = require('./person.service');
 
 const Op = Sequelize.Op;
 
@@ -13,7 +11,7 @@ module.exports = function setupSharedService(models) {
   let baseService = new setupBaseService();
   const kinshipModel = models.kinshipModel;
   const personModel = models.personModel;
-  
+
   const kinshipService = setupKinshipService(models.kinshipModel);
   const personService = setupPersonService(models.personModel);
 
@@ -68,17 +66,28 @@ module.exports = function setupSharedService(models) {
     ];
   }
 
-  // TODO: Review dependencies for avoid using this service instead of kinship service
   async function getCouple(personId) {
-    return await kinshipService.getCouple(personId);
+    const coupleKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.coupleKinshipType.id }
+    });
+    return coupleKinship && coupleKinship.relative;
   }
 
   async function getFather(personId) {
-    return await kinshipService.getFather(personId);
+    const fatherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.fatherKinshipType.id }
+    });
+    return fatherKinship && fatherKinship.relative;
   }
 
   async function getMother(personId) {
-    return await kinshipService.getMother(personId);
+    const motherKinship = await kinshipModel.findOne({
+      include: { all: true },
+      where: { personId, kinshipType: constants.motherKinshipType.id }
+    });
+    return motherKinship && motherKinship.relative;
   }
 
   async function getPersonKinships(person) {
@@ -177,7 +186,7 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: { personId, kinshipType: constants.coupleKinshipType.id }
     });
-    
+
     if (coupleKinship) {
       // TODO: Review kinship line 184
       const coupleKinshipCounterpart = await kinshipModel.findOne({
@@ -198,7 +207,7 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: { personId, kinshipType: constants.fatherKinshipType.id }
     });
-    
+
     // If there's a father kinship, update that kinship and all the other kinships in which they are involved
     if (fatherKinship) {
       await kinshipModel.update({ personId: relativeId }, { where: { personId: fatherKinship.relativeId } });
@@ -270,7 +279,7 @@ module.exports = function setupSharedService(models) {
       include: { all: true },
       where: { personId, kinshipType: constants.motherKinshipType.id }
     });
-    
+
     // If there's a mother, update that kinship and all the other kinships in which they are involved
     if (motherKinship) {
       await kinshipModel.update({ personId: relativeId }, { where: { personId: motherKinship.relativeId } });

@@ -1,6 +1,7 @@
 'use strict';
 
 const Sequelize = require('sequelize');
+
 const setupBaseService = require('./base.service');
 
 const Op = Sequelize.Op;
