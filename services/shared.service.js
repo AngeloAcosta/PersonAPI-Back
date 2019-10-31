@@ -139,7 +139,7 @@ module.exports = function setupSharedService(models) {
   }
 
   async function getSiblings(id, fatherId, motherId) {
-    const fatherKinships = await kinshipModel.findAll({
+    const paternalSiblingKinships = await kinshipModel.findAll({
       include: { all: true },
       where: {
         personId: { [Op.ne]: id },
@@ -147,7 +147,7 @@ module.exports = function setupSharedService(models) {
         kinshipType: constants.fatherKinshipType.id
       }
     });
-    const motherKinships = await kinshipModel.findAll({
+    const maternalSiblingKinships = await kinshipModel.findAll({
       include: { all: true },
       where: {
         personId: { [Op.ne]: id },
@@ -156,9 +156,9 @@ module.exports = function setupSharedService(models) {
       }
     });
     const siblings = [];
-    fatherKinships.forEach(fK => {
-      if (motherKinships.find(mK => mK.personId === fK.personId)) {
-        siblings.push(fK.person);
+    paternalSiblingKinships.forEach(pSK => {
+      if (maternalSiblingKinships.find(mSK => mSK.personId === pSK.personId)) {
+        siblings.push(pSK.person);
       }
     });
     return siblings;
@@ -436,6 +436,14 @@ module.exports = function setupSharedService(models) {
     return getTreesComparingResult(currentTree, updatedTree);
   }
 
+  function testGetMaternalSiblingKinships(personId, motherId, kinships) {
+    return kinships.filter(k => k.personId !== personId && k.relativeId === motherId && k.kinshipType === constants.motherKinshipType.id);
+  }
+
+  function testGetPaternalSiblingKinships(personId, fatherId, kinships) {
+    return kinships.filter(k => k.personId !== personId && k.relativeId === fatherId && k.kinshipType === constants.fatherKinshipType.id);
+  }
+
   async function testSetMaternalGrandfatherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate mother id
     let motherId;
@@ -558,11 +566,9 @@ module.exports = function setupSharedService(models) {
     if (fatherKinship) {
       // Get the mother's kinship
       const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
-      // Save both parents
-      const father = await personModel.findOne({ where: { id: fatherKinship.relativeId } });
-      const mother = await personModel.findOne({ where: { id: motherKinship.relativeId } });
-      fatherId = father.id;
-      motherId = mother.id;
+      // Save both parents ids
+      fatherId = fatherKinship.relativeId;
+      motherId = motherKinship.relativeId;
     }
     // Else, new ghost parents need to be created
     else {
@@ -675,8 +681,8 @@ module.exports = function setupSharedService(models) {
       const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
       tree.mother = await personModel.findOne({ where: { id: motherKinship.relativeId, isGhost: false } });
       // Get and attach siblings
-      const paternalSiblingKinships = kinships.filter(k => k.personId !== personId && k.relativeId === fatherKinship.relativeId && k.kinshipType === constants.fatherKinshipType.id);
-      const maternalSiblingKinships = kinships.filter(k => k.personId !== personId && k.relativeId === motherKinship.relativeId && k.kinshipType === constants.motherKinshipType.id);
+      const paternalSiblingKinships = testGetPaternalSiblingKinships(personId, fatherKinship.relativeId, kinships);
+      const maternalSiblingKinships = testGetMaternalSiblingKinships(personId, motherKinship.relativeId, kinships);
       for (let index = 0; index < paternalSiblingKinships.length; index++) {
         const pSK = paternalSiblingKinships[index];
         if (maternalSiblingKinships.find(mSK => mSK.personId === pSK.personId)) {
