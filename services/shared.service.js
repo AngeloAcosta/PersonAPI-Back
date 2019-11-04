@@ -1359,7 +1359,7 @@ module.exports = function setupSharedService(models) {
     if (!kinship.relativeId) {
       errors.push('The relative id is required');
     } else if (kinship.personId === kinship.relativeId) {
-      errors.push('The relative can't be the same as the person');
+      errors.push('The relative can\'t be the same as the person');
     } else {
       const relative = await personModel.findOne({ where: { id: kinship.relativeId, isGhost: false, isDeleted: false } });
       if (!relative) {
