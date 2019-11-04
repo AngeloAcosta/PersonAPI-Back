@@ -913,7 +913,7 @@ module.exports = function setupSharedService(models) {
 
   async function doListPersonKinships(personId) {
     // Get the person
-    const person = await personModel.findOne({ where: { id: personId, isGhost: false } });
+    const person = await personModel.findOne({ where: { id: personId, isGhost: false, isDeleted: false } });
     // If the person doesn't exist, return 404
     if (!person) {
       return baseService.getServiceResponse(404, 'Not found', []);
