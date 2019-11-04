@@ -184,6 +184,7 @@ const doDelete = async (request, response) => {
   }
   return response.status(responseCode).json(responseData);
 };
+
 const postRestore = async (request, response) => {
   let responseCode;
   let responseData;

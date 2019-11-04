@@ -893,9 +893,6 @@ module.exports = function setupSharedService(models) {
     // Return 200
     return baseService.getServiceResponse(200, 'Success', {});
   }
-
-  
-
   async function doListKinships(query) {
     // Find all people that satisfy the query
     const whereClause = { [Op.like]: `%${query}%` };

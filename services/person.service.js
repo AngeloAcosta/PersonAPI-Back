@@ -299,6 +299,7 @@ module.exports = function setupPersonService(personModel) {
       return baseService.getServiceResponse(404, 'Not found', {});
     }
   }
+
   async function restorePerson(personId) {
     // Verify that person exists
     const personExists = await personModel.findOne({
