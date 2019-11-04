@@ -73,7 +73,8 @@ const post = async (request, response) => {
       contactType2Id:
         request.body.contactType2Id && parseInt(request.body.contactType2Id),
       contact2: request.body.contact2 && request.body.contact2.trim(),
-      isGhost: false
+      isGhost: false,
+      isDeleted: false
     };
     // Create person
     const personData = await personService.create(person);
