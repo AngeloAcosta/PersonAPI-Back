@@ -5,6 +5,49 @@ const serviceContainer = require('./../../../services/service.container');
 
 let baseController = new setupBaseController();
 
+const deleteKinships = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const sharedService = await serviceContainer('shared');
+    // Get the kinship from the request  
+    const personId = request.params.personId && parseInt(request.params.personId);
+    const relativeId = request.params.relativeId && parseInt(request.params.relativeId);
+    // Delete the kinship
+    const personData = await sharedService.deletePersonKinship(personId, relativeId);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
+const doDelete = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const sharedService = await serviceContainer('shared');
+    // Get the person id from the route
+    const personId = parseInt(request.params.id);
+    // Delete person
+    const personData = await sharedService.deletePerson(personId);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ' + err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
 const get = async (request, response) => {
   let responseCode;
   let responseData;
@@ -164,59 +207,13 @@ const put = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
-const doDelete = async (request, response) => {
-  let responseCode;
-  let responseData;
-  try {
-    // Inject services
-    const sharedService = await serviceContainer('shared');
-    // Get the person id from the route
-    const personId = parseInt(request.params.id);
-    // Delete person
-    const personData = await sharedService.deletePerson(personId);
-    // Return the data
-    responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(personData.data, personData.message);
-  } catch (err) {
-    console.error('Error: ' + err);
-    responseCode = 500;
-    responseData = baseController.getErrorResponse('Error');
-  }
-  return response.status(responseCode).json(responseData);
-};
-
-const deleteKinships = async (request, response) => {
-  let responseCode;
-  let responseData;
-  try {
-    // Inject services
-    const sharedService = await serviceContainer('shared');
-    // Get the kinship from the request  
-      const kinship = {
-        personId: request.params.id && parseInt(request.params.id),
-        relativeId: request.body.relativeId && parseInt(request.body.relativeId),
-        kinshipType: request.body.kinshipType
-      };
-    // Delete the kinship
-     const personData = await sharedService.deletePersonKinship(kinship);
-    // Return the data
-    responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(personData.data, personData.message);
-  } catch (err) {
-    console.error('Error: ', err);
-    responseCode = 500;
-    responseData = baseController.getErrorResponse('Error');
-  }
-  return response.status(responseCode).json(responseData);
-};
-
 module.exports = {
+  deleteKinships,
   doDelete,
   get,
   getKinships,
   post,
   postKinships,
   postKinshipsTest,
-  put,
-  deleteKinships
+  put
 };
