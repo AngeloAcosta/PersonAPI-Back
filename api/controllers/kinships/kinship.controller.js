@@ -43,7 +43,9 @@ const update = async (request, response) => {
       updatedAt: new Date()
     };
     let dbService = await setupDBService();
-    const newKinshipData = await dbService.kinshipService.modifyKinship(kinshipData);
+    const newKinshipData = await dbService.kinshipService.modifyKinship(
+      kinshipData
+    );
 
     responseCode = newKinshipData.responseCode;
     responseData = baseController.getSuccessResponse(
@@ -52,9 +54,7 @@ const update = async (request, response) => {
     );
   } catch (err) {
     console.error('Error updating kinship: ', err);
-    responseData = baseController.getErrorResponse(
-      'Error updating kinship'
-    );
+    responseData = baseController.getErrorResponse('Error updating kinship');
   }
 
   return response.status(responseCode).json(responseData);

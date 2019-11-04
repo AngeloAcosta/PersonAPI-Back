@@ -159,10 +159,11 @@ module.exports = function setupPersonService(personModel) {
       errors.push('Invalid name format');
     }
   }
-  
   async function validatePersonCreate(person, errors) {
     // Validate if document exists
-    const documentExists = await personModel.findOne({ where: { document: person.document } });
+    const documentExists = await personModel.findOne({
+      where: { document: person.document }
+    });
     if (documentExists) {
       errors.push('Document field must be unique');
       return;
@@ -184,7 +185,9 @@ module.exports = function setupPersonService(personModel) {
 
   async function validatePersonModify(id, person, errors) {
     // Validate if document exists
-    const documentExists = await personModel.findOne({ where: { document: person.document } });
+    const documentExists = await personModel.findOne({
+      where: { document: person.document }
+    });
     if (documentExists && documentExists.id !== id) {
       errors.push('Document field must be unique');
     }
@@ -225,7 +228,7 @@ module.exports = function setupPersonService(personModel) {
       offset: requestQuery.offset,
       order: [[...qOrderBy, qOrderType]],
       where: {
-        isGhost:false,
+        isGhost: false,
         isDeleted: false,
         [Op.or]: [
           { name: qQueryWhereClause },
@@ -237,12 +240,18 @@ module.exports = function setupPersonService(personModel) {
       }
     });
     // Return the data
-    return baseService.getServiceResponse(200, "Success", people.map(p => getSimplePersonModel(p)));
+    return baseService.getServiceResponse(
+      200,
+      'Success',
+      people.map(p => getSimplePersonModel(p))
+    );
   }
 
   async function modify(id, person) {
     // If person doesn't exist, return 404
-    const personExists = await personModel.findOne({ where: { id, isGhost: false, isDeleted: false } });
+    const personExists = await personModel.findOne({
+      where: { id, isGhost: false, isDeleted: false }
+    });
     if (!personExists) {
       return baseService.getServiceResponse(404, 'Not found', {});
     }
@@ -251,7 +260,7 @@ module.exports = function setupPersonService(personModel) {
     await validatePersonModify(id, person, errors);
     // If errors were found, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+      return baseService.getServiceResponse(400, 'Error', errors.join('\n'));
     }
     // Else, create the person
     let modifiedPerson = await personModel.update(person, { where: { id } });
@@ -261,7 +270,11 @@ module.exports = function setupPersonService(personModel) {
       where: { id }
     });
     // And return 200
-    return baseService.getServiceResponse(200, "Person modified", getSimplePersonModel(modifiedPerson));
+    return baseService.getServiceResponse(
+      200,
+      'Person modified',
+      getSimplePersonModel(modifiedPerson)
+    );
   }
 
   async function create(person) {
@@ -270,7 +283,7 @@ module.exports = function setupPersonService(personModel) {
     await validatePersonCreate(person, errors);
     // If errors were found, return 400
     if (errors.length > 0) {
-      return baseService.getServiceResponse(400, "Error", errors.join('\n'));
+      return baseService.getServiceResponse(400, 'Error', errors.join('\n'));
     }
     // Else, create the person
     let createdPerson = await personModel.create(person);
@@ -280,7 +293,11 @@ module.exports = function setupPersonService(personModel) {
       where: { id: createdPerson.id }
     });
     // And return 200
-    return baseService.getServiceResponse(200, "Success", getSimplePersonModel(createdPerson));
+    return baseService.getServiceResponse(
+      200,
+      'Success',
+      getSimplePersonModel(createdPerson)
+    );
   }
 
   async function findById(id) {
@@ -291,11 +308,15 @@ module.exports = function setupPersonService(personModel) {
     });
     // If a person was found, return 200
     if (person) {
-      return baseService.getServiceResponse(200, "Success", getSimplePersonModel(person));
+      return baseService.getServiceResponse(
+        200,
+        'Success',
+        getSimplePersonModel(person)
+      );
     }
     // Else, return 404
     else {
-      return baseService.getServiceResponse(404, "Not found", {});
+      return baseService.getServiceResponse(404, 'Not found', {});
     }
   }
 
