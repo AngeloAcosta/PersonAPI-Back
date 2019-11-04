@@ -184,6 +184,26 @@ const doDelete = async (request, response) => {
   }
   return response.status(responseCode).json(responseData);
 };
+const postRestore = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get the person id from the route
+    const personId = parseInt(request.params.id);
+    // Restore person
+    const personData = await personService.restorePerson(personId);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ' + err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
 
 module.exports = {
   doDelete,
@@ -192,5 +212,6 @@ module.exports = {
   post,
   postKinships,
   postKinshipsTest,
-  put
+  postRestore,
+  put  
 };
