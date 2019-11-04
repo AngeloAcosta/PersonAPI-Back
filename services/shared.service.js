@@ -727,9 +727,9 @@ module.exports = function setupSharedService(models) {
     const relativeFatherKinship = kinships.find(k => k.personId === relativeId && k.kinshipType === constants.fatherKinshipType.id);
     // If such kinships exist, update them
     if (relativeFatherKinship) {
-      relativeFatherKinship.relativeId = father.id;
+      relativeFatherKinship.relativeId = fatherId;
       const relativeMotherKinship = kinships.find(k => k.personId === relativeId && k.kinshipType === constants.motherKinshipType.id);
-      relativeMotherKinship.relativeId = mother.id;
+      relativeMotherKinship.relativeId = motherId;
     }
     // Else, create them
     else {
@@ -1096,7 +1096,7 @@ module.exports = function setupSharedService(models) {
 
   async function doListPersonKinships(personId) {
     // Get the person
-    const person = await personModel.findOne({ where: { id: personId, isGhost: false } });
+    const person = await personModel.findOne({ where: { id: personId, isGhost: false, isDeleted: false } });
     // If the person doesn't exist, return 404
     if (!person) {
       return baseService.getServiceResponse(404, 'Not found', []);
