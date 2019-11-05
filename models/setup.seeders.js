@@ -117,26 +117,33 @@ async function seedPeople(model) {
   let contactTypeIds = [1, 2];
   let people = [];
   for (let index = 0; index < 50; index++) {
+    let documentTypeId = faker.random.arrayElement(documentTypeIds);
+    let document = '';
+    if (documentTypeId == 1) { // DNI
+      document = faker.random.alphaNumeric(8).toUpperCase();
+    } else { // Passport or foreign card
+      document = faker.random.alphaNumeric(12).toUpperCase();
+    }
     let contactType1Id = faker.random.arrayElement(contactTypeIds);
     let contactType2Id = faker.random.arrayElement(contactTypeIds);
     let contact1 = '';
     let contact2 = '';
-    if (contactType1Id == 1) {
-      contact1 = faker.phone.phoneNumber();
-    } else {
+    if (contactType1Id == 1) { // Phone
+      contact1 = faker.random.number({ min: 100000, max: 999999999 });
+    } else { // Email
       contact1 = faker.internet.email();
     }
-    if (contactType2Id == 1) {
-      contact2 = faker.phone.phoneNumber();
-    } else {
+    if (contactType2Id == 1) { // Phone
+      contact2 = faker.random.number({ min: 100000, max: 999999999 });
+    } else { // Email
       contact2 = faker.internet.email();
     }
     people.push({
       name: faker.name.firstName(),
       lastName: faker.name.lastName(),
       birthdate: faker.date.past(),
-      document: faker.random.alphaNumeric(8).toUpperCase(),
-      documentTypeId: faker.random.arrayElement(documentTypeIds),
+      document,
+      documentTypeId,
       genderId: ((index % 2 === 0) ? 1 : 2),
       countryId: faker.random.arrayElement(countryIds),
       contact1,
@@ -223,11 +230,6 @@ async function seedKinships(model) {
       personId: 2,
       relativeId: 6,
       kinshipType: constants.motherKinshipType.id
-    },
-    {
-      personId: 1,
-      relativeId: 3,
-      kinshipType: constants.fatherKinshipType.id
     },
     {
       personId: 1,
