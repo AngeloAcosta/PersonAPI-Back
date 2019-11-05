@@ -16,5 +16,6 @@ router.post('/:id/kinships', personController.postKinships);
 router.put('/:personId/kinships/:relativeId', personController.putKinships);
 router.post('/:id/kinships/test', personController.postKinshipsTest);
 router.put('/:personId/kinships/:relativeId/test', personController.putKinships);
+router.delete('/:personId/kinships/:relativeId', personController.deleteKinships);
 
 module.exports = router;
