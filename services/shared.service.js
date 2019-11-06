@@ -1024,6 +1024,19 @@ module.exports = function setupSharedService(models) {
       errors.push('The person and the relative must not have the same gender');
     }
   }
+
+  async function validateKinshipModify(kinship, errors) {
+    // Validate kinship data
+    await validateKinshipData(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+    // Validate kinship gender
+    await validateKinshipGender(kinship, errors);
+    if (errors.length > 0) {
+      return;
+    }
+  }
   //#endregion
 
   async function buildPersonKinshipsTree(personId) {
@@ -1158,6 +1171,28 @@ module.exports = function setupSharedService(models) {
     return baseService.getServiceResponse(200, 'Success', kinships);
   }
 
+  async function modifyPersonKinship(kinship) {
+    // Validate modify
+    const errors = [];
+    await validateKinshipModify(kinship, errors);
+    // If errors were gound, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
+    }
+    // Get the current kinship between the two people
+    const currentKinshipType = await getExistingKinshipType(kinship.personId, kinship.relativeId);
+    // If no kinship exists between them, return 400
+    if (!currentKinshipType) {
+      return baseService.getServiceResponse(400, 'There\'s no kinship between these two people', {});
+    }
+    // Delete the current kinship
+    await confirmDeleteKinship({ personId: kinship.personId, relativeId: kinship.relativeId, kinshipType: currentKinshipType });
+    // And create the new one
+    await confirmCreateKinship(kinship);
+    // And return 200
+    return baseService.getServiceResponse(200, 'Success', {});
+  }
+
   return {
     buildPersonKinshipsTree,
     createPersonKinship,
@@ -1165,6 +1200,7 @@ module.exports = function setupSharedService(models) {
     deletePerson,
     deletePersonKinship,
     doListKinships,
-    doListPersonKinships
+    doListPersonKinships,
+    modifyPersonKinship
   };
 }

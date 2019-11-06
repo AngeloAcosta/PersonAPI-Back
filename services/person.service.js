@@ -160,7 +160,6 @@ module.exports = function setupPersonService(personModel) {
       errors.push('Invalid name format');
     }
   }
-
   async function validatePersonCreate(person, errors) {
     // Validate if document exists
     const documentExists = await personModel.findOne({ where: { document: person.document } });
@@ -226,7 +225,7 @@ module.exports = function setupPersonService(personModel) {
       offset: requestQuery.offset,
       order: [[...qOrderBy, qOrderType]],
       where: {
-        isGhost:false,
+        isGhost: false,
         isDeleted: false,
         [Op.or]: [
           { name: qQueryWhereClause },
