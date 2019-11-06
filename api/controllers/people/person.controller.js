@@ -88,6 +88,27 @@ const getKinships = async (request, response) => {
   return response.status(responseCode).json(responseData);
 }
 
+const getKinshipsTree = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const sharedService = await serviceContainer('shared');
+    // Get the person id from the route
+    const personId = request.params.id;
+    // Get the person kinships tree
+    const personData = await sharedService.buildPersonKinshipsTree(personId);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+}
+
 const post = async (request, response) => {
   let responseCode;
   let responseData;
@@ -207,13 +228,36 @@ const put = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
+const postRestore = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const personService = await serviceContainer('person');
+    // Get the person id from the route
+    const personId = parseInt(request.params.id);
+    // Restore person
+    const personData = await personService.restorePerson(personId);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ' + err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
 module.exports = {
   deleteKinships,
   doDelete,
   get,
   getKinships,
+  getKinshipsTree,
   post,
   postKinships,
   postKinshipsTest,
-  put
+  postRestore,
+  put  
 };
