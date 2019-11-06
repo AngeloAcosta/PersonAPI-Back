@@ -162,9 +162,7 @@ module.exports = function setupPersonService(personModel) {
   }
   async function validatePersonCreate(person, errors) {
     // Validate if document exists
-    const documentExists = await personModel.findOne({
-      where: { document: person.document }
-    });
+    const documentExists = await personModel.findOne({ where: { document: person.document }});
     if (documentExists) {
       errors.push('Document field must be unique');
       return;
@@ -186,9 +184,7 @@ module.exports = function setupPersonService(personModel) {
 
   async function validatePersonModify(id, person, errors) {
     // Validate if document exists
-    const documentExists = await personModel.findOne({
-      where: { document: person.document }
-    });
+    const documentExists = await personModel.findOne({ where: { document: person.document }});
     if (documentExists && documentExists.id !== id) {
       errors.push('Document field must be unique');
     }
@@ -246,9 +242,7 @@ module.exports = function setupPersonService(personModel) {
 
   async function modify(id, person) {
     // If person doesn't exist, return 404
-    const personExists = await personModel.findOne({
-      where: { id, isGhost: false, isDeleted: false }
-    });
+    const personExists = await personModel.findOne({ where: { id, isGhost: false, isDeleted: false }});
     if (!personExists) {
       return baseService.getServiceResponse(404, 'Not found', {});
     }
