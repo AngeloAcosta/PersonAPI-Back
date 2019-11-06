@@ -12,6 +12,7 @@ router.get('/:id', personController.get);
 router.put('/:id', personController.put);
 router.delete('/:id', personController.doDelete);
 router.get('/:id/kinships', personController.getKinships);
+router.get('/:id/kinships/tree', personController.getKinshipsTree);
 router.post('/:id/kinships', personController.postKinships);
 router.post('/:id/kinships/test', personController.postKinshipsTest);
 router.post('/:id/restore', personController.postRestore);

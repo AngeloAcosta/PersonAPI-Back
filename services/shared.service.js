@@ -786,7 +786,34 @@ module.exports = function setupSharedService(models) {
   }
   //#endregion
 
-  //#region Tree TODO: Maybe move this to its own service
+  //#region Tree
+  function buildFirstTreeLevel(tree, levels) {
+    levels.push([
+      getSimpleTreeNode(tree.paternalGrandfather, constants.paternalGrandfatherKinshipType),
+      getSimpleTreeNode(tree.paternalGrandmother, constants.paternalGrandmotherKinshipType),
+      getSimpleTreeNode(tree.maternalGrandfather, constants.maternalGrandfatherKinshipType),
+      getSimpleTreeNode(tree.maternalGrandmother, constants.maternalGrandmotherKinshipType)
+    ]);
+  }
+
+  function buildSecondTreeLevel(tree, levels) {
+    levels.push([
+      getSimpleTreeNode(tree.father, constants.fatherKinshipType),
+      getSimpleTreeNode(tree.mother, constants.motherKinshipType)
+    ]);
+  }
+
+  function buildThirdTreeLevel(person, tree, levels) {
+    const thirdTreeLevel = [];
+    tree.siblings.forEach(s => {
+      thirdTreeLevel.push(getSimpleTreeNode(s, constants.siblingKinshipType));
+    });
+    thirdTreeLevel.push(getSimpleTreeNode(null, constants.siblingKinshipType));
+    thirdTreeLevel.push(getSimpleTreeNode(person, null));
+    thirdTreeLevel.push(getSimpleTreeNode(tree.couple, constants.coupleKinshipType));
+    levels.push(thirdTreeLevel);
+  }
+
   function doSimpleTreeNodeCompare(currentTreeNode, updatedTreeNode, kinshipName, testResults) {
     if (currentTreeNode) {
       if (!updatedTreeNode) {
@@ -873,6 +900,13 @@ module.exports = function setupSharedService(models) {
 
   function getModifiedComparingResult(oldRelative, newRelative, kinshipTypeName) {
     return `${kinshipTypeName} kinship with ${oldRelative.name} ${oldRelative.lastName} will be modified to ${newRelative.name} ${newRelative.lastName}`;
+  }
+
+  function getSimpleTreeNode(relative, kinshipType) {
+    const treeNode = { relative: null, kinshipType: null };
+    if (kinshipType) treeNode.kinshipType = kinshipType;
+    if (relative) treeNode.relative = { name: relative.name, lastName: relative.lastName };
+    return treeNode;
   }
 
   function getTreesComparingResult(currentTree, updatedTree) {
@@ -988,6 +1022,28 @@ module.exports = function setupSharedService(models) {
   }
   //#endregion
 
+  async function buildPersonKinshipsTree(personId) {
+    // Get the person
+    // TODO: Move this to person service
+    const person = await personModel.findOne({ where: { id: personId, isGhost: false, isDeleted: false } });
+    // If the person doesn't exist, return 404
+    if (!person) {
+      return baseService.getServiceResponse(404, 'Not found', []);
+    }
+    // Get the person's tree
+    // TODO: Move this to kinship service
+    const kinships = await kinshipModel.findAll();
+    const tree = await getComparingTree(person.id, kinships);
+    // Build the tree object
+    const owner = { name: person.name, lastName: person.lastName };
+    const levels = [];
+    buildFirstTreeLevel(tree, levels);
+    buildSecondTreeLevel(tree, levels);
+    buildThirdTreeLevel(person, tree, levels);
+    // Return 200
+    return baseService.getServiceResponse(200, 'Success', { owner, levels });
+  }
+
   async function createPersonKinship(kinship) {
     // Validate creation
     const errors = [];
@@ -1099,6 +1155,7 @@ module.exports = function setupSharedService(models) {
   }
 
   return {
+    buildPersonKinshipsTree,
     createPersonKinship,
     createPersonKinshipTest,
     deletePerson,
