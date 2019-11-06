@@ -20,10 +20,7 @@ module.exports = async function () {
   const genderService = setupGenderService(dbInstance.genderModel);
   const kinshipService = setupKinshipService(dbInstance.kinshipModel);
   const personService = setupPersonService(dbInstance.personModel);
-  const sharedService = setupSharedService({
-    kinshipModel: dbInstance.kinshipModel,
-    personModel: dbInstance.personModel
-  });
+  const sharedService = setupSharedService({ kinshipModel: dbInstance.kinshipModel, personModel: dbInstance.personModel });
   const userService = setupUserService(dbInstance.userModel);
 
   return {

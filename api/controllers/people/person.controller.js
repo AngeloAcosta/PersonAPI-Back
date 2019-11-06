@@ -58,10 +58,7 @@ const get = async (request, response) => {
     let peopleData = await personService.findById(request.params.id);
     // Return data
     responseCode = peopleData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      peopleData.data,
-      peopleData.message
-    );
+    responseData = baseController.getSuccessResponse(peopleData.data,peopleData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;
@@ -82,10 +79,7 @@ const getKinships = async (request, response) => {
     const personData = await sharedService.doListPersonKinships(personId);
     // Return the data
     responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      personData.data,
-      personData.message
-    );
+    responseData = baseController.getSuccessResponse(personData.data,personData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;
@@ -105,16 +99,13 @@ const post = async (request, response) => {
       name: request.body.name && request.body.name.trim(),
       lastName: request.body.lastName && request.body.lastName.trim(),
       birthdate: request.body.birthdate && request.body.birthdate.trim(),
-      documentTypeId:
-        request.body.documentTypeId && parseInt(request.body.documentTypeId),
+      documentTypeId: request.body.documentTypeId && parseInt(request.body.documentTypeId),
       document: request.body.document && request.body.document.trim(),
       genderId: request.body.genderId && parseInt(request.body.genderId),
       countryId: request.body.countryId && parseInt(request.body.countryId),
-      contactType1Id:
-        request.body.contactType1Id && parseInt(request.body.contactType1Id),
+      contactType1Id: request.body.contactType1Id && parseInt(request.body.contactType1Id),
       contact1: request.body.contact1 && request.body.contact1.trim(),
-      contactType2Id:
-        request.body.contactType2Id && parseInt(request.body.contactType2Id),
+      contactType2Id: request.body.contactType2Id && parseInt(request.body.contactType2Id),
       contact2: request.body.contact2 && request.body.contact2.trim(),
       isGhost: false,
       isDeleted: false
@@ -123,10 +114,7 @@ const post = async (request, response) => {
     const personData = await personService.create(person);
     // Return the data
     responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      personData.data,
-      personData.message
-    );
+    responseData = baseController.getSuccessResponse(personData.data,personData.message);
   } catch (err) {
     console.error('Error ' + err);
     responseCode = 500;
@@ -151,10 +139,7 @@ const postKinships = async (request, response) => {
     const personData = await sharedService.createPersonKinship(kinship);
     // Return the data
     responseCode = personData.responseCode;
-    responseData = baseController.getSuccessResponse(
-      personData.data,
-      personData.message
-    );
+    responseData = baseController.getSuccessResponse(personData.data,personData.message);
   } catch (err) {
     console.error('Error: ', err);
     responseCode = 500;
