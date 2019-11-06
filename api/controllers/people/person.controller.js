@@ -273,6 +273,31 @@ const putKinships = async (request, response) => {
   return response.status(responseCode).json(responseData);
 };
 
+const putKinshipsTest = async (request, response) => {
+  let responseCode;
+  let responseData;
+  try {
+    // Inject services
+    const sharedService = await serviceContainer('shared');
+    // Get the kinship from the request
+    const kinship = {
+      personId: request.params.id && parseInt(request.params.id),
+      relativeId: request.body.relativeId && parseInt(request.body.relativeId),
+      kinshipType: request.body.kinshipType
+    };
+    // Test the kinship creation
+    const personData = await sharedService.modifyPersonKinshipTest(kinship);
+    // Return the data
+    responseCode = personData.responseCode;
+    responseData = baseController.getSuccessResponse(personData.data, personData.message);
+  } catch (err) {
+    console.error('Error: ', err);
+    responseCode = 500;
+    responseData = baseController.getErrorResponse('Error');
+  }
+  return response.status(responseCode).json(responseData);
+};
+
 module.exports = {
   deleteKinships,
   doDelete,
@@ -284,5 +309,6 @@ module.exports = {
   postKinshipsTest,
   postRestore,
   put,
-  putKinships
+  putKinships,
+  putKinshipsTest
 };

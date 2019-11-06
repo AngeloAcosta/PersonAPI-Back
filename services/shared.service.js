@@ -1193,6 +1193,20 @@ module.exports = function setupSharedService(models) {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
+  async function modifyPersonKinshipTest(kinship) {
+    // Validate creation
+    const errors = [];
+    await validateKinshipModify(kinship, errors);
+    // If errors were gound, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
+    }
+    // Else, test the kinship creation
+    const personData = await testCreateKinship(kinship);
+    // And return 200
+    return baseService.getServiceResponse(200, 'Success', personData);
+  }
+
   return {
     buildPersonKinshipsTree,
     createPersonKinship,
@@ -1201,6 +1215,7 @@ module.exports = function setupSharedService(models) {
     deletePersonKinship,
     doListKinships,
     doListPersonKinships,
-    modifyPersonKinship
+    modifyPersonKinship,
+    modifyPersonKinshipTest
   };
 }
