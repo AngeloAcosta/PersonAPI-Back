@@ -786,7 +786,7 @@ module.exports = function setupSharedService(models) {
   }
   //#endregion
 
-  //#region Tree TODO: Maybe move this to its own service
+  //#region Tree
   function buildFirstTreeLevel(tree, levels) {
     levels.push([
       getSimpleTreeNode(tree.paternalGrandfather, constants.paternalGrandfatherKinshipType),
@@ -1024,12 +1024,14 @@ module.exports = function setupSharedService(models) {
 
   async function buildPersonKinshipsTree(personId) {
     // Get the person
+    // TODO: Move this to person service
     const person = await personModel.findOne({ where: { id: personId, isGhost: false, isDeleted: false } });
     // If the person doesn't exist, return 404
     if (!person) {
       return baseService.getServiceResponse(404, 'Not found', []);
     }
     // Get the person's tree
+    // TODO: Move this to kinship service
     const kinships = await kinshipModel.findAll();
     const tree = await getComparingTree(person.id, kinships);
     // Build the tree object
