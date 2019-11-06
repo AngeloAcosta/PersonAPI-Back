@@ -437,6 +437,9 @@ module.exports = function setupSharedService(models) {
       {
         where: { personId, kinshipType: constants.coupleKinshipType.id, relativeId }
       });
+      await kinshipModel.destroy({
+        where: { personId: relativeId, kinshipType: constants.coupleKinshipType.id, relativeId: personId }
+      })
   }
 
   async function deleteFatherKinship(personId, relativeId) {
