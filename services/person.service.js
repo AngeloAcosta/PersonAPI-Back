@@ -305,10 +305,28 @@ module.exports = function setupPersonService(personModel) {
     }
   }
 
+  async function restorePerson(personId) {
+    // Verify that person exists
+    const personExists = await personModel.findOne({
+      where: {
+        id: personId,
+        isDeleted: true
+      }
+    });
+    if (!personExists) {
+      return baseService.getServiceResponse(404, 'Not found', {});
+    }
+    // Restore person
+    personModel.update({ isDeleted: false }, { where: { id: personId } });
+    // Return 200
+    return baseService.getServiceResponse(200, 'Success', {});
+  }
+
   return {
     create,
     doList,
     findById,
-    modify
+    modify,
+    restorePerson
   };
 }
