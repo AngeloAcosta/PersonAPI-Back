@@ -437,6 +437,7 @@ module.exports = function setupSharedService(models) {
       {
         where: { personId, kinshipType: constants.coupleKinshipType.id, relativeId }
       });
+      // TODO REFACTOR
       await kinshipModel.destroy({
         where: { personId: relativeId, kinshipType: constants.coupleKinshipType.id, relativeId: personId }
       })
