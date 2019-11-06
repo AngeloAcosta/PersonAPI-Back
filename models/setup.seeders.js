@@ -1,133 +1,83 @@
 const constants = require('./../services/constants');
 const faker = require('faker');
 
+//#region Helpers
+function getContactTypes() {
+  return [
+    constants.emailContactType,
+    constants.phoneContactType
+  ];
+}
+
+function getCountries() {
+  return [
+    constants.argentinaCountry,
+    constants.brazilCountry,
+    constants.chileCountry,
+    constants.colombiaCountry,
+    constants.ecuadorCountry,
+    constants.guyanaCountry,
+    constants.paraguayCountry,
+    constants.peruCountry,
+    constants.surinamCountry,
+    constants.uruguayCountry,
+    constants.venezuelaCountry,
+  ];
+}
+
+function getDocumentTypes() {
+  return [
+    constants.dniDocumentType,
+    constants.foreignCardDocumentType,
+    constants.passportDocumentType
+  ]
+}
+
+function getGenders() {
+  return [
+    constants.maleGender,
+    constants.femaleGender
+  ];
+}
+//#endregion
+
 async function seedContactTypes(model) {
-  await model.bulkCreate([
-    {
-      name: 'Phone',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Email',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    }
-  ]);
+  await model.bulkCreate(getContactTypes());
 }
 
 async function seedCountries(model) {
-  await model.bulkCreate([
-    {
-      name: 'Peru',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Ecuador',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Colombia',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Venezuela',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Guyana',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Surinam',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Brazil',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Paraguay',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Uruguay',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Argentina',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Chile',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    }
-  ]);
+  await model.bulkCreate(getCountries());
 }
 
 async function seedDocumentTypes(model) {
-  await model.bulkCreate([
-    {
-      name: 'DNI',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Passport',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Foreign card',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    }
-  ]);
+  await model.bulkCreate(getDocumentTypes());
 }
 
 async function seedGenders(model) {
-  await model.bulkCreate([
-    {
-      name: 'Male',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    },
-    {
-      name: 'Female',
-      createdAt: faker.date.past(),
-      updatedAt: new Date()
-    }
-  ]);
+  await model.bulkCreate(getGenders());
 }
 
 async function seedPeople(model) {
-  let countryIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-  let documentTypeIds = [1, 2, 3];
-  let contactTypeIds = [1, 2];
-  let people = [];
+  const people = [];
   for (let index = 0; index < 50; index++) {
-    let contactType1Id = faker.random.arrayElement(contactTypeIds);
-    let contactType2Id = faker.random.arrayElement(contactTypeIds);
+    const documentTypeId = faker.random.arrayElement(getDocumentTypes()).id;
+    let document = '';
+    if (documentTypeId === constants.dniDocumentType.id) {
+      document = faker.random.alphaNumeric(8).toUpperCase();
+    } else {
+      document = faker.random.alphaNumeric(12).toUpperCase();
+    }
+    const contactType1Id = faker.random.arrayElement(getContactTypes()).id;
+    const contactType2Id = faker.random.arrayElement(getContactTypes()).id;
     let contact1 = '';
     let contact2 = '';
-    if (contactType1Id == 1) {
-      contact1 = faker.phone.phoneNumber();
+    if (contactType1Id == constants.phoneContactType.id) {
+      contact1 = faker.random.number({ min: 100000, max: 999999999 });
     } else {
       contact1 = faker.internet.email();
     }
-    if (contactType2Id == 1) {
-      contact2 = faker.phone.phoneNumber();
+    if (contactType2Id == constants.phoneContactType.id) {
+      contact2 = faker.random.number({ min: 100000, max: 999999999 });
     } else {
       contact2 = faker.internet.email();
     }
@@ -135,10 +85,10 @@ async function seedPeople(model) {
       name: faker.name.firstName(),
       lastName: faker.name.lastName(),
       birthdate: faker.date.past(),
-      document: faker.random.alphaNumeric(8).toUpperCase(),
-      documentTypeId: faker.random.arrayElement(documentTypeIds),
+      document,
+      documentTypeId,
       genderId: ((index % 2 === 0) ? 1 : 2),
-      countryId: faker.random.arrayElement(countryIds),
+      countryId: faker.random.arrayElement(getCountries()).id,
       contact1,
       contactType1Id,
       contact2,
@@ -223,11 +173,6 @@ async function seedKinships(model) {
       personId: 2,
       relativeId: 6,
       kinshipType: constants.motherKinshipType.id
-    },
-    {
-      personId: 1,
-      relativeId: 3,
-      kinshipType: constants.fatherKinshipType.id
     },
     {
       personId: 1,
