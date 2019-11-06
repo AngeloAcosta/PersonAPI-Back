@@ -1070,8 +1070,9 @@ module.exports = function setupSharedService(models) {
   async function doListKinships(query) {
     // Find all people that satisfy the query
     const whereClause = { [Op.like]: `%${query}%` };
+    // TODO: move this to person.service
     const people = await personModel.findAll({
-      where: { [Op.or]: [{ name: whereClause }, { lastName: whereClause }], isGhost: false }
+      where: { [Op.or]: [{ name: whereClause }, { lastName: whereClause }], isGhost: false, isDeleted: false }
     });
     // Find and concatenate the kinships of each person
     let kinships = [];
