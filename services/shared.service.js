@@ -909,7 +909,7 @@ module.exports = function setupSharedService(models) {
   function getSimpleTreeNode(relative, kinshipType) {
     const treeNode = { relative: null, kinshipType: null };
     if (kinshipType) treeNode.kinshipType = kinshipType;
-    if (relative) treeNode.relative = { name: relative.name, lastName: relative.lastName };
+    if (relative) treeNode.relative = { id: relative.id, name: relative.name, lastName: relative.lastName };
     return treeNode;
   }
 
@@ -1052,7 +1052,7 @@ module.exports = function setupSharedService(models) {
     const kinships = await kinshipModel.findAll();
     const tree = await getComparingTree(person.id, kinships);
     // Build the tree object
-    const owner = { name: person.name, lastName: person.lastName };
+    const owner = { id: person.id, name: person.name, lastName: person.lastName };
     const levels = [];
     buildFirstTreeLevel(tree, levels);
     buildSecondTreeLevel(tree, levels);
