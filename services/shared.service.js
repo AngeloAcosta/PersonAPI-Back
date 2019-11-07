@@ -557,6 +557,23 @@ module.exports = function setupSharedService(models) {
     }
   }
 
+  async function testSetCoupleKinshipModify(personId, relativeId, kinships) {
+    // Check if there's a couple kinship registered, and if so, update it and its counterpart
+    const coupleKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.coupleKinshipType.id);
+    // Remove kinship from kinships
+    const removeKinshipFromKinships = (item) => { return kinships.filter( e => e !== item ); };
+    if (coupleKinship) {
+      const coupleKinshipCounterpart = kinships.find(k => k.personId === coupleKinship.relativeId && k.relativeId === personId && k.kinshipType === constants.coupleKinshipType.id);
+      kinships = removeKinshipFromKinships(coupleKinship);
+      kinships = removeKinshipFromKinships(coupleKinshipCounterpart);
+    }
+    // Else, register the new couple kinship and its counterpart
+    else {
+      kinships.push({ personId, relativeId, kinshipType: constants.coupleKinshipType.id });
+      kinships.push({ personId: relativeId, relativeId: personId, kinshipType: constants.coupleKinshipType.id });
+    }
+  }
+
   async function testSetFatherKinship(personId, relativeId, kinships) {
     // Check if there's a father kinship registered
     const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
@@ -576,6 +593,16 @@ module.exports = function setupSharedService(models) {
       kinships.push({ personId, relativeId: ghostMother.id, kinshipType: constants.motherKinshipType.id });
       kinships.push({ personId, relativeId, kinshipType: constants.fatherKinshipType.id });
     }
+  }
+
+  async function testSetFatherKinshipModify(personId, relativeId, kinships) {
+    // Check if there's a father kinship registered
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
+    // Create ghostFather
+    const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
+    kinships
+      .filter(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id && k.relativeId === fatherKinship.relativeId)
+      .forEach(k => k.relativeId = ghostFather.id);
   }
 
   async function testCreateKinship(kinship) {
@@ -622,6 +649,20 @@ module.exports = function setupSharedService(models) {
     await testSetFatherKinship(motherId, relativeId, kinships);
   }
 
+  async function testSetMaternalGrandfatherKinshipModify(personId, relativeId, kinships) {
+    // Declare temp variable to hold the intermediate mother id
+    let motherId;
+    // Check if the person has a registered mother kinship
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
+    // If so, then save the id of that mother
+      const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
+      motherId = motherKinship.relativeId;
+      // Assign father ghost for the mother
+      kinships
+      .filter(k => k.personId === motherId && k.kinshipType === constants.fatherKinshipType.id && k.relativeId === relativeId)
+      .forEach(k => k.relativeId = ghostFather.id);
+  }
+
   async function testSetMaternalGrandmotherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate mother id
     let motherId;
@@ -645,6 +686,20 @@ module.exports = function setupSharedService(models) {
     await testSetMotherKinship(motherId, relativeId, kinships);
   }
 
+  async function testSetMaternalGrandmotherKinshipModify(personId, relativeId, kinships) {
+    // Declare temp variable to hold the intermediate mother id
+    let motherId;
+    // Check if the person has a registered mother kinship
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
+    // If so, then save the id of that mother
+      const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
+      motherId = motherKinship.relativeId;
+      // Assign ghost mother for the mother
+      kinships
+      .filter(k => k.personId === motherId && k.kinshipType === constants.motherKinshipType.id && k.relativeId === relativeId)
+      .forEach(k => k.relativeId = ghostMother.id);
+  }
+
   async function testSetMotherKinship(personId, relativeId, kinships) {
     // Check if there's a mother kinship registered
     const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
@@ -664,6 +719,16 @@ module.exports = function setupSharedService(models) {
       kinships.push({ personId, relativeId: ghostFather.id, kinshipType: constants.fatherKinshipType.id });
       kinships.push({ personId, relativeId, kinshipType: constants.motherKinshipType.id });
     }
+  }
+
+  async function testSetMotherKinshipModify(personId, relativeId, kinships) {
+    // Check if there's a mother kinship registered
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
+    // Create a ghost mother
+      const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
+      kinships
+        .filter(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id && k.relativeId === motherKinship.relativeId)
+        .forEach(k => k.relativeId = ghostMother.id); 
   }
 
   async function testSetPaternalGrandfatherKinship(personId, relativeId, kinships) {
@@ -688,6 +753,19 @@ module.exports = function setupSharedService(models) {
     await testSetFatherKinship(fatherId, relativeId, kinships);
   }
 
+  async function testSetPaternalGrandfatherKinshipModify(personId, relativeId, kinships) {
+    // Declare temp variable to hold the intermediate father id
+    let fatherId;
+    // Check if the person has a registered father kinship
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
+    const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
+    fatherId = fatherKinship.relativeId;
+    // Assign father ghost for the father
+    kinships
+            .filter(k => k.personId === fatherId && k.kinshipType === constants.fatherKinshipType.id && k.relativeId === relativeId)
+            .forEach(k => k.relativeId = ghostFather.id);
+  }
+
   async function testSetPaternalGrandmotherKinship(personId, relativeId, kinships) {
     // Declare temp variable to hold the intermediate father id
     let fatherId;
@@ -709,6 +787,19 @@ module.exports = function setupSharedService(models) {
     // Use the testSetMotherKinship method to register the new grandmother as the mother of the person's father
     // It also makes sure that a ghost grandfather is created
     await testSetMotherKinship(fatherId, relativeId, kinships);
+  }
+
+  async function testSetPaternalGrandmotherKinshipModify(personId, relativeId, kinships) {
+    // Declare temp variable to hold the intermediate father id
+    let fatherId;
+    // Check if the person has a registered father kinship
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
+      const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
+      fatherId = fatherKinship.relativeId;
+      // Assign ghost mother for the father
+      kinships
+      .filter(k => k.personId === fatherId && k.kinshipType === constants.motherKinshipType.id && k.relativeId === relativeId)
+      .forEach(k => k.relativeId = ghostMother.id);  
   }
 
   async function testSetSiblingKinship(personId, relativeId, kinships) {
@@ -752,6 +843,47 @@ module.exports = function setupSharedService(models) {
     }
   }
 
+  async function testSetSiblingKinshipModify(personId, relativeId, kinships) {
+    // Declare temp variables to hold the parents ids
+    let fatherId;
+    let motherId;
+    // Get the father's kinship
+    const fatherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.fatherKinshipType.id);
+    // Get the mother's kinship
+    const motherKinship = kinships.find(k => k.personId === personId && k.kinshipType === constants.motherKinshipType.id);
+    // Create ghost father
+    const ghostFather = await personModel.create({ genderId: 1, isGhost: true, isDeleted: false });
+    // Create ghost mother
+    const ghostMother = await personModel.create({ genderId: 2, isGhost: true, isDeleted: false });
+    // Save both parents ids
+    fatherId = fatherKinship.relativeId;
+    motherId = motherKinship.relativeId;
+    // Asign ghost father
+    kinships
+      .filter(k => k.personId === relativeId && k.kinshipType === constants.fatherKinshipType.id && k.relativeId === fatherId)
+      .forEach(k => k.relativeId = ghostFather.id);
+    // Asign ghost Mother
+    kinships
+    .filter(k => k.personId === relativeId && k.kinshipType === constants.motherKinshipType.id && k.relativeId === motherId)
+    .forEach(k => k.relativeId = ghostMother.id);
+  }
+
+  async function testModifyKinship(kinship) {
+    // Get all kinships into a test array
+    let kinships = await kinshipModel.findAll();
+    // Get tree using test array
+    const currentTree = await getComparingTree(kinship.personId, kinships);
+    // Update test kinships array
+    const currentKinshipType = await getExistingKinshipType(kinship.personId, kinship.relativeId);
+    const oldKinship = { personId: kinship.personId, relativeId: kinship.relativeId, kinshipType: currentKinshipType };
+    await updateTestKinshipsModify(oldKinship, kinships);
+    await updateTestKinships(kinship, kinships);
+    // Get updated tree using test array
+    const updatedTree = await getComparingTree(kinship.personId, kinships);
+    // Compare trees and return the result
+    return getTreesComparingResult(currentTree, updatedTree);
+  }
+
   async function updateTestKinships(kinship, kinships) {
     switch (kinship.kinshipType) {
       // Create couple kinship
@@ -785,6 +917,43 @@ module.exports = function setupSharedService(models) {
       // Create maternal grandmother kinship
       case constants.maternalGrandmotherKinshipType.id:
         await testSetMaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
+        break;
+    }
+  }
+
+  async function updateTestKinshipsModify(kinship, kinships) {
+    switch (kinship.kinshipType) {
+      // Modify couple kinship
+      case constants.coupleKinshipType.id:
+        await testSetCoupleKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify father kinship
+      case constants.fatherKinshipType.id:
+        await testSetFatherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify mother kinship
+      case constants.motherKinshipType.id:
+        await testSetMotherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify sibling kinship
+      case constants.siblingKinshipType.id:
+        await testSetSiblingKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify paternal grandfather kinship
+      case constants.paternalGrandfatherKinshipType.id:
+        await testSetPaternalGrandfatherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify paternal grandmother kinship
+      case constants.paternalGrandmotherKinshipType.id:
+        await testSetPaternalGrandmotherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify maternal grandfather kinship
+      case constants.maternalGrandfatherKinshipType.id:
+        await testSetMaternalGrandfatherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        break;
+      // Modify maternal grandmother kinship
+      case constants.maternalGrandmotherKinshipType.id:
+        await testSetMaternalGrandmotherKinshipModify(kinship.personId, kinship.relativeId, kinships);
         break;
     }
   }
@@ -1036,6 +1205,17 @@ module.exports = function setupSharedService(models) {
     if (errors.length > 0) {
       return;
     }
+    // Validate non existing kinship type
+    const kinshipType = await getExistingKinshipType(kinship.personId, kinship.relativeId);
+    if (!kinshipType) {
+      errors.push('A kinship between these two people does not exist');
+      return;
+    }
+    // Validate same kinship type
+    if (kinshipType === kinship.kinshipType) {
+      errors.push('The kinship already exists between these two people');
+      return;
+    }
   }
   //#endregion
 
@@ -1193,6 +1373,20 @@ module.exports = function setupSharedService(models) {
     return baseService.getServiceResponse(200, 'Success', {});
   }
 
+  async function modifyPersonKinshipTest(kinship) {
+    // Validate modify
+    const errors = [];
+    await validateKinshipModify(kinship, errors);
+    // If errors were gound, return 400
+    if (errors.length > 0) {
+      return baseService.getServiceResponse(400, errors.join('\n'), {});
+    }
+    // Else, test the kinship modify
+    const personData = await testModifyKinship(kinship);
+    // And return 200
+    return baseService.getServiceResponse(200, 'Success', personData);
+  }
+
   return {
     buildPersonKinshipsTree,
     createPersonKinship,
@@ -1201,6 +1395,7 @@ module.exports = function setupSharedService(models) {
     deletePersonKinship,
     doListKinships,
     doListPersonKinships,
-    modifyPersonKinship
+    modifyPersonKinship,
+    modifyPersonKinshipTest
   };
 }

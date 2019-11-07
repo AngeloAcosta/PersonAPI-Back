@@ -16,6 +16,7 @@ router.get('/:id/kinships/tree', personController.getKinshipsTree);
 router.post('/:id/kinships', personController.postKinships);
 router.put('/:personId/kinships/:relativeId', personController.putKinships);
 router.post('/:id/kinships/test', personController.postKinshipsTest);
+router.put('/:personId/kinships/:relativeId/test', personController.putKinshipsTest);
 router.post('/:id/restore', personController.postRestore);
 router.delete('/:personId/kinships/:relativeId', personController.deleteKinships);
 
