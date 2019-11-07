@@ -176,11 +176,11 @@ async function seedKinships(model) {
     },
     {
       personId: 1,
-      relativeId: 13,
+      relativeId: 12,
       kinshipType: constants.coupleKinshipType.id
     },
     {
-      personId: 13,
+      personId: 12,
       relativeId: 1,
       kinshipType: constants.coupleKinshipType.id
     }
