@@ -63,7 +63,7 @@ async function seedPeople(model) {
     const documentTypeId = faker.random.arrayElement(getDocumentTypes()).id;
     let document = '';
     if (documentTypeId === constants.dniDocumentType.id) {
-      document = faker.random.alphaNumeric(8).toUpperCase();
+      document = faker.random.number({ min: 10000000, max: 99999999 });;
     } else {
       document = faker.random.alphaNumeric(12).toUpperCase();
     }
@@ -176,11 +176,11 @@ async function seedKinships(model) {
     },
     {
       personId: 1,
-      relativeId: 13,
+      relativeId: 12,
       kinshipType: constants.coupleKinshipType.id
     },
     {
-      personId: 13,
+      personId: 12,
       relativeId: 1,
       kinshipType: constants.coupleKinshipType.id
     }
