@@ -281,11 +281,11 @@ const putKinshipsTest = async (request, response) => {
     const sharedService = await serviceContainer('shared');
     // Get the kinship from the request
     const kinship = {
-      personId: request.params.id && parseInt(request.params.id),
-      relativeId: request.body.relativeId && parseInt(request.body.relativeId),
+      personId: request.params.personId && parseInt(request.params.personId),
+      relativeId: request.params.relativeId && parseInt(request.params.relativeId),
       kinshipType: request.body.kinshipType
     };
-    // Test the kinship creation
+    // Test the kinship modify
     const personData = await sharedService.modifyPersonKinshipTest(kinship);
     // Return the data
     responseCode = personData.responseCode;
