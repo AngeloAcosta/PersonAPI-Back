@@ -100,7 +100,7 @@ module.exports = function setupPersonService(personModel) {
   function validateContact(contactTypeId, contact, errors) {
     // Assuming that the contactTypeId is not null
     const phoneRegex = /^([0-9]){6,9}$/;
-    const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
     if (![1, 2].includes(contactTypeId)) {
       errors.push('Invalid submitted contact type');
     } else if (contactTypeId === 1 && !phoneRegex.test(contact)) {
