@@ -1024,34 +1024,42 @@ module.exports = function setupSharedService(models) {
       // Modify couple kinship
       case constants.coupleKinshipType.id:
         await testSetCoupleKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetCoupleKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Modify father kinship
       case constants.fatherKinshipType.id:
         await testSetFatherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetFatherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Modify mother kinship
       case constants.motherKinshipType.id:
         await testSetMotherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetMotherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Modify sibling kinship
       case constants.siblingKinshipType.id:
         await testSetSiblingKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetSiblingKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Modify paternal grandfather kinship
       case constants.paternalGrandfatherKinshipType.id:
         await testSetPaternalGrandfatherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetPaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Modify paternal grandmother kinship
       case constants.paternalGrandmotherKinshipType.id:
         await testSetPaternalGrandmotherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetPaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
       // Modify maternal grandfather kinship
       case constants.maternalGrandfatherKinshipType.id:
         await testSetMaternalGrandfatherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetMaternalGrandfatherKinship(kinship.personId, kinship.relativeId, kinships);      
         break;
       // Modify maternal grandmother kinship
       case constants.maternalGrandmotherKinshipType.id:
         await testSetMaternalGrandmotherKinshipModify(kinship.personId, kinship.relativeId, kinships);
+        await testSetMaternalGrandmotherKinship(kinship.personId, kinship.relativeId, kinships);
         break;
     }
   }
